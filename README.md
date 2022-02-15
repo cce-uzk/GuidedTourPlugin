@@ -200,10 +200,10 @@ ilGuidedTour.goTo('url');
     ```yaml
     {
       element: ".il-mainbar", // Bsp. Bindung an ein HTML Element
-      element: ilGuidedTour.getMainbarElementByIndex(0), // Bindung an das oberste Hauptmenue-Element
-      element: ilGuidedTour.getSlateElementByIndex(0), // Bindung an das oberste Sub-Hauptmenue-Element
-      element: ilGuidedTour.getTabElementByIndex(0), // Bindung an das erste Tab-Element
-      element: ilGuidedTour.getSubTabElementByIndex(0), // Bindung an das erste Sub-Tab-Element  
+      element: ilGuidedTour.getMainbarElementByIndex(1), // Bindung an das oberste Hauptmenue-Element
+      element: ilGuidedTour.getSlateElementByIndex(1), // Bindung an das oberste Sub-Hauptmenue-Element
+      element: ilGuidedTour.getTabElementByIndex(1), // Bindung an das erste Tab-Element
+      element: ilGuidedTour.getSubTabElementByIndex(1), // Bindung an das erste Sub-Tab-Element  
       title: "titel",
       content: "text",
     }
@@ -217,14 +217,14 @@ ilGuidedTour.goTo('url');
       element: ".il-mainbar", // Beispiel Bindung an ein Element
       onNext: function (tour) { 
           // Hier kann eine Aktion eingefügt werden, die beim Klick auf 'Weiter' ausgeführt wird.
-          ilGuidedTour.clickMainbarElementByIndex(0); // Simuliert einen "Klick" auf das oberste Hauptmenue-Element
-          ilGuidedTour.clickSlateElementByIndex(0); // Simuliert einen "Klick" auf das oberste Sub-Hauptmenue-Element
+          ilGuidedTour.clickMainbarElementByIndex(1); // Simuliert einen "Klick" auf das oberste Hauptmenue-Element
+          ilGuidedTour.clickSlateElementByIndex(1); // Simuliert einen "Klick" auf das oberste Sub-Hauptmenue-Element
           ilGuidedTour.goTo('url'); // Aufruf einer bestimmten Url
       },
       onPrev: function (tour) {
           // Hier kann eine Aktion eingefügt werden, die beim Klick auf 'Zurück' ausgeführt wird.
-          ilGuidedTour.clickTabElementByIndex(0); // Simuliert einen "Klick" auf das erste Tab-Element
-          ilGuidedTour.clickSubTabElementByIndex(0); // Simuliert einen "Klick" auf das erste Sub-Tab-Element
+          ilGuidedTour.clickTabElementByIndex(1); // Simuliert einen "Klick" auf das erste Tab-Element
+          ilGuidedTour.clickSubTabElementByIndex(1); // Simuliert einen "Klick" auf das erste Sub-Tab-Element
           ilGuidedTour.goTo('url'); // Aufruf einer bestimmten Url
       } 
       title: "titel",
