@@ -1,0 +1,45 @@
+// 
+// German Language File for GuidedTour Plugin
+//
+ 
+<!-- language file start -->
+config#:#Konfiguration
+config_storage#:#Fortschritt speichern?
+tab_title#:#Einf&uuml;hrungstour
+tour_btn_next#:#Weiter
+tour_btn_previous#:#Zur&uuml;ck
+tour_btn_stop#:#Tour beenden
+tour_btn_start#:#Tour starten
+tour_btn_pause#:#Tour pausieren
+save_success#:#Speichern erfolgreich
+save_failure#:#Speichern fehlgeschlagen!
+nothing_changed#:#Keine &Auml;nderungen
+forbidden_header#:#Keine Berechtigung!
+default_tours#:#Allgemeine Einf&uuml;hrungstour
+context_tours#:#Objektbezogene Einf&uuml;hrungstour
+tour_title#:#Titel
+tour_type#:#Objekttyp
+tour_active#:#Aktiv
+tour_script#:#Skript
+tour_icon#:#Icon
+tour_deactivated#:#Tour deaktiviert
+tour_activated#:#Tour aktiviert
+edit_tour#:#Tour bearbeiten
+delete_tour#:#Tour l&ouml;schen
+add_tour#:#Tour erstellen
+delete_tour#:#Tour l&ouml;schen
+tour_type_any#:#Global (Standard)
+tour_type_crs#:#Kurs
+tour_type_grp#:#Gruppe
+tour_type_fold#:#Ordner
+tour_type_tst#:#Test
+tour_type_exc#:#&Uuml;bung
+tour_type_book#:#Buchungspool
+tour_type_ildashboardgui#:#Dashboard
+tour_type_ilmembershipoverviewgui#:#Kurse und Gruppen
+tour_type_info#:#Objekttyp, bei dem die Tour angeboten werden soll
+tour_active_info#:#Die Tour wird nur geladen, wenn diese aktiv gesetzt ist
+tour_title_info#:#Anzeigename der Tour
+tour_icon_info#:#Anzeigesymbol (Icon) der Tour
+tour_script_info#:#Valides JavaScript zur Tour. Achtung: Fehler k&ouml;nnen (bei Aktivierung) zu Fehlfunktion aller aktiven Touren f&uuml;hren.
+tour_saved#:#&Auml;nderungen gespeichert

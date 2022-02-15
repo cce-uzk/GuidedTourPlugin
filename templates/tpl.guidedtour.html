@@ -1,0 +1,90 @@
+<!-- gtour -->
+<!--script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tour/0.12.0/js/bootstrap-tour-standalone.min.js"></script>
+<!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tour/0.12.0/css/bootstrap-tour-standalone.css"
+integrity="sha512-ORucsD7YODPUurPZ4qD14QH3p1hLaNNtLH1mGvAWvNpAQ3LsotwDXE6er5GwAKW2LzX/Sg1T5Y502DbCwIQQpQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />-->
+
+<script type="text/javascript">
+    function removeParam(parameter)
+    {
+        var url=document.location.href;
+        var urlparts= url.split('?');
+
+        if (urlparts.length>=2)
+        {
+            var urlBase=urlparts.shift();
+            var queryString=urlparts.join("?");
+
+            var prefix = encodeURIComponent(parameter)+'=';
+            var pars = queryString.split(/[&;]/g);
+            for (var i= pars.length; i-->0;)
+                if (pars[i].lastIndexOf(prefix, 0)!==-1)
+                    pars.splice(i, 1);
+            url = urlBase+'?'+pars.join('&');
+            window.history.pushState('',document.title,url); // added this line to push the new url directly to url bar .
+
+        }
+        return url;
+    }
+
+    $(function() {
+
+        //(function () {
+        var tour;
+        const tours = {{GTOUR_TOURS}};
+        const disabledTours = '{GTOUR_DISABLED_TOURS}';
+        const tourName = '{GTOUR_NAME}';
+        const tourStart = '{GTOUR_START}';
+        const tourStorage = {GTOUR_STORAGE};
+        const tourTemplate = `
+        <div class='popover tour'>
+          <div class='arrow'></div>
+          <h4 class='popover-title'></h4>
+          <div class='popover-content'></div>
+          <div class='popover-navigation' style='padding: 9px 12px'>
+            <button class='btn-default btn-sm' data-role='prev'>« {GTOUR_BTN_PREV}</button><span data-role='separator'>|</span>
+            <button class='btn-default btn-sm' data-role='next'>{GTOUR_BTN_NEXT} »</button><span data-role='separator'>|</span>
+            <button class='btn-default btn-sm' data-role='end'>{GTOUR_BTN_STOP}</button>
+          </div>
+        </div>`;
+        let tourCurrentName = '{GTOUR_CURRENT_NAME}';
+        if(!(!tourCurrentName || tourCurrentName.length === 0)){
+            sessionStorage.setItem('{GTOUR_NAME}_current_name', tourCurrentName);
+        } else if (sessionStorage.getItem('{GTOUR_NAME}_current_name')) {
+            tourCurrentName = sessionStorage.getItem('{GTOUR_NAME}_current_name');
+        }
+
+        let steps = '';
+        if(!(!tours || tours.length === 0)) {
+            steps = tours[tourCurrentName];
+        }
+
+        tour = new Tour({
+            name: tourName,
+            framework: 'bootstrap3',
+            storage: tourStorage,
+            //showProgressBar: true,
+            //showProgressText: true,
+            smartPlacement: true,
+            //orphan: true,
+            //backdrop: true,
+            //backdropContainer: 'body',
+            //backdropPadding: false,
+            template: tourTemplate,
+            onEnd: function(tour){
+                removeParam('triggerTour');
+            },
+            steps: steps
+        });
+
+        //tour.getCurrentStepIndex()
+        //tour.init();
+
+        if (tourStart == 'true') {
+            tour.restart();
+        } else {
+            tour.start();
+        }
+        //})();
+    }).delay( 300 );
+</script>
+<!-- End gtour Code -->  

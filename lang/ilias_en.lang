@@ -1,0 +1,17 @@
+// 
+// Englisch Language File for GuidedTour Plugin
+//
+ 
+<!-- language file start -->
+config#:#Configuration
+config_storage#:#Save progress?
+tab_title#:#Guided tour
+tour_btn_next#:#Next
+tour_btn_previous#:#Prev
+tour_btn_stop#:#Stop tour
+tour_btn_start#:#Start tour
+tour_btn_pause#:#Pause tour
+save_success#:#Successfully saved
+save_failure#:#Saving failed!
+nothing_changed#:#No changes
+forbidden_header#:#No Permission!

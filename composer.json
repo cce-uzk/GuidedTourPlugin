@@ -1,0 +1,43 @@
+{
+  "name": "uzk/gtour",
+  "description": "",
+  "type": "project",
+  "keywords": [
+    "ILIAS",
+    "Plugin"
+  ],
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "Universitaet zu Koeln - CompetenceCenter E-Learning",
+      "email": "nadimo.staszak@uni-koeln.de",
+      "role": "Developer"
+    }
+  ],
+  "support": {
+    "email": "nadimo.staszak@uni-koeln.de"
+  },
+  "require": {
+    "php": ">=7.0",
+    "ext-json": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "ILIAS\\" : "../../../../src",
+      "uzk\\gtour\\": "src/"
+    },
+    "classmap": [
+      "classes/"
+    ]
+  },
+  "config": {
+    "classmap-authoritative": true,
+    "optimize-autoloader": true,
+    "sort-packages": true
+  },
+  "scripts": {
+    "pre-autoload-dump": [
+    ]
+  }
+}
