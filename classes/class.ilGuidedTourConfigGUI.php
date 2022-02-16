@@ -20,8 +20,7 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
      */
     function performCommand($cmd)
     {
-        switch ($cmd)
-        {
+        switch ($cmd) {
             case "configure":
             case "showTourList":
             case "activateTour":
@@ -99,8 +98,7 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
         $pl = $this->getPluginObject();
 
         $form = $this->initConfigurationForm();
-        if ($form->checkInput())
-        {
+        if ($form->checkInput()) {
             $set1 = $form->getInput("setting_1");
             $set2 = $form->getInput("setting_2");
 
@@ -108,9 +106,7 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
 
             ilUtil::sendSuccess($pl->txt("saving_invoked"), true);
             $ilCtrl->redirect($this, "configure");
-        }
-        else
-        {
+        } else {
             $form->setValuesByPost();
             $tpl->setContent($form->getHtml());
         }
@@ -131,35 +127,27 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
         global $DIC;
         $pl = $this->getPluginObject();
 
-        if (isset($_POST['tour_id']))
-        {
+        if (isset($_POST['tour_id'])) {
             $tour_ids = (array)$_POST['tour_id'];
-        } elseif (isset($_GET['tour_id']))
-        {
+        } elseif (isset($_GET['tour_id'])) {
             $tour_ids = (array)$_GET['tour_id'];
         }
 
-        if (empty($tour_ids))
-        {
+        if (empty($tour_ids)) {
             ilUtil::sendFailure($pl->txt('no_tour_selected'), true);
-        } else
-        {
-            foreach ($tour_ids as $tour_id)
-            {
+        } else {
+            foreach ($tour_ids as $tour_id) {
                 var_dump($tour_id);
                 $tour = ilGuidedTour::getTourById($tour_id);
-                if(isset($tour))
-                {
+                if (isset($tour)) {
                     $tour->setActive($active);
                     $tour->save();
                 }
             }
 
-            if (count($tour_ids) == 1)
-            {
+            if (count($tour_ids) == 1) {
                 ilUtil::sendSuccess($pl->txt($active ? 'tour_activated' : 'tour_deactivated'), true);
-            } else
-            {
+            } else {
                 ilUtil::sendSuccess($pl->txt($active ? 'tours_activated' : 'tours_deactivated'), true);
             }
         }
@@ -171,19 +159,15 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
         global $DIC;
         $pl = $this->getPluginObject();
 
-        if (isset($_POST['tour_id']))
-        {
+        if (isset($_POST['tour_id'])) {
             $tour_ids = (array)$_POST['tour_id'];
-        } elseif (isset($_GET['tour_id']))
-        {
+        } elseif (isset($_GET['tour_id'])) {
             $tour_ids = (array)$_GET['tour_id'];
         }
 
-        if (empty($tour_ids))
-        {
+        if (empty($tour_ids)) {
             ilUtil::sendFailure($pl->txt('no_tour_selected'), true);
-        } else
-        {
+        } else {
             ilGuidedTour::deleteTours($tour_ids);
         }
         $DIC->ctrl()->redirect($this, 'showTourList');
@@ -218,19 +202,17 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
     {
         global $DIC, $tpl;
         $form = $this->getTourForm($_GET['tour_id']);
-        if ($form->checkInput())
-        {
-            if (isset($_GET['tour_id']))
-            {
+        if ($form->checkInput()) {
+            if (isset($_GET['tour_id'])) {
                 $tour = ilGuidedTour::getTourById($_GET['tour_id']);
-            } else
-            {
+            } else {
                 $tour = ilGuidedTour::getDefaultTour();
             }
             $tour->setTitle($form->getInput('title'));
             $tour->setType($form->getInput('type'));
             $tour->setActive($form->getInput('active'));
             $tour->setScript($form->getInput('script'));
+            $tour->setRolesIds($form->getInput('roles'));
 
             $icon = $form->getItemByPostVar('icon');
             $tour->updateIcon($icon->getDeletionFlag());
@@ -238,8 +220,7 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
 
             ilUtil::sendSuccess($this->plugin_object->txt('tour_saved'), true);
             $DIC->ctrl()->redirect($this, 'showTourList');
-        } else
-        {
+        } else {
             $form->setValuesByPost();
             $tpl->setContent($form->getHTML());
         }
@@ -256,13 +237,11 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
         $ctrl = $DIC->ctrl();
         $lng = $DIC->language();
 
-        if (isset($a_tour_id) && $a_tour_id > 0)
-        {
+        if (isset($a_tour_id) && $a_tour_id > 0) {
             $tour = ilGuidedTour::getTourById($a_tour_id);
             $title = $this->plugin_object->txt('edit_tour');
             $ctrl->setParameter($this, 'tour_id', $a_tour_id);
-        } else
-        {
+        } else {
             $tour = ilGuidedTour::getDefaultTour();
             $title = $this->plugin_object->txt('add_tour');
         }
@@ -271,10 +250,16 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
         $form->setTitle($title);
         $form->setFormAction($ctrl->getFormAction($this));
 
+        // title
+        $title = new ilTextInputGUI($this->plugin_object->txt('tour_title'), 'title');
+        $title->setInfo($this->plugin_object->txt('tour_title_info'));
+        $title->setRequired(true);
+        $title->setValue($tour->getTitle());
+        $form->addItem($title);
+
         // types
         $options = [];
-        foreach (ilGuidedTour::getTypes() as $type)
-        {
+        foreach (ilGuidedTour::getTypes() as $type) {
             $options[$type] = $this->plugin_object->txt('tour_type_' . $type);
         }
         $type = new ilSelectInputGUI($this->plugin_object->txt('tour_type'), 'type');
@@ -284,17 +269,24 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
         $type->setValue($tour->getType());
         $form->addItem($type);
 
+        // activation
         $active = new ilCheckboxInputGUI($this->plugin_object->txt('tour_active'), 'active');
         $active->setInfo($this->plugin_object->txt('tour_active_info'));
         $active->setChecked($tour->isActive());
         $form->addItem($active);
 
-        $title = new ilTextInputGUI($this->plugin_object->txt('tour_title'), 'title');
-        $title->setInfo($this->plugin_object->txt('tour_title_info'));
-        $title->setRequired(true);
-        $title->setValue($tour->getTitle());
-        $form->addItem($title);
+        // roles
+        $access = new ilObjMainMenuAccess();
+        $roles = new ilMultiSelectInputGUI($this->plugin_object->txt('tour_roles'), 'roles');
+        $roles->setOptions($access->getGlobalRoles());
+        $roles->setInfo($this->plugin_object->txt('tour_roles_info'));
+        if(!empty($tour->getRolesIds())) {
+            $roles->setValue($tour->getRolesIds());
+            $roles->enableSelectAll(true);
+        }
+        $form->addItem($roles);
 
+        // icon
         $icon = new ilFileInputGUI($this->plugin_object->txt('tour_icon'), 'icon');
         $icon->setInfo($this->plugin_object->txt('tour_icon_info'));
         $icon->setSuffixes([ilMimeTypeUtil::IMAGE__SVG_XML, 'svg']);
@@ -305,6 +297,7 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
         }
         $form->addItem($icon);
 
+        // tour script
         $script = new ilTextAreaInputGUI($this->plugin_object->txt('tour_script'), 'script');
         $script->setInfo($this->plugin_object->txt('tour_script_info'));
         $script->setValue($tour->getScript());

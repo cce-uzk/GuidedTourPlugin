@@ -22,6 +22,7 @@ tour_type#:#Objekttyp
 tour_active#:#Aktiv
 tour_script#:#Skript
 tour_icon#:#Icon
+tour_roles#:#Globale Rollen
 tour_deactivated#:#Tour deaktiviert
 tour_activated#:#Tour aktiviert
 edit_tour#:#Tour bearbeiten
@@ -40,6 +41,7 @@ tour_type_ilmembershipoverviewgui#:#Kurse und Gruppen
 tour_type_info#:#Objekttyp, bei dem die Tour angeboten werden soll
 tour_active_info#:#Die Tour wird nur geladen, wenn diese aktiv gesetzt ist
 tour_title_info#:#Anzeigename der Tour
+tour_roles_info#:#Rollen, bei dem die Tour angeboten werden soll
 tour_icon_info#:#Anzeigesymbol (Icon) der Tour
-tour_script_info#:#Valides JavaScript zur Tour. Achtung: Fehler k&ouml;nnen (bei Aktivierung) zu Fehlfunktion aller aktiven Touren f&uuml;hren.
+tour_script_info#:#Valides JSON zur Tour. Achtung: Fehler k&ouml;nnen (bei Aktivierung) zu Fehlfunktion aller aktiven Touren f&uuml;hren.
 tour_saved#:#&Auml;nderungen gespeichert

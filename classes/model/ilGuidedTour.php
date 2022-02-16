@@ -13,6 +13,7 @@ class ilGuidedTour
     protected $active;
     protected $type;
     protected $script;
+    protected $rolesIds;
 
     public function setTourId($a_val)
     {
@@ -72,6 +73,35 @@ class ilGuidedTour
     public function isActive(): bool
     {
         return (bool)$this->active;
+    }
+
+    public function getRolesIds()
+    {
+        return $this->rolesIds;
+    }
+
+    public function setRolesIds($a_val)
+    {
+        $this->rolesIds = (array)$a_val;
+    }
+
+    private function getRolesIdsAsJSON() : string
+    {
+        if(isset($this->rolesIds)) {
+            return json_encode($this->rolesIds);
+        }
+        else {
+            return '';
+        }
+    }
+
+    private function setRolesIdsFromJSON($a_val)
+    {
+        if(isset($a_val)) {
+            $this->rolesIds = (array)json_decode((string)$a_val);
+        } else {
+            $this->rolesIds = array();
+        }
     }
 
     public function __construct()
@@ -168,7 +198,8 @@ class ilGuidedTour
             "title" => array('text', $this->getTitle()),
             "type" => array('text', $this->getType()),
             "script" => array('text', $this->getScript()),
-            "icon_id" => array('text', $this->getIconId())
+            "icon_id" => array('text', $this->getIconId()),
+            "roles_ids" => array('text', $this->getRolesIdsAsJSON())
         );
     }
 
@@ -181,7 +212,8 @@ class ilGuidedTour
             'title' => $this->getTitle(),
             'type' => $this->getType(),
             'script' => $this->getScript(),
-            "icon_id" => $this->getIconId()
+            "icon_id" => $this->getIconId(),
+            "roles_ids" => $this->getRolesIds()
         );
     }
 
@@ -212,6 +244,7 @@ class ilGuidedTour
         $this->setType($array['type']);
         $this->setScript($array['script']);
         $this->setIconId($array['icon_id']);
+        $this->setRolesIdsFromJSON($array['roles_ids']);
     }
 
     public static function getDefaultTour(): ilGuidedTour

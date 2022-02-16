@@ -35,6 +35,8 @@ class GuidedTourMainBarProvider extends AbstractStaticMainMenuPluginProvider
      */
     public function getStaticTopItems(): array
     {
+        global $DIC;
+        $userGlobalRoles = $DIC->rbac()->review()->assignedGlobalRoles($DIC->user()->getId());
         $mainBar = $this->globalScreen()->mainBar();
 
         $identificationInterface = function ($id) : IdentificationInterface {
@@ -73,6 +75,7 @@ class GuidedTourMainBarProvider extends AbstractStaticMainMenuPluginProvider
     public function getStaticSubItems(): array
     {
         global $DIC;
+        $userGlobalRoles = $DIC->rbac()->review()->assignedGlobalRoles($DIC->user()->getId());
         $mainBar = $this->globalScreen()->mainBar();
         $identificationInterface = function ($id) : IdentificationInterface {
             return $this->if->identifier($id);
@@ -85,7 +88,8 @@ class GuidedTourMainBarProvider extends AbstractStaticMainMenuPluginProvider
 
             $countDefaultTours = 0;
             foreach ($tours as $tour){
-                if($tour->getType() == \ilGuidedTour::TYPE_DEFAULT && $tour->isActive()) {
+                if($tour->getType() == \ilGuidedTour::TYPE_DEFAULT && $tour->isActive()
+                    && count(array_intersect($userGlobalRoles, $tour->getRolesIds())) > 0) {
 
                     $countDefaultTours++;
                     if($countDefaultTours == 1){
@@ -122,7 +126,8 @@ class GuidedTourMainBarProvider extends AbstractStaticMainMenuPluginProvider
 
             $countContextTours = 0;
             foreach ($tours as $tour){
-                if(($tour->getType() == $this->dic->ctrl()->getContextObjType() || in_array($DIC->ctrl()->getCmdClass(), array($tour->getType()))) && $tour->isActive()) {
+                if(($tour->getType() == $this->dic->ctrl()->getContextObjType() || in_array($DIC->ctrl()->getCmdClass(), array($tour->getType())))
+                    && $tour->isActive() && count(array_intersect($userGlobalRoles, $tour->getRolesIds())) > 0) {
 
                     $countContextTours++;
                     if($countContextTours == 1) {

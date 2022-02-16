@@ -35,6 +35,11 @@ if (!$db->tableExists('gtour_tours'))
             'type' => 'text',
             'length' => 250,
             'fixed' => false
+        ),
+        'roles_ids' => array(
+            'type' => 'text',
+            'length' => 1024,
+            'fixed' => false
         )
     );
 

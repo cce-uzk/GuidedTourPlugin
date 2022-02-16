@@ -42,11 +42,12 @@ Inaktive Touren werden den Benutzer:innen nicht angeboten und auch nicht in das 
 Zum Anlegen einer neuen Tour muss unter `Konfiguration` der Button `Tour erstellen` gedrückt werden.
 Soll eine bestehende Tour bearbeitet werden, so kann im jeweiligen Kontextmenü zur Tour `Bearbeiten` 
 gewählt werden.
+* Über den `Titel` wird der Anzeigename der Tour im Hauptmenü gesetzt.
 * Über das Feld `Objekttyp` wird gesteuert, bei welcher Objekt-Anzeige die Tour angeboten werden soll. 
   Wählt man hier `Global (Standard)`, so wird die Tour Instanzweit angeboten, wird z.B. `Kurs` gewählt, 
   so wird die Tour nur bei Anzeige eines Kurses angeboten.
 * Über das Feld `Aktiv` kann das Objekt in der Anzeige im Frontend aktiv bzw. inaktiv geschaltet werden.
-* Über den `Titel` wird der Anzeigename der Tour im Hauptmenü gesetzt.
+* Über die Auswahl `Globale Rollen` werden die Rollen ausgewählt, bei denen die Tour im Frontend angeboten wird.
 * Über das `Icon` können `.svg` Icons für die Tour-Anzeige im Hauptmenü eingebunden werden.
 * Im Feld `Skript` wird die Tour in ihren Schritten definiert, die Eingabe muss als gültiges `json` erfolgen. 
   Der Inhalt des Feldes wird direkt als Tour-Schritte in die Applikation geladen.

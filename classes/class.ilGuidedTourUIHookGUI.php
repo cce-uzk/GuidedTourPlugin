@@ -40,7 +40,7 @@ class ilGuidedTourUIHookGUI extends ilUIHookPluginGUI
      */
     function getHTML($a_comp, $a_part, $a_par = array())
     {
-        global $ilCtrl, $ilUser, $tpl;
+        global $DIC, $ilCtrl, $ilUser, $tpl;
         $usr_id = $ilUser->getId();
         $is_logged_in = ($usr_id && $usr_id != ANONYMOUS_USER_ID);
 
@@ -56,9 +56,10 @@ class ilGuidedTourUIHookGUI extends ilUIHookPluginGUI
 
                     $toursString = '';
                     $tours = ilGuidedTour::getTours();
+                    $userGlobalRoles = $DIC->rbac()->review()->assignedGlobalRoles($usr_id);
                     if(isset($tours)){
                         foreach ($tours as $tour){
-                            if($tour->isActive()) {
+                            if($tour->isActive() && count(array_intersect($userGlobalRoles, $tour->getRolesIds())) > 0) {
                                 $toursString = $toursString . '\'' . $this->getPluginObject()->getId() . '-' . $tour->getTourId() . '\': [' . $tour->getScript() . '],';
                             }
                         }
