@@ -18,8 +18,6 @@ unlink gtour.zip
 
 Update and activate the plugin in the ILIAS Plugin Administration
 
-Look after `TODO`'s in the plugin code. May you can remove some files (For example config) depending on your use. Also override this initial Readme
-
 ## Requirements
 
 * ILIAS 6.0 - 7.999
