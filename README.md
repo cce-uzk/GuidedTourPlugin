@@ -9,8 +9,8 @@ Start at your ILIAS root directory. It is assumed the generated downloaded plugi
 Run the follow commands:
 
 ```bash
-mkdir -p Customizing/global/plugins
-cd Customizing/global/plugins
+mkdir -p Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/GuidedTour
+cd Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/GuidedTour
 mv ~/Downloads/gtour.zip gtour.zip
 unzip gtour.zip
 unlink gtour.zip
