@@ -57,6 +57,7 @@ class ilGuidedTour
 
     public function setScript($a_val)
     {
+        $a_val = str_replace("< ", "<", $a_val);
         $this->script = (string)$a_val;
     }
 
