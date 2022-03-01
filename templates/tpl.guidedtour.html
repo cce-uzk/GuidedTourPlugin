@@ -1,36 +1,31 @@
 <!-- gtour -->
-<!--script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tour/0.12.0/js/bootstrap-tour-standalone.min.js"></script>
-<!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tour/0.12.0/css/bootstrap-tour-standalone.css"
-integrity="sha512-ORucsD7YODPUurPZ4qD14QH3p1hLaNNtLH1mGvAWvNpAQ3LsotwDXE6er5GwAKW2LzX/Sg1T5Y502DbCwIQQpQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />-->
-
 <script type="text/javascript">
     function removeParam(parameter)
     {
-        var url=document.location.href;
-        var urlparts= url.split('?');
+        let url = document.location.href;
+        let urlParts = url.split('?');
 
-        if (urlparts.length>=2)
+        if (urlParts.length>=2)
         {
-            var urlBase=urlparts.shift();
-            var queryString=urlparts.join("?");
+            let urlBase = urlParts.shift();
+            let queryString = urlParts.join("?");
 
-            var prefix = encodeURIComponent(parameter)+'=';
-            var pars = queryString.split(/[&;]/g);
-            for (var i= pars.length; i-->0;)
-                if (pars[i].lastIndexOf(prefix, 0)!==-1)
+            let prefix = encodeURIComponent(parameter) + '=';
+            let pars = queryString.split(/[&;]/g);
+            for (let i = pars.length; i-->0;)
+                if (pars[i].lastIndexOf(prefix, 0) !== -1)
                     pars.splice(i, 1);
-            url = urlBase+'?'+pars.join('&');
-            window.history.pushState('',document.title,url); // added this line to push the new url directly to url bar .
+            url = urlBase + '?' + pars.join('&');
 
+            // Push the new URL directly to URL-Bar
+            window.history.pushState('',document.title,url);
         }
         return url;
     }
 
     $(function() {
-        //(function () {
         let tour;
         const tours = {{GTOUR_TOURS}};
-        const disabledTours = '{GTOUR_DISABLED_TOURS}';
         const tourName = '{GTOUR_NAME}';
         const tourStart = '{GTOUR_START}';
         const tourStorage = {GTOUR_STORAGE};
@@ -45,6 +40,7 @@ integrity="sha512-ORucsD7YODPUurPZ4qD14QH3p1hLaNNtLH1mGvAWvNpAQ3LsotwDXE6er5GwAK
             <button class='btn-default btn-sm' data-role='end'>{GTOUR_BTN_STOP}</button>
           </div>
         </div>`;
+
         let tourCurrentName = '{GTOUR_CURRENT_NAME}';
         if(!(!tourCurrentName || tourCurrentName.length === 0)){
             sessionStorage.setItem('{GTOUR_NAME}_current_name', tourCurrentName);
@@ -61,13 +57,7 @@ integrity="sha512-ORucsD7YODPUurPZ4qD14QH3p1hLaNNtLH1mGvAWvNpAQ3LsotwDXE6er5GwAK
             name: tourName,
             framework: 'bootstrap3',
             storage: tourStorage,
-            //showProgressBar: true,
-            //showProgressText: true,
             smartPlacement: true,
-            //orphan: true,
-            //backdrop: true,
-            //backdropContainer: 'body',
-            //backdropPadding: false,
             template: tourTemplate,
             onEnd: function(tour){
                 removeParam('triggerTour');
@@ -75,15 +65,11 @@ integrity="sha512-ORucsD7YODPUurPZ4qD14QH3p1hLaNNtLH1mGvAWvNpAQ3LsotwDXE6er5GwAK
             steps: steps
         });
 
-        //tour.getCurrentStepIndex()
-        //tour.init();
-
         if (tourStart == 'true') {
             tour.restart();
         } else {
             tour.start();
         }
-        //})();
     }).delay( 300 );
 </script>
 <!-- End gtour Code -->  

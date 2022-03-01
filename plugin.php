@@ -5,7 +5,7 @@ require_once __DIR__ . "/vendor/autoload.php";
 $id = "gtour";
 
 // code version; must be changed for all code changes
-$version = "0.0.4";
+$version = "1.0.0";
 
 // ilias min and max version; must always reflect the versions that should
 // run with the plugin
