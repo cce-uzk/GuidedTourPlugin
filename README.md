@@ -3,20 +3,32 @@
 ####Nadimo Staszak
 
 ## Installation
-
-Start at your ILIAS root directory. It is assumed the generated downloaded plugin `gtour.zip` is in your download folder `~/Downloads`. Otherwise please adjust the commands below
+### Download via ZIP
+Start at your ILIAS root directory. It is assumed the generated downloaded plugin `gtour.zip` is in your download folder `~/Downloads`. 
+Otherwise please adjust the commands below.
 
 Run the follow commands:
-
 ```bash
 mkdir -p Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/GuidedTour
 cd Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/GuidedTour
 mv ~/Downloads/gtour.zip gtour.zip
 unzip gtour.zip
 unlink gtour.zip
-```
 
 Update and activate the plugin in the ILIAS Plugin Administration
+```
+
+### Download via GIT
+Start at your ILIAS root directory.
+
+Run the follow commands:
+```bash
+mkdir -p Customizing/global/plugins/Services/UIComponent/UserInterfaceHook
+cd Customizing/global/plugins/Services/UIComponent/UserInterfaceHook
+git clone https://github.com/cce-uzk/GuidedTourPlugin.git GuidedTour
+
+Update and activate the plugin in the ILIAS Plugin Administration
+```
 
 ## Requirements
 
