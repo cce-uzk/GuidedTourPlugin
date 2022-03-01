@@ -30,6 +30,14 @@ git clone https://github.com/cce-uzk/GuidedTourPlugin.git GuidedTour
 Update and activate the plugin in the ILIAS Plugin Administration
 ```
 
+## Update
+Start at your ILIAS root directory.
+```bash
+cd Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/GuidedTour
+git pull
+Update and activate the plugin in the ILIAS Plugin Administration
+```
+
 ## Requirements
 
 * ILIAS 6.0 - 7.999
