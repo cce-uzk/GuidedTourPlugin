@@ -141,7 +141,7 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
                 $tour = ilGuidedTour::getTourById($tour_id);
                 if (isset($tour)) {
                     $tour->setActive($active);
-                    $tour->save();
+                    $tour->saveAll();
                 }
             }
 

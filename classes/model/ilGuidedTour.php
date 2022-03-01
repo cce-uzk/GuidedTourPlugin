@@ -290,7 +290,40 @@ class ilGuidedTour
     }
 
     /**
-     * Load the tours
+     * Save all tours
+     */
+    public function saveAll()
+    {
+        self::loadTours();
+
+        if (empty($this->tour_id)) {
+            // add current tour to tours
+            self::$tours = array();
+            self::$tours[] = $this;
+        } else {
+            $i = 0;
+            foreach (self::$tours as $tour) {
+                if ($tour->getTourId == $this->tour_id) {
+                    self::$tours[i] = $this;
+                    break;
+                }
+                $i++;
+            }
+        }
+        self::insertOrUpdateTours();
+    }
+
+    /**
+     * Save current tour
+     */
+    public  function save()
+    {
+        self::insertTour($this);
+        self::updateTour($this);
+    }
+
+    /**
+     * Load tours from database
      */
     public static function loadTours()
     {
@@ -309,69 +342,72 @@ class ilGuidedTour
     }
 
     /**
-     * Save a server definition
+     * Insert or update tours to database
      */
-    public function save()
-    {
-        self::loadTours();
-
-        if (empty($this->tour_id)) {
-            self::$tours = array();
-            self::$tours[] = $this;
-        } else {
-            $i = 0;
-            foreach (self::$tours as $tour) {
-                if ($tour->getTourId == $this->tour_id) {
-                    self::$tours[i] = $this;
-                    break;
-                }
-                $i++;
-            }
-        }
-        self::saveTours();
-    }
-
-    public static function saveTours()
+    public static function insertOrUpdateTours()
     {
         self::insertTours();
         self::updateTours();
     }
 
+    /**
+     * Update tours to database
+     */
     private static function updateTours()
     {
-        global $DIC;
-        $db = $DIC->database();
-
         self::loadTours();
         foreach (self::$tours as $tour) {
-            if (!empty($tour->getTourId())) {
-                $data = $tour->toArray();
-                $primary = $tour->toPrimaryArray();
-
-                $db->update('gtour_tours', $data, $primary);
-            }
-        }
-    }
-
-    private static function insertTours()
-    {
-        global $DIC;
-        $db = $DIC->database();
-
-        self::loadTours();
-        foreach (self::$tours as $tour) {
-            if (empty($tour->getTourId())) {
-                $nextId = $db->nextId("gtour_tours");
-                $tour->setTourId($nextId);
-                $data = $tour->toArray();
-                $db->insert('gtour_tours', $data);
-            }
+            self::updateTour($tour);
         }
     }
 
     /**
-     * Delete tours with given ids
+     * Insert tour to database
+     * @param ilGuidedTour $tour
+     */
+    public static function updateTour(self $tour)
+    {
+        global $DIC;
+        $db = $DIC->database();
+        if (!empty($tour->getTourId())) {
+            $data = $tour->toArray();
+            $primary = $tour->toPrimaryArray();
+
+            $db->update('gtour_tours', $data, $primary);
+        }
+    }
+
+    /**
+     * Insert tours to database
+     */
+    private static function insertTours()
+    {
+        self::loadTours();
+        foreach (self::$tours as $tour) {
+            self::insertTour($tour);
+        }
+    }
+
+    /**
+     * Insert tour to database
+     * @param ilGuidedTour $tour
+     */
+    public static function insertTour(self $tour)
+    {
+        global $DIC;
+        $db = $DIC->database();
+        if (empty($tour->getTourId())) {
+            $nextId = $db->nextId("gtour_tours");
+            $tour->setTourId($nextId);
+            $data = $tour->toArray();
+            $db->insert('gtour_tours', $data);
+        }
+    }
+
+    /**
+     * Delete tours by given ids
      * @param int[]
+     * @throws ilDatabaseException
      */
     public static function deleteTours($tour_ids = [])
     {
