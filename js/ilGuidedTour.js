@@ -130,7 +130,29 @@ const ilGuidedTour = {
         return elements;
     }),
 
-    ///
+    /// Check if MainBar-Slate of an Item by given id is visible
+    isMainBarElementCollapsed: (function (index) {
+        const selector = '.il-mainbar-entries > li > button, .il-mainbar-entries > li > a';
+
+        let element = Array.from(
+            document.querySelectorAll(selector)
+        );
+        if(element != null && Array.isArray(element)){
+            element = element[index - 1];
+        }
+
+        if (typeof (element) != 'undefined' && element != null) {
+            if(element.classList.contains('engaged')) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }),
+
+    /// Get jQuery-SlateElement by Slate Index
     getSlateElementByIndex: (function (index) {
         return function () {
             const elements = ilGuidedTour.getSlateElements();

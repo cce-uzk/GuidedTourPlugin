@@ -185,6 +185,13 @@ ilGuidedTour.clickSubTabElementByIndex(index);
 // Simuliert den Aufruf einer anderen Seite
 ilGuidedTour.goTo('url');
 
+////
+//    Weitere Funktionen
+////
+
+// Ueberpruefe, ob ein MainBar-Element ausgeklappt ist (Slate angezeigt => true) oder nicht (=>false)
+ilGuidedTour.isMainBarElementCollapsed(index);
+
 ```
 ### ILIAS spezifische Anwendungsbeispiele
 * `Ungebundendes Element`: Anzeige eines Tour-Steps ohne Bindung an ein Element (Anzeige in der Mitte der Webseite):

@@ -164,11 +164,23 @@ class GuidedTourMainBarProvider extends AbstractStaticMainMenuPluginProvider
         return $subItems;
     }
 
+    /**
+     * Check if current user is logged in
+     *
+     * @return bool
+     */
     private function isUserLoggedIn() : bool
     {
         return (!$this->dic->user()->isAnonymous() && $this->dic->user()->getId() != 0);
     }
 
+    /**
+     * Get GuidedTour-Trigger URL
+     * Get current Full Url with the start trigger of a tour
+     *
+     * @param $object
+     * @return string
+     */
     private function getGuidedTourFullUrl($object): string
     {
         $root = $this->getRootUrl();
@@ -184,6 +196,10 @@ class GuidedTourMainBarProvider extends AbstractStaticMainMenuPluginProvider
         return $root . $path . '?' . $query_result;
     }
 
+    /**
+     * Get the current root url
+     * @return string
+     */
     private function getRootUrl(): string
     {
         $s = empty($_SERVER["HTTPS"]) ? '' : (($_SERVER["HTTPS"] == "on") ? 's' : '');

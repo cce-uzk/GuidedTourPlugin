@@ -45,14 +45,6 @@ class GuidedTourConfigToursTable extends \ilTable2GUI
     }
 
     /**
-     * Get selectable columns
-     */
-    public function getSelectableColumns()
-    {
-        return array();
-    }
-
-    /**
      * Get data and put it into an array
      */
     function getToursFromDb()
