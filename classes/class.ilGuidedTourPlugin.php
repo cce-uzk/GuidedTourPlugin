@@ -1,7 +1,6 @@
 <?php
 require_once __DIR__ . "/../vendor/autoload.php";
 
-use uzk\gtour\MetaBar\GuidedTourMetaBarProvider;
 use uzk\gtour\MainBar\GuidedTourMainBarProvider;
 
 /**
@@ -37,12 +36,10 @@ class ilGuidedTourPlugin extends ilUserInterfaceHookPlugin
     public function __construct()
     {
         parent::__construct();
-
         global $DIC;
 
-        //$this->provider_collection->setMetaBarProvider(new GuidedTourMetaBarProvider($DIC, $this));
+        // Add GuidedTourMainBarProvider to MainBar-Provide-Collection
         $this->provider_collection->setMainBarProvider(new GuidedTourMainBarProvider($DIC, $this));
-
     }
 
     /**
@@ -58,28 +55,6 @@ class ilGuidedTourPlugin extends ilUserInterfaceHookPlugin
     }
 
     /**
-     * Handles all commmands, default is "configure"
-     */
-    function performCommand($cmd)
-    {
-
-        switch ($cmd) {
-            case "gtour":
-                echo "<h1>Guided Tour clicked!</h1>";
-            case "save":
-                $this->$cmd();
-                break;
-
-        }
-    }
-
-    /*
-    public function exchangeUIRendererAfterInitialization(Container $dic) : Closure
-    {
-        return CustomInputGUIsLoaderDetector::exchangeUIRendererAfterInitialization();
-    }*/
-
-    /**
      * @inheritDoc
      */
     public function getPluginName(): string
@@ -90,31 +65,27 @@ class ilGuidedTourPlugin extends ilUserInterfaceHookPlugin
     /**
      * @inheritDoc
      */
-    public function updateLanguages(/*?array*/ $a_lang_keys = null)
+    public function updateLanguages($a_lang_keys = null)
     {
         parent::updateLanguages($a_lang_keys);
-
-        //$this->installRemovePluginDataConfirmLanguages();
     }
 
-    protected function beforeUninstall()
+    /**
+     * Execute before uninstall Plug-In
+     */
+    protected function beforeUninstall(): bool
     {
         self::dropTables();
         return parent::beforeUninstall();
     }
 
+    /**
+     * Drop GuidedTour tables
+     */
     protected function dropTables()
     {
         global $ilDB;
-
         $ilDB->dropTable('gtour_tours');
     }
 
-    /**
-     * @inheritDoc
-     */
-    protected function shouldUseOneUpdateStepOnly(): bool
-    {
-        return false;
-    }
 }

@@ -1,11 +1,11 @@
 <?php
 require_once __DIR__ . "/../vendor/autoload.php";
 
-use ILIAS\ResourceStorage\Stakeholder\ResourceStakeholder;
 use uzk\gtour\Config\GuidedTourConfigToursTable;
 
 /**
- * Example configuration user interface class
+ * Class ilGuidedTourConfigGUI
+ * Plug-In Configuration interface class
  *
  * @author Nadimo Staszak <nadimo.staszak@uni-koeln.de>
  * @version $Id$
@@ -16,7 +16,7 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
     const PLUGIN_CLASS_NAME = ilGuidedTourPlugin::class;
 
     /**
-     * Handles all commmands, default is "configure"
+     * Handles all commands, default is "configure"
      */
     function performCommand($cmd)
     {
@@ -35,18 +35,17 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
     }
 
     /**
-     * Configure screen
+     * Load configure-screen
      */
-    function configure()
+    public function configure()
     {
         global $tpl;
-
-        //$form = $this->initConfigurationForm();
-        //$tpl->setContent($form->getHTML());
         $this->showTourList();
-
     }
 
+    /**
+     * Load GuidedTour-Tours-Configuration Table
+     */
     public function showTourList()
     {
         global $tpl;
@@ -89,7 +88,6 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
 
     /**
      * Save form input
-     *
      */
     public function save()
     {
@@ -112,16 +110,25 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
         }
     }
 
+    /**
+     * Initialize process setting tour activation to active
+     */
     public function activateTour()
     {
         $this->changeTourActivation(true);
     }
 
+    /**
+     * Initialize process setting tour activation to de-active
+     */
     public function deactivateTour()
     {
         $this->changeTourActivation(false);
     }
 
+    /**
+     * Change tour activation status
+     */
     protected function changeTourActivation($active)
     {
         global $DIC;
@@ -154,6 +161,9 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
         $DIC->ctrl()->redirect($this, 'showTourList');
     }
 
+    /**
+     * Delete tour(s) by GET 'tour_id'
+     */
     public function confirmDeleteTour()
     {
         global $DIC;
@@ -173,6 +183,9 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
         $DIC->ctrl()->redirect($this, 'showTourList');
     }
 
+    /**
+     * Load add form
+     */
     public function addTour()
     {
         global $DIC, $tpl;
@@ -183,6 +196,9 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
         $tpl->setContent($form->getHTML());
     }
 
+    /**
+     * Load edit form by GET 'tour id'
+     */
     public function editTour()
     {
         global $DIC, $tpl;
@@ -196,24 +212,31 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
     }
 
     /**
+     * Save tour from form input
+     *
      * @throws Exception
      */
     public function saveTour()
     {
         global $DIC, $tpl;
         $form = $this->getTourForm($_GET['tour_id']);
+
         if ($form->checkInput()) {
+            // Valid form - edit or create tour from form input
+
+            // get tour id (edit) by form input or get a new tour id (create)
             if (isset($_GET['tour_id'])) {
                 $tour = ilGuidedTour::getTourById($_GET['tour_id']);
             } else {
                 $tour = ilGuidedTour::getDefaultTour();
             }
+
+            // set and save all tour attributes by form input
             $tour->setTitle($form->getInput('title'));
             $tour->setType($form->getInput('type'));
             $tour->setActive($form->getInput('active'));
             $tour->setScript($form->getInput('script'));
             $tour->setRolesIds($form->getInput('roles'));
-
             $icon = $form->getItemByPostVar('icon');
             $tour->updateIcon($icon->getDeletionFlag());
             $tour->save();
@@ -221,6 +244,7 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
             ilUtil::sendSuccess($this->plugin_object->txt('tour_saved'), true);
             $DIC->ctrl()->redirect($this, 'showTourList');
         } else {
+            // Invalid form - return form to view
             $form->setValuesByPost();
             $tpl->setContent($form->getHTML());
         }
@@ -280,7 +304,7 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
         $roles = new ilMultiSelectInputGUI($this->plugin_object->txt('tour_roles'), 'roles');
         $roles->setOptions($access->getGlobalRoles());
         $roles->setInfo($this->plugin_object->txt('tour_roles_info'));
-        if(!empty($tour->getRolesIds())) {
+        if (!empty($tour->getRolesIds())) {
             $roles->setValue($tour->getRolesIds());
             $roles->enableSelectAll(true);
         }
@@ -303,6 +327,7 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
         $script->setValue($tour->getScript());
         $form->addItem($script);
 
+        // command buttons
         $form->addCommandButton('saveTour', $lng->txt('save'));
         $form->addCommandButton('showTourList', $lng->txt('cancel'));
 

@@ -85,7 +85,6 @@ class GuidedTourMainBarProvider extends AbstractStaticMainMenuPluginProvider
 
         if(isset($tours))
         {
-
             $countDefaultTours = 0;
             foreach ($tours as $tour){
                 if($tour->getType() == \ilGuidedTour::TYPE_DEFAULT && $tour->isActive()
@@ -187,7 +186,7 @@ class GuidedTourMainBarProvider extends AbstractStaticMainMenuPluginProvider
 
     private function getRootUrl(): string
     {
-        $s = empty($_SERVER["HTTPS"]) ? '' : ($_SERVER["HTTPS"] == "on") ? "s" : "";
+        $s = empty($_SERVER["HTTPS"]) ? '' : (($_SERVER["HTTPS"] == "on") ? 's' : '');
         $sp = strtolower($_SERVER["SERVER_PROTOCOL"]);
         $protocol = substr($sp, 0, strpos($sp, "/")) . $s;
         $port = ($_SERVER["SERVER_PORT"] == "80" || $_SERVER["SERVER_PORT"] == "443") ? "" : (":" . $_SERVER["SERVER_PORT"]);

@@ -14,8 +14,4 @@ return array(
     'ilGuidedTourUIHookGUI' => $baseDir . '/classes/class.ilGuidedTourUIHookGUI.php',
     'uzk\\gtour\\Config\\GuidedTourConfigToursTable' => $baseDir . '/src/Config/GuidedTourConfigToursTable.php',
     'uzk\\gtour\\MainBar\\GuidedTourMainBarProvider' => $baseDir . '/src/MainBar/GuidedTourMainBarProvider.php',
-    'uzk\\gtour\\MetaBar\\Factory' => $baseDir . '/src/MetaBar/Factory.php',
-    'uzk\\gtour\\MetaBar\\GuidedTourMetaBar' => $baseDir . '/src/MetaBar/GuidedTourMetaBar.php',
-    'uzk\\gtour\\MetaBar\\GuidedTourMetaBarProvider' => $baseDir . '/src/MetaBar/GuidedTourMetaBarProvider.php',
-    'uzk\\gtour\\MetaBar\\Renderer' => $baseDir . '/src/MetaBar/Renderer.php',
 );

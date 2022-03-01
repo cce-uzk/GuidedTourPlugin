@@ -37,10 +37,6 @@ class ComposerStaticInit2f7d8cc9187a3ba8644eb1be455b3103
         'ilGuidedTourUIHookGUI' => __DIR__ . '/../..' . '/classes/class.ilGuidedTourUIHookGUI.php',
         'uzk\\gtour\\Config\\GuidedTourConfigToursTable' => __DIR__ . '/../..' . '/src/Config/GuidedTourConfigToursTable.php',
         'uzk\\gtour\\MainBar\\GuidedTourMainBarProvider' => __DIR__ . '/../..' . '/src/MainBar/GuidedTourMainBarProvider.php',
-        'uzk\\gtour\\MetaBar\\Factory' => __DIR__ . '/../..' . '/src/MetaBar/Factory.php',
-        'uzk\\gtour\\MetaBar\\GuidedTourMetaBar' => __DIR__ . '/../..' . '/src/MetaBar/GuidedTourMetaBar.php',
-        'uzk\\gtour\\MetaBar\\GuidedTourMetaBarProvider' => __DIR__ . '/../..' . '/src/MetaBar/GuidedTourMetaBarProvider.php',
-        'uzk\\gtour\\MetaBar\\Renderer' => __DIR__ . '/../..' . '/src/MetaBar/Renderer.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

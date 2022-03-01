@@ -1,5 +1,12 @@
 <?php
-
+/**
+ * Class ilGuidedTour
+ * GuidedTour Object
+ *
+ * @author Nadimo Staszak <nadimo.staszak@uni-koeln.de>
+ * @version $Id$
+ *
+ */
 class ilGuidedTour
 {
     protected static $tours;
