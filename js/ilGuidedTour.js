@@ -272,5 +272,16 @@ const ilGuidedTour = {
         } else if (tour != null && steps < 0) {
             tour.setCurrentStep(tour.getCurrentStepIndex() - steps);
         }
-    })
+    }),
+
+    /// On Call: Hide GuidedTour MainMenu-Element on small screens
+    hideGuidedTourOnSmallScreen: (function () {
+        if(il != null && il.UI != null && il.UI.page != null && il.UI.page.isSmallScreen())
+        {
+            let gtourMainBarElement = ilGuidedTour.getMainbarElementByTitle('Guided Tour');
+            if(gtourMainBarElement != null) {
+                gtourMainBarElement().closest('li').css("display", "none");
+            }
+        }
+    }),
 }
