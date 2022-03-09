@@ -37,7 +37,7 @@ class GuidedTourMainBarProvider extends AbstractStaticMainMenuPluginProvider
     {
         global $DIC;
         $userGlobalRoles = $DIC->rbac()->review()->assignedGlobalRoles($DIC->user()->getId());
-        $mainBar = $this->globalScreen()->mainBar();
+        $mainBar = $DIC->globalScreen()->mainBar();
 
         $identificationInterface = function ($id) : IdentificationInterface {
             return $this->if->identifier($id);
@@ -76,7 +76,7 @@ class GuidedTourMainBarProvider extends AbstractStaticMainMenuPluginProvider
     {
         global $DIC;
         $userGlobalRoles = $DIC->rbac()->review()->assignedGlobalRoles($DIC->user()->getId());
-        $mainBar = $this->globalScreen()->mainBar();
+        $mainBar = $DIC->globalScreen()->mainBar();
         $identificationInterface = function ($id) : IdentificationInterface {
             return $this->if->identifier($id);
         };
