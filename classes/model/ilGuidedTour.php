@@ -1,11 +1,13 @@
 <?php
+
+use ILIAS\FileUpload\Exception\IllegalStateException;
+use ILIAS\ResourceStorage\Identification\ResourceIdentification;
+
 /**
  * Class ilGuidedTour
  * GuidedTour Object
- *
- * @author Nadimo Staszak <nadimo.staszak@uni-koeln.de>
+ * @author  Nadimo Staszak <nadimo.staszak@uni-koeln.de>
  * @version $Id$
- *
  */
 class ilGuidedTour
 {
@@ -24,7 +26,7 @@ class ilGuidedTour
 
     public function setTourId($a_val)
     {
-        $this->tour_id = (int)$a_val;
+        $this->tour_id = (int) $a_val;
     }
 
     public function getTourId()
@@ -34,12 +36,12 @@ class ilGuidedTour
 
     public function setTitle($a_val)
     {
-        $this->title = (string)$a_val;
+        $this->title = (string) $a_val;
     }
 
-    public function getTitle(): string
+    public function getTitle() : string
     {
-        return (string)$this->title;
+        return (string) $this->title;
     }
 
     public function setIconId($a_val)
@@ -54,7 +56,7 @@ class ilGuidedTour
 
     public function setType($a_val)
     {
-        $this->type = (string)$a_val;
+        $this->type = (string) $a_val;
     }
 
     public function getType()
@@ -65,7 +67,7 @@ class ilGuidedTour
     public function setScript($a_val)
     {
         $a_val = str_replace("< ", "<", $a_val);
-        $this->script = (string)$a_val;
+        $this->script = (string) $a_val;
     }
 
     public function getScript()
@@ -75,12 +77,12 @@ class ilGuidedTour
 
     public function setActive($a_val)
     {
-        $this->active = (bool)$a_val;
+        $this->active = (bool) $a_val;
     }
 
-    public function isActive(): bool
+    public function isActive() : bool
     {
-        return (bool)$this->active;
+        return (bool) $this->active;
     }
 
     public function getRolesIds()
@@ -90,23 +92,22 @@ class ilGuidedTour
 
     public function setRolesIds($a_val)
     {
-        $this->rolesIds = (array)$a_val;
+        $this->rolesIds = (array) $a_val;
     }
 
     private function getRolesIdsAsJSON() : string
     {
-        if(isset($this->rolesIds)) {
+        if (isset($this->rolesIds)) {
             return json_encode($this->rolesIds);
-        }
-        else {
+        } else {
             return '';
         }
     }
 
     private function setRolesIdsFromJSON($a_val)
     {
-        if(isset($a_val)) {
-            $this->rolesIds = (array)json_decode((string)$a_val);
+        if (isset($a_val)) {
+            $this->rolesIds = (array) json_decode((string) $a_val);
         } else {
             $this->rolesIds = array();
         }
@@ -118,7 +119,7 @@ class ilGuidedTour
     }
 
     /**
-     * @throws \ILIAS\FileUpload\Exception\IllegalStateException
+     * @throws IllegalStateException
      * @throws Exception
      */
     public function updateIcon($deletionFlag = false)
@@ -131,7 +132,7 @@ class ilGuidedTour
             if ($deletionFlag) {
                 // remove existing icon
                 if ($this->getIconId() != null) {
-                    $identification = new \ILIAS\ResourceStorage\Identification\ResourceIdentification($this->getIconId());
+                    $identification = new ResourceIdentification($this->getIconId());
                     if (!empty($identification)) {
                         if (!empty($DIC->resourceStorage()->manage()->find($identification))) {
                             $DIC->resourceStorage()->manage()->remove($identification, $stakeholder);
@@ -141,7 +142,7 @@ class ilGuidedTour
                 }
             }
 
-            if(empty($this->getIconId()) || $deletionFlag) {
+            if (empty($this->getIconId()) || $deletionFlag) {
                 // save new icon or keep
                 $DIC->upload()->process();
                 if ($DIC->upload()->hasBeenProcessed() && $DIC->upload()->hasUploads()) {
@@ -160,11 +161,11 @@ class ilGuidedTour
         }
     }
 
-    public function getIconTitle(): string
+    public function getIconTitle() : string
     {
         global $DIC;
         if (!empty($this->getIconId())) {
-            $identification = new \ILIAS\ResourceStorage\Identification\ResourceIdentification($this->getIconId());
+            $identification = new ResourceIdentification($this->getIconId());
             if (!empty($identification)) {
                 if (!empty($DIC->resourceStorage()->manage()->find($identification))) {
                     $currentRevision = $DIC->resourceStorage()->manage()->getCurrentRevision($identification);
@@ -181,7 +182,7 @@ class ilGuidedTour
     {
         global $DIC;
         if (!empty($this->getIconId())) {
-            $identification = new \ILIAS\ResourceStorage\Identification\ResourceIdentification($this->getIconId());
+            $identification = new ResourceIdentification($this->getIconId());
             if (!empty($identification)) {
                 if (!empty($DIC->resourceStorage()->manage()->find($identification))) {
                     $src = $DIC->resourceStorage()->consume()->src($identification);
@@ -198,7 +199,7 @@ class ilGuidedTour
      * Wrote the properties to an array
      * @return array
      */
-    public function toArray(): array
+    public function toArray() : array
     {
         return array(
             "tour_id" => array('integer', $this->getTourId()),
@@ -211,7 +212,7 @@ class ilGuidedTour
         );
     }
 
-    public function toDataArray(): array
+    public function toDataArray() : array
     {
         //return array_map(function($row){ return $row['value']; }, $this->toArray());
         return array(
@@ -225,14 +226,14 @@ class ilGuidedTour
         );
     }
 
-    public function toPrimaryArray(): array
+    public function toPrimaryArray() : array
     {
         return array(
             "tour_id" => array('int', $this->getTourId())
         );
     }
 
-    public function toPrimaryDataArray(): array
+    public function toPrimaryDataArray() : array
     {
         //return array_map(function($row){ return $row['value']; }, $this->toPrimaryArray());
         return array(
@@ -255,7 +256,7 @@ class ilGuidedTour
         $this->setRolesIdsFromJSON($array['roles_ids']);
     }
 
-    public static function getDefaultTour(): ilGuidedTour
+    public static function getDefaultTour() : ilGuidedTour
     {
         $tour = new self;
         $tour->setType(self::TYPE_DEFAULT);
@@ -264,7 +265,7 @@ class ilGuidedTour
         return $tour;
     }
 
-    public static function getTypes(): array
+    public static function getTypes() : array
     {
         return self::TYPES;
     }
@@ -273,7 +274,7 @@ class ilGuidedTour
      * Get the list of all tours, indexed by tour_id
      * @return self[]
      */
-    public static function getTours(): array
+    public static function getTours() : array
     {
         self::loadTours();
         return self::$tours;
@@ -323,7 +324,7 @@ class ilGuidedTour
     /**
      * Save current tour
      */
-    public  function save()
+    public function save()
     {
         self::insertTour($this);
         self::updateTour($this);
@@ -342,7 +343,7 @@ class ilGuidedTour
 
             while ($record = $db->fetchAssoc($result)) {
                 $obj = new self();
-                $obj->fromArray((array)$record);
+                $obj->fromArray((array) $record);
                 array_push(self::$tours, $obj);
             }
         }

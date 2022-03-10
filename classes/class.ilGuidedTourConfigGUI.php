@@ -6,10 +6,8 @@ use uzk\gtour\Config\GuidedTourConfigToursTable;
 /**
  * Class ilGuidedTourConfigGUI
  * Plug-In Configuration interface class
- *
- * @author Nadimo Staszak <nadimo.staszak@uni-koeln.de>
+ * @author  Nadimo Staszak <nadimo.staszak@uni-koeln.de>
  * @version $Id$
- *
  */
 class ilGuidedTourConfigGUI extends ilPluginConfigGUI
 {
@@ -39,7 +37,6 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
      */
     public function configure()
     {
-        global $tpl;
         $this->showTourList();
     }
 
@@ -55,7 +52,6 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
 
     /**
      * Init configuration form.
-     *
      * @return object form object
      */
     public function initConfigurationForm()
@@ -91,7 +87,7 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
      */
     public function save()
     {
-        global $tpl, $lng, $ilCtrl;
+        global $tpl, $ilCtrl;
 
         $pl = $this->getPluginObject();
 
@@ -135,16 +131,15 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
         $pl = $this->getPluginObject();
 
         if (isset($_POST['tour_id'])) {
-            $tour_ids = (array)$_POST['tour_id'];
+            $tour_ids = (array) $_POST['tour_id'];
         } elseif (isset($_GET['tour_id'])) {
-            $tour_ids = (array)$_GET['tour_id'];
+            $tour_ids = (array) $_GET['tour_id'];
         }
 
         if (empty($tour_ids)) {
             ilUtil::sendFailure($pl->txt('no_tour_selected'), true);
         } else {
             foreach ($tour_ids as $tour_id) {
-                var_dump($tour_id);
                 $tour = ilGuidedTour::getTourById($tour_id);
                 if (isset($tour)) {
                     $tour->setActive($active);
@@ -163,6 +158,7 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
 
     /**
      * Delete tour(s) by GET 'tour_id'
+     * @throws ilDatabaseException
      */
     public function confirmDeleteTour()
     {
@@ -170,9 +166,9 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
         $pl = $this->getPluginObject();
 
         if (isset($_POST['tour_id'])) {
-            $tour_ids = (array)$_POST['tour_id'];
+            $tour_ids = (array) $_POST['tour_id'];
         } elseif (isset($_GET['tour_id'])) {
-            $tour_ids = (array)$_GET['tour_id'];
+            $tour_ids = (array) $_GET['tour_id'];
         }
 
         if (empty($tour_ids)) {
@@ -213,7 +209,6 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
 
     /**
      * Save tour from form input
-     *
      * @throws Exception
      */
     public function saveTour()
@@ -252,7 +247,6 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
 
     /**
      * Tour configuration form.
-     *
      * @return object form object
      */
     public function getTourForm($a_tour_id = null)

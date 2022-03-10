@@ -1,13 +1,13 @@
 <?php
+
 namespace uzk\gtour\Config;
+
 use ilAdvancedSelectionListGUI;
 
 /**
  * Class GuidedTourConfigToursTable
- *
- * @author Nadimo Staszak <nadimo.staszak@uni-koeln.de>
+ * @author  Nadimo Staszak <nadimo.staszak@uni-koeln.de>
  * @version $Id$
- *
  */
 class GuidedTourConfigToursTable extends \ilTable2GUI
 {
@@ -50,8 +50,7 @@ class GuidedTourConfigToursTable extends \ilTable2GUI
     function getToursFromDb()
     {
         $data = [];
-        foreach (\ilGuidedTour::getTours() as $tour)
-        {
+        foreach (\ilGuidedTour::getTours() as $tour) {
             $data[] = $tour->toDataArray();
         }
 
@@ -75,9 +74,12 @@ class GuidedTourConfigToursTable extends \ilTable2GUI
         $list->setListTitle($this->lng->txt('actions'));
 
         $list->addItem($this->lng->txt('edit'), '', $this->ctrl->getLinkTarget($this->parent_obj, 'editTour'));
-        $list->addItem($this->lng->txt('activate'), $a_set['tour_id'], $this->ctrl->getLinkTarget($this->parent_obj, 'activateTour'));
-        $list->addItem($this->lng->txt('deactivate'), $a_set['tour_id'], $this->ctrl->getLinkTarget($this->parent_obj, 'deactivateTour'));
-        $list->addItem($this->lng->txt('delete'), '', $DIC->ctrl()->getLinkTarget($this->parent_obj, 'confirmDeleteTour'));
+        $list->addItem($this->lng->txt('activate'), $a_set['tour_id'],
+            $this->ctrl->getLinkTarget($this->parent_obj, 'activateTour'));
+        $list->addItem($this->lng->txt('deactivate'), $a_set['tour_id'],
+            $this->ctrl->getLinkTarget($this->parent_obj, 'deactivateTour'));
+        $list->addItem($this->lng->txt('delete'), '',
+            $DIC->ctrl()->getLinkTarget($this->parent_obj, 'confirmDeleteTour'));
 
         $this->tpl->setVariable('TOUR_ID', $a_set['tour_id']);
         $this->tpl->setVariable('TITLE', $a_set['title']);

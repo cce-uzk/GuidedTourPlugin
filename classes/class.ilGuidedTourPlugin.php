@@ -5,10 +5,8 @@ use uzk\gtour\MainBar\GuidedTourMainBarProvider;
 
 /**
  * Class ilGuidedTourPlugin
- *
- * @author Nadimo Staszak <nadimo.staszak@uni-koeln.de>
+ * @author  Nadimo Staszak <nadimo.staszak@uni-koeln.de>
  * @version $Id$
- *
  */
 class ilGuidedTourPlugin extends ilUserInterfaceHookPlugin
 {
@@ -45,7 +43,7 @@ class ilGuidedTourPlugin extends ilUserInterfaceHookPlugin
     /**
      * @return self
      */
-    public static function getInstance(): self
+    public static function getInstance() : self
     {
         if (self::$instance === null) {
             self::$instance = new self();
@@ -57,7 +55,7 @@ class ilGuidedTourPlugin extends ilUserInterfaceHookPlugin
     /**
      * @inheritDoc
      */
-    public function getPluginName(): string
+    public function getPluginName() : string
     {
         return self::PLUGIN_NAME;
     }
@@ -73,7 +71,7 @@ class ilGuidedTourPlugin extends ilUserInterfaceHookPlugin
     /**
      * Execute before uninstall Plug-In
      */
-    protected function beforeUninstall(): bool
+    protected function beforeUninstall() : bool
     {
         self::dropTables();
         return parent::beforeUninstall();

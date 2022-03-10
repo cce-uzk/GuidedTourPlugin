@@ -1,4 +1,5 @@
 <?php
+
 namespace uzk\gtour\MainBar;
 
 use ILIAS\GlobalScreen\Identification\IdentificationInterface;
@@ -7,10 +8,8 @@ use ILIAS\GlobalScreen\Scope\MainMenu\Provider\AbstractStaticMainMenuPluginProvi
 
 /**
  * Class GuidedTourMainBarProvider
- *
- * @author Nadimo Staszak <nadimo.staszak@uni-koeln.de>
+ * @author  Nadimo Staszak <nadimo.staszak@uni-koeln.de>
  * @version $Id$
- *
  */
 class GuidedTourMainBarProvider extends AbstractStaticMainMenuPluginProvider
 {
@@ -26,14 +25,13 @@ class GuidedTourMainBarProvider extends AbstractStaticMainMenuPluginProvider
 
     /**
      * @return TopParentItem[]
-     *
      * This Method return all TopItems for the MainMenu.
      * Make sure you use the same Identifier for all subitems as well,
      * @see getParentIdentifier().
      * Using $this->if-> (if stands for IdentificationFactory) you will already
      * get a PluginIdentification for your Plugin-Instance.
      */
-    public function getStaticTopItems(): array
+    public function getStaticTopItems() : array
     {
         global $DIC;
         $userGlobalRoles = $DIC->rbac()->review()->assignedGlobalRoles($DIC->user()->getId());
@@ -44,20 +42,20 @@ class GuidedTourMainBarProvider extends AbstractStaticMainMenuPluginProvider
         };
 
         $icon = $this->dic->ui()->factory()->symbol()->icon()
-            ->custom(
-                $this->plugin->getImagePath("signpost-split-sm.svg"),
-                "Guided Tour");
+                          ->custom(
+                              $this->plugin->getImagePath("signpost-split-sm.svg"),
+                              "Guided Tour");
 
         // "Guided Tour"-Menu
         $item[] = $mainBar->topParentItem($identificationInterface($this->getPluginID()))
-            ->withTitle('Guided Tour')
-            ->withSymbol($icon)
-            ->withPosition(100)
-            ->withVisibilityCallable(
-                function () {
-                    return $this->isUserLoggedIn();
-                }
-            );
+                          ->withTitle('Guided Tour')
+                          ->withSymbol($icon)
+                          ->withPosition(100)
+                          ->withVisibilityCallable(
+                              function () {
+                                  return $this->isUserLoggedIn();
+                              }
+                          );
 
         $mainBar->topLinkItem($identificationInterface($this->getPluginID()))->withAction("action")->withSymbol($icon);
 
@@ -69,10 +67,9 @@ class GuidedTourMainBarProvider extends AbstractStaticMainMenuPluginProvider
      * By using $this->mainmenu->custom(...) you can even use your own Types.
      * Make sure you provide special information and rendering for won types if
      * needed, @see provideTypeInformation()
-     *
      * @inheritdoc
      */
-    public function getStaticSubItems(): array
+    public function getStaticSubItems() : array
     {
         global $DIC;
         $userGlobalRoles = $DIC->rbac()->review()->assignedGlobalRoles($DIC->user()->getId());
@@ -83,20 +80,19 @@ class GuidedTourMainBarProvider extends AbstractStaticMainMenuPluginProvider
         $subItems = array();
         $tours = \ilGuidedTour::getTours();
 
-        if(isset($tours))
-        {
+        if (isset($tours)) {
             $countDefaultTours = 0;
-            foreach ($tours as $tour){
-                if($tour->getType() == \ilGuidedTour::TYPE_DEFAULT && $tour->isActive()
+            foreach ($tours as $tour) {
+                if ($tour->getType() == \ilGuidedTour::TYPE_DEFAULT && $tour->isActive()
                     && count(array_intersect($userGlobalRoles, $tour->getRolesIds())) > 0) {
 
                     $countDefaultTours++;
-                    if($countDefaultTours == 1){
+                    if ($countDefaultTours == 1) {
                         array_push(
                             $subItems,
-                            $mainBar->separator($identificationInterface( $this->getPluginID() .'-sep-1'))
-                                ->withTitle($this->plugin->txt('default_tours'))
-                                ->withParent($identificationInterface($this->getPluginID()))
+                            $mainBar->separator($identificationInterface($this->getPluginID() . '-sep-1'))
+                                    ->withTitle($this->plugin->txt('default_tours'))
+                                    ->withParent($identificationInterface($this->getPluginID()))
                         );
                     }
 
@@ -106,7 +102,7 @@ class GuidedTourMainBarProvider extends AbstractStaticMainMenuPluginProvider
 
                     if (!empty($tour->getIconSrc())) {
                         $icon = $this->dic->ui()->factory()->symbol()->icon()
-                            ->custom($tour->getIconSrc(), $tour->getTitle());
+                                          ->custom($tour->getIconSrc(), $tour->getTitle());
                         $item = $item->withSymbol($icon);
                     }
 
@@ -122,19 +118,19 @@ class GuidedTourMainBarProvider extends AbstractStaticMainMenuPluginProvider
                 }
             }
 
-
             $countContextTours = 0;
-            foreach ($tours as $tour){
-                if(($tour->getType() == $this->dic->ctrl()->getContextObjType() || in_array($DIC->ctrl()->getCmdClass(), array($tour->getType())))
+            foreach ($tours as $tour) {
+                if (($tour->getType() == $this->dic->ctrl()->getContextObjType() || in_array($DIC->ctrl()->getCmdClass(),
+                            array($tour->getType())))
                     && $tour->isActive() && count(array_intersect($userGlobalRoles, $tour->getRolesIds())) > 0) {
 
                     $countContextTours++;
-                    if($countContextTours == 1) {
+                    if ($countContextTours == 1) {
                         array_push(
                             $subItems,
                             $mainBar->separator($identificationInterface($this->getPluginID() . '-sep-2'))
-                                ->withTitle($this->plugin->txt('context_tours'))
-                                ->withParent($identificationInterface('gtour'))
+                                    ->withTitle($this->plugin->txt('context_tours'))
+                                    ->withParent($identificationInterface('gtour'))
                         );
                     }
 
@@ -144,7 +140,7 @@ class GuidedTourMainBarProvider extends AbstractStaticMainMenuPluginProvider
 
                     if (!empty($tour->getIconSrc())) {
                         $icon = $this->dic->ui()->factory()->symbol()->icon()
-                            ->custom($tour->getIconSrc(), $tour->getTitle());
+                                          ->custom($tour->getIconSrc(), $tour->getTitle());
                         $item = $item->withSymbol($icon);
                     }
 
@@ -166,7 +162,6 @@ class GuidedTourMainBarProvider extends AbstractStaticMainMenuPluginProvider
 
     /**
      * Check if current user is logged in
-     *
      * @return bool
      */
     private function isUserLoggedIn() : bool
@@ -177,11 +172,10 @@ class GuidedTourMainBarProvider extends AbstractStaticMainMenuPluginProvider
     /**
      * Get GuidedTour-Trigger URL
      * Get current Full Url with the start trigger of a tour
-     *
      * @param $object
      * @return string
      */
-    private function getGuidedTourFullUrl($object): string
+    private function getGuidedTourFullUrl($object) : string
     {
         $root = $this->getRootUrl();
         $uri = parse_url($_SERVER["REQUEST_URI"]);
@@ -200,7 +194,7 @@ class GuidedTourMainBarProvider extends AbstractStaticMainMenuPluginProvider
      * Get the current root url
      * @return string
      */
-    private function getRootUrl(): string
+    private function getRootUrl() : string
     {
         $s = empty($_SERVER["HTTPS"]) ? '' : (($_SERVER["HTTPS"] == "on") ? 's' : '');
         $sp = strtolower($_SERVER["SERVER_PROTOCOL"]);
