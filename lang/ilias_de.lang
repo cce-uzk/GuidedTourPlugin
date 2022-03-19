@@ -28,7 +28,6 @@ tour_activated#:#Tour aktiviert
 edit_tour#:#Tour bearbeiten
 delete_tour#:#Tour l&ouml;schen
 add_tour#:#Tour erstellen
-delete_tour#:#Tour l&ouml;schen
 tour_type_any#:#Global (Standard)
 tour_type_crs#:#Kurs
 tour_type_grp#:#Gruppe

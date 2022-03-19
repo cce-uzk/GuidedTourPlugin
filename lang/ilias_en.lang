@@ -15,3 +15,32 @@ save_success#:#Successfully saved
 save_failure#:#Saving failed!
 nothing_changed#:#No changes
 forbidden_header#:#No Permission!
+default_tours#:#General introductory tours
+context_tours#:#Object type tours
+tour_title#:#Title
+tour_type#:#Object type
+tour_active#:#Active
+tour_script#:#Script
+tour_icon#:#Icon
+tour_roles#:#Globale Roles
+tour_deactivated#:#Tour deactivated
+tour_activated#:#Tour activated
+edit_tour#:#Edit tour
+add_tour#:#Create tour
+delete_tour#:#Delete tour
+tour_type_any#:#Global (Standard)
+tour_type_crs#:#Course
+tour_type_grp#:#Group
+tour_type_fold#:#Folder
+tour_type_tst#:#Test
+tour_type_exc#:#Exercise
+tour_type_book#:#Booking
+tour_type_ildashboardgui#:#Dashboard
+tour_type_ilmembershipoverviewgui#:#Courses and Groups
+tour_type_info#:#Object type for which the tour is to be offered
+tour_active_info#:#The tour is only loaded if this is set active
+tour_title_info#:#Visible tour name
+tour_roles_info#:#Roles where the tour is to be offered
+tour_icon_info#:#Visible tour icon
+tour_script_info#:#Valid JSON to the tour. Attention: Errors can (if activated) lead to malfunction of all active tours.
+tour_saved#:#Saved changes

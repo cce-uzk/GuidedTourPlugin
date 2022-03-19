@@ -14,16 +14,6 @@ use ILIAS\GlobalScreen\Scope\MainMenu\Provider\AbstractStaticMainMenuPluginProvi
 class GuidedTourMainBarProvider extends AbstractStaticMainMenuPluginProvider
 {
     /**
-     * @var \ILIAS\DI\Container
-     */
-    protected $dic;
-
-    /**
-     * @var ilPlugin $plugin
-     */
-    protected $plugin;
-
-    /**
      * @return TopParentItem[]
      * This Method return all TopItems for the MainMenu.
      * Make sure you use the same Identifier for all subitems as well,
@@ -34,14 +24,15 @@ class GuidedTourMainBarProvider extends AbstractStaticMainMenuPluginProvider
     public function getStaticTopItems() : array
     {
         global $DIC;
-        $userGlobalRoles = $DIC->rbac()->review()->assignedGlobalRoles($DIC->user()->getId());
-        $mainBar = $DIC->globalScreen()->mainBar();
+        $globalScreen = $DIC->globalScreen();
+        $ui = $DIC->ui();
 
+        $mainBar = $globalScreen->mainBar();
         $identificationInterface = function ($id) : IdentificationInterface {
             return $this->if->identifier($id);
         };
 
-        $icon = $this->dic->ui()->factory()->symbol()->icon()
+        $icon = $ui->factory()->symbol()->icon()
                           ->custom(
                               $this->plugin->getImagePath("signpost-split-sm.svg"),
                               "Guided Tour");
@@ -72,11 +63,17 @@ class GuidedTourMainBarProvider extends AbstractStaticMainMenuPluginProvider
     public function getStaticSubItems() : array
     {
         global $DIC;
-        $userGlobalRoles = $DIC->rbac()->review()->assignedGlobalRoles($DIC->user()->getId());
-        $mainBar = $DIC->globalScreen()->mainBar();
+        $user = $DIC->user();
+        $ctrl = $DIC->ctrl();
+        $globalScreen = $DIC->globalScreen();
+        $ui = $DIC->ui();
+
+        $userGlobalRoles = $DIC->rbac()->review()->assignedGlobalRoles($user->getId());
+        $mainBar = $globalScreen->mainBar();
         $identificationInterface = function ($id) : IdentificationInterface {
             return $this->if->identifier($id);
         };
+
         $subItems = array();
         $tours = \ilGuidedTour::getTours();
 
@@ -101,7 +98,7 @@ class GuidedTourMainBarProvider extends AbstractStaticMainMenuPluginProvider
                     );
 
                     if (!empty($tour->getIconSrc())) {
-                        $icon = $this->dic->ui()->factory()->symbol()->icon()
+                        $icon = $ui->factory()->symbol()->icon()
                                           ->custom($tour->getIconSrc(), $tour->getTitle());
                         $item = $item->withSymbol($icon);
                     }
@@ -120,7 +117,7 @@ class GuidedTourMainBarProvider extends AbstractStaticMainMenuPluginProvider
 
             $countContextTours = 0;
             foreach ($tours as $tour) {
-                if (($tour->getType() == $this->dic->ctrl()->getContextObjType() || in_array($DIC->ctrl()->getCmdClass(),
+                if (($tour->getType() == $ctrl->getContextObjType() || in_array($ctrl->getCmdClass(),
                             array($tour->getType())))
                     && $tour->isActive() && count(array_intersect($userGlobalRoles, $tour->getRolesIds())) > 0) {
 
@@ -139,7 +136,7 @@ class GuidedTourMainBarProvider extends AbstractStaticMainMenuPluginProvider
                     );
 
                     if (!empty($tour->getIconSrc())) {
-                        $icon = $this->dic->ui()->factory()->symbol()->icon()
+                        $icon = $ui->factory()->symbol()->icon()
                                           ->custom($tour->getIconSrc(), $tour->getTitle());
                         $item = $item->withSymbol($icon);
                     }
@@ -166,7 +163,9 @@ class GuidedTourMainBarProvider extends AbstractStaticMainMenuPluginProvider
      */
     private function isUserLoggedIn() : bool
     {
-        return (!$this->dic->user()->isAnonymous() && $this->dic->user()->getId() != 0);
+        global $DIC;
+        $user = $DIC->user();
+        return (!$user->isAnonymous() && $user->getId() != 0);
     }
 
     /**

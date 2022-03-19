@@ -11,16 +11,33 @@ use ilAdvancedSelectionListGUI;
  */
 class GuidedTourConfigToursTable extends \ilTable2GUI
 {
+    protected $ctrl;
+    protected $plugin;
+    protected $lng;
+    protected $parentObject;
+
+    /**
+     * GuidedTourConfigToursTable constructor
+     */
     function __construct($a_parent_obj, $a_parent_cmd)
     {
-        global $DIC, $ilCtrl;
+        parent::__construct($a_parent_obj, $a_parent_cmd);
+        global $DIC;
 
         $this->lng = $DIC->language();
-        $this->ctrl = $DIC->ctrl();
+        $this->ctrl = $this->ctrl;
+        $this->parentObject = $a_parent_obj;
         $this->plugin = $a_parent_obj->getPluginObject();
 
+        $this->createTable();
+    }
+
+    /**
+     * Creates GuidedTour configuration table
+     */
+    protected function createTable()
+    {
         $this->setId('gtour_tours_tbl');
-        parent::__construct($a_parent_obj, $a_parent_cmd);
 
         $this->addColumn($this->plugin->txt('tour_title'), '', '25%');
         $this->addColumn($this->plugin->txt('tour_type'), '', '25%');
@@ -28,7 +45,7 @@ class GuidedTourConfigToursTable extends \ilTable2GUI
         $this->addColumn('');
 
         $this->setEnableHeader(true);
-        $this->setFormAction($ilCtrl->getFormAction($a_parent_obj));
+        $this->setFormAction($this->ctrl->getFormAction($this->parentObject));
 
         $this->setRowTemplate('tpl.gtour_tours_tbl_row.html', $this->plugin->getDirectory());
         $this->setEnableAllCommand(false);
@@ -64,8 +81,7 @@ class GuidedTourConfigToursTable extends \ilTable2GUI
      */
     protected function fillRow($a_set)
     {
-        global $DIC;
-        $this->ctrl->setParameter($this->parent_obj, 'tour_id', $a_set['tour_id']);
+        $this->ctrl->setParameter($this->parentObject, 'tour_id', $a_set['tour_id']);
 
         $list = new ilAdvancedSelectionListGUI();
         $list->setSelectionHeaderClass('small');
@@ -73,13 +89,18 @@ class GuidedTourConfigToursTable extends \ilTable2GUI
         $list->setId('gtour_tours_tbl_row_actions');
         $list->setListTitle($this->lng->txt('actions'));
 
-        $list->addItem($this->lng->txt('edit'), '', $this->ctrl->getLinkTarget($this->parent_obj, 'editTour'));
+        $list->addItem($this->lng->txt('edit'), '',
+            $this->ctrl->getLinkTarget($this->parentObject, 'editTour')
+        );
         $list->addItem($this->lng->txt('activate'), $a_set['tour_id'],
-            $this->ctrl->getLinkTarget($this->parent_obj, 'activateTour'));
+            $this->ctrl->getLinkTarget($this->parentObject, 'activateTour')
+        );
         $list->addItem($this->lng->txt('deactivate'), $a_set['tour_id'],
-            $this->ctrl->getLinkTarget($this->parent_obj, 'deactivateTour'));
+            $this->ctrl->getLinkTarget($this->parentObject, 'deactivateTour')
+        );
         $list->addItem($this->lng->txt('delete'), '',
-            $DIC->ctrl()->getLinkTarget($this->parent_obj, 'confirmDeleteTour'));
+            $this->ctrl->getLinkTarget($this->parentObject, 'confirmDeleteTour')
+        );
 
         $this->tpl->setVariable('TOUR_ID', $a_set['tour_id']);
         $this->tpl->setVariable('TITLE', $a_set['title']);

@@ -13,15 +13,25 @@ include_once("./Services/Init/classes/class.ilStartUpGUI.php");
  */
 class ilGuidedTourUIHookGUI extends ilUIHookPluginGUI
 {
-    const PLUGIN_CLASS_NAME = ilGuidedTourPlugin::class;
-    const PAGE_CONTENT = "tpl.page_content.html";
-    private $plugin;
+    protected $ctrl;
+    protected $tpl;
+    protected $rbac;
+    protected $user;
+    protected $plugin;
 
     /**
      * ilGuidedTourUIHookGUI constructor
      */
     public function __construct()
     {
+        global $DIC, $tpl;
+
+        $this->ctrl = $DIC->ctrl();
+        $this->tpl = $tpl;
+        $this->rbac = $DIC->rbac();
+        $this->user = $DIC->user();
+        $this->plugin = ilGuidedTourPlugin::getInstance();
+
         $this->setPluginObject(ilGuidedTourPlugin::getInstance());
     }
 
@@ -33,16 +43,15 @@ class ilGuidedTourUIHookGUI extends ilUIHookPluginGUI
      * @param string $a_par  array of parameters (depend on $a_comp and $a_part)
      * @return array array with entries "mode" => modification mode, "html" => your html
      */
-    function getHTML($a_comp, $a_part, $a_par = array())
+    public function getHTML($a_comp, $a_part, $a_par = array()) : array
     {
-        global $DIC, $ilCtrl, $ilUser, $tpl;
-        $usr_id = $ilUser->getId();
-        $is_logged_in = ($usr_id && $usr_id != ANONYMOUS_USER_ID);
+        $userId = $this->user->getId();
+        $is_logged_in = ($userId && $userId != ANONYMOUS_USER_ID);
 
         // If user is logged in (not anonymous)
         if ($is_logged_in) {
             // If this method is triggered by loading a 'template' (whole page) and this is not an async call
-            if ($a_part == "template_load" && !$ilCtrl->isAsynch()) {
+            if ($a_part == "template_load" && !$this->ctrl->isAsynch()) {
                 // If this method is triggered by loading a the 'main' template
                 if (strpos(strtolower($a_par['html']), "</body>") !== false) {
                     $saveStatus = 'window.sessionStorage';
@@ -50,14 +59,14 @@ class ilGuidedTourUIHookGUI extends ilUIHookPluginGUI
                     $tourName = 'GTOUR';
 
                     // Create string with all relevant tours-scripts (activated tours only, user has role of tour)
-                    $toursString = '';
+                    $tourScript = '';
                     $tours = ilGuidedTour::getTours();
-                    $userGlobalRoles = $DIC->rbac()->review()->assignedGlobalRoles($usr_id);
+                    $userGlobalRoles = $this->rbac->review()->assignedGlobalRoles($userId);
                     if (isset($tours)) {
                         foreach ($tours as $tour) {
                             if ($tour->isActive() && count(array_intersect($userGlobalRoles,
                                     $tour->getRolesIds())) > 0) {
-                                $toursString = $toursString . '\'' . $this->getPluginObject()->getId() . '-' . $tour->getTourId() . '\': [' . $tour->getScript() . '],';
+                                $tourScript = $tourScript . '\'' . $this->getPluginObject()->getId() . '-' . $tour->getTourId() . '\': [' . $tour->getScript() . '],';
                             }
                         }
                     }
@@ -68,9 +77,8 @@ class ilGuidedTourUIHookGUI extends ilUIHookPluginGUI
                     }
 
                     // Add js of GuidedTour to output
-                    $plugin = ilGuidedTourPlugin::getInstance();
-                    $tpl->addJavaScript($plugin->getDirectory() . "/js/ilGuidedTour.js");
-                    $tpl->addJavaScript($plugin->getDirectory() . "/vendor/bootstrap-tourist/bootstrap-tourist.js");
+                    $this->tpl->addJavaScript($this->plugin->getDirectory() . "/js/ilGuidedTour.js");
+                    $this->tpl->addJavaScript($this->plugin->getDirectory() . "/vendor/bootstrap-tourist/bootstrap-tourist.js");
 
                     // Add GuidedTour HTML to output
                     $html = $a_par['html'];
@@ -78,18 +86,18 @@ class ilGuidedTourUIHookGUI extends ilUIHookPluginGUI
                     if ($index !== false) {
                         try {
                             // Set all GuidedTour HTML Template Variables
-                            $tmpl = $plugin->getTemplate("tpl.guidedtour.html", true, true);
+                            $tmpl = $this->plugin->getTemplate("tpl.guidedtour.html", true, true);
                             $tmpl->setVariable("GTOUR_STORAGE", "$saveStatus");
-                            $tmpl->setVariable("GTOUR_BTN_PREV", $plugin->txt("tour_btn_previous"));
-                            $tmpl->setVariable("GTOUR_BTN_NEXT", $plugin->txt("tour_btn_next"));
-                            $tmpl->setVariable("GTOUR_BTN_STOP", $plugin->txt("tour_btn_stop"));
+                            $tmpl->setVariable("GTOUR_BTN_PREV", $this->plugin->txt("tour_btn_previous"));
+                            $tmpl->setVariable("GTOUR_BTN_NEXT", $this->plugin->txt("tour_btn_next"));
+                            $tmpl->setVariable("GTOUR_BTN_STOP", $this->plugin->txt("tour_btn_stop"));
                             $tmpl->setVariable("GTOUR_START", "$tourStart");
                             $tmpl->setVariable("GTOUR_NAME", "$tourName");
-                            $tmpl->setVariable("GTOUR_TOURS", "$toursString");
+                            $tmpl->setVariable("GTOUR_TOURS", "$tourScript");
 
-                            $tourCurrentName = $this->getTriggeredGuidedTour();
-                            if (isset($tourCurrentName)) {
-                                $tmpl->setVariable("GTOUR_CURRENT_NAME", "$tourCurrentName");
+                            $currentTourName = $this->getTriggeredGuidedTour();
+                            if (isset($currentTourName)) {
+                                $tmpl->setVariable("GTOUR_CURRENT_NAME", "$currentTourName");
                             }
                             $html = substr($html, 0, $index) . $tmpl->get() . substr($html, $index);
                             return array("mode" => ilUIHookPluginGUI::REPLACE, "html" => $html);
@@ -110,7 +118,7 @@ class ilGuidedTourUIHookGUI extends ilUIHookPluginGUI
      * Check if a GuidedTour is currently triggered
      * @return bool
      */
-    private function isGuidedTourTriggered() : bool
+    protected function isGuidedTourTriggered() : bool
     {
         $uri = parse_url($_SERVER["REQUEST_URI"]);
         if (isset($uri)) {
@@ -131,7 +139,7 @@ class ilGuidedTourUIHookGUI extends ilUIHookPluginGUI
      * Null if there is no currently triggered tour
      * @return mixed|null
      */
-    private function getTriggeredGuidedTour()
+    protected function getTriggeredGuidedTour()
     {
         $uri = parse_url($_SERVER["REQUEST_URI"]);
         if (isset($uri)) {
@@ -153,7 +161,7 @@ class ilGuidedTourUIHookGUI extends ilUIHookPluginGUI
      * @param string $a_part string that identifies the part of the UI that is handled
      * @param string $a_par  array of parameters (depend on $a_comp and $a_part)
      */
-    function modifyGUI($a_comp, $a_part, $a_par = array())
+    public function modifyGUI($a_comp, $a_part, $a_par = array())
     {
 
     }
