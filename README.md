@@ -1,6 +1,6 @@
 # GuidedTour ILIAS Plugin
-###University of Cologne | Competence Center E-Learning
-####Nadimo Staszak
+### University of Cologne | Competence Center E-Learning
+#### Nadimo Staszak
 
 ## Installation
 ### Download via ZIP
