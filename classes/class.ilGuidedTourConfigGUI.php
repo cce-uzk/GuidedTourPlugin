@@ -290,6 +290,7 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
         $script = new ilTextAreaInputGUI($plugin->txt('tour_script'), 'script');
         $script->setInfo($plugin->txt('tour_script_info'));
         $script->setValue($tour->getScript());
+        $script->setRows(20);
         $form->addItem($script);
 
         // command buttons
