@@ -1,7 +1,9 @@
-<?php
+<?php declare(strict_types=1);
+
 require_once __DIR__ . "/../vendor/autoload.php";
 
 use uzk\gtour\MainBar\GuidedTourMainBarProvider;
+use uzk\gtour\Data\GuidedTourRepository;
 
 /**
  * Class ilGuidedTourPlugin
@@ -9,51 +11,67 @@ use uzk\gtour\MainBar\GuidedTourMainBarProvider;
  * @version $Id$
  */
 class ilGuidedTourPlugin extends ilUserInterfaceHookPlugin
-{
-    /** @var string */
-    const PLUGIN_CLASS_NAME = self::class;
-    /** @var string */
+{/** @var string */
     const PLUGIN_ID = "gtour";
     /** @var string */
-    const PLUGIN_NAME = 'GuidedTour';
-    /** @var string */
-    const CTYPE = 'Services';
-    /** @var string */
-    const CNAME = 'UIComponent';
-    /** @var string */
-    const SLOT_ID = 'uihk';
-
-    /**
-     * @var self|null
+    const PLUGIN_NAME = "GuidedTour";
+    /** @var string
+     * @noinspection SpellCheckingInspection
      */
-    protected static $instance = null;
+    const CTYPE = "Services";
+    /** @var string */
+    const CNAME = "UIComponent";
+    /** @var string */
+    const SLOT_ID = "uihk";
+
+    /** @var self|null */
+    protected static ?ilGuidedTourPlugin $instance = null;
+    protected bool $isLoaded = false;
 
     /**
      * ilGuidedTourPlugin constructor
      */
-    public function __construct()
+    public function __construct(
+        ilDBInterface $db,
+        ilComponentRepositoryWrite $component_repository,
+        string $id)
     {
-        parent::__construct();
+        // Get global data
         global $DIC;
+
+        // Initialize plugin
+        $this->db = $db;
+        $this->component_repository = $component_repository;
+        $this->id = $id;
+        parent::__construct($db, $component_repository, $id);
 
         // Add GuidedTourMainBarProvider to MainBar-Provide-Collection
         $this->provider_collection->setMainBarProvider(new GuidedTourMainBarProvider($DIC, $this));
+
+        // Add scripts and styles to metadata
+        $this->addMetadata();
     }
 
     /**
-     * @return self
+     * @return void
      */
-    public static function getInstance() : self
-    {
-        if (self::$instance === null) {
-            self::$instance = new self();
-        }
+    private function addMetadata(): void {
+        // Get global data
+        global $DIC;
+        $directory = $this->getDirectory();
 
-        return self::$instance;
+        if ($DIC->offsetExists('global_screen')) {
+            $meta_content = $DIC->globalScreen()->layout()->meta();
+            $meta_content->addJs($directory . '/vendor/bootstrap-tourist/bootstrap-tourist.js', false, 1);
+            $meta_content->addCss($directory . '/vendor/bootstrap-tourist/bootstrap-tourist.css');
+            $meta_content->addCss($directory . '/vendor/bootstrap-tourist/bootstrap-tour.css');
+            $meta_content->addJs($directory . '/js/main.js', false, 1);
+        }
     }
 
     /**
-     * @inheritDoc
+     * Get plugin name
+     * @return string
      */
     public function getPluginName() : string
     {
@@ -61,29 +79,62 @@ class ilGuidedTourPlugin extends ilUserInterfaceHookPlugin
     }
 
     /**
-     * @inheritDoc
+     * Get plugin instance
+     * @return self
+     * @throws Exception
      */
-    public function updateLanguages($a_lang_keys = null)
+    public static function getInstance(): self
     {
-        parent::updateLanguages($a_lang_keys);
+        global $DIC;
+
+        if (self::$instance instanceof self) {
+            return self::$instance;
+        }
+
+        $component_repository = $DIC['component.repository'];
+        $component_factory = $DIC['component.factory'];
+
+        $plugin_info = $component_repository->getComponentByTypeAndName(
+            self::CTYPE,
+            self::CNAME
+        )->getPluginSlotById(self::SLOT_ID)->getPluginByName(self::PLUGIN_NAME);
+
+        self::$instance = $component_factory->getPlugin($plugin_info->getId());
+
+        return self::$instance;
     }
 
     /**
-     * Execute before uninstall Plug-In
+     * Define uninstall handling
+     * @return bool
      */
-    protected function beforeUninstall() : bool
+    public function uninstall(): bool
     {
-        self::dropTables();
-        return parent::beforeUninstall();
+        // uninstall languages
+        $this->getLanguageHandler()->uninstall();
+
+        // deregister from component repository
+        $this->component_repository->removeStateInformationOf($this->getId());
+
+        // drop tables
+        $this->db->dropTable('gtour_tours');
+
+        return true;
     }
 
     /**
-     * Drop GuidedTour tables
+     * @return bool
      */
-    protected function dropTables()
-    {
-        global $ilDB;
-        $ilDB->dropTable('gtour_tours');
+    public function isLoaded(): bool {
+        return $this->isLoaded;
     }
 
+    /**
+     * @param bool $isLoaded
+     * @return void
+     */
+    public function setIsLoaded(bool $isLoaded): void
+    {
+        $this->isLoaded = $isLoaded;
+    }
 }

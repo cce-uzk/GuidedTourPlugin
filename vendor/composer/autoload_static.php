@@ -4,47 +4,38 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit2f7d8cc9187a3ba8644eb1be455b3103
+class ComposerStaticInit4febdbbbf34ef5db1b6be8d4f1d828cf
 {
     public static $prefixLengthsPsr4 = array (
         'u' => 
         array (
             'uzk\\gtour\\' => 10,
         ),
-        'I' => 
-        array (
-            'ILIAS\\' => 6,
-        ),
     );
 
     public static $prefixDirsPsr4 = array (
         'uzk\\gtour\\' => 
         array (
-            0 => __DIR__ . '/../..' . '/src',
-        ),
-        'ILIAS\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/../../../../src',
+            0 => __DIR__ . '/../..' . '/classes',
         ),
     );
 
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
-        'ilGuidedTour' => __DIR__ . '/../..' . '/classes/model/ilGuidedTour.php',
-        'ilGuidedTourConfigGUI' => __DIR__ . '/../..' . '/classes/class.ilGuidedTourConfigGUI.php',
-        'ilGuidedTourPlugin' => __DIR__ . '/../..' . '/classes/class.ilGuidedTourPlugin.php',
-        'ilGuidedTourResourceStakeholder' => __DIR__ . '/../..' . '/classes/class.ilGuidedTourResourceStakeholder.php',
-        'ilGuidedTourUIHookGUI' => __DIR__ . '/../..' . '/classes/class.ilGuidedTourUIHookGUI.php',
-        'uzk\\gtour\\Config\\GuidedTourConfigToursTable' => __DIR__ . '/../..' . '/src/Config/GuidedTourConfigToursTable.php',
-        'uzk\\gtour\\MainBar\\GuidedTourMainBarProvider' => __DIR__ . '/../..' . '/src/MainBar/GuidedTourMainBarProvider.php',
+        'uzk\\gtour\\Config\\GuidedTourConfigToursTable' => __DIR__ . '/../..' . '/classes/Config/GuidedTourConfigToursTable.php',
+        'uzk\\gtour\\Data\\GuidedTourIRepository' => __DIR__ . '/../..' . '/classes/Data/GuidedTourIRepository.php',
+        'uzk\\gtour\\Data\\GuidedTourRepository' => __DIR__ . '/../..' . '/classes/Data/GuidedTourRepository.php',
+        'uzk\\gtour\\Data\\GuidedTourResourceStakeholder' => __DIR__ . '/../..' . '/classes/Data/GuidedTourResourceStakeholder.php',
+        'uzk\\gtour\\MainBar\\GuidedTourMainBarProvider' => __DIR__ . '/../..' . '/classes/MainBar/GuidedTourMainBarProvider.php',
+        'uzk\\gtour\\Model\\GuidedTour' => __DIR__ . '/../..' . '/classes/Model/GuidedTour.php',
     );
 
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit2f7d8cc9187a3ba8644eb1be455b3103::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit2f7d8cc9187a3ba8644eb1be455b3103::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit2f7d8cc9187a3ba8644eb1be455b3103::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit4febdbbbf34ef5db1b6be8d4f1d828cf::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit4febdbbbf34ef5db1b6be8d4f1d828cf::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit4febdbbbf34ef5db1b6be8d4f1d828cf::$classMap;
 
         }, null, ClassLoader::class);
     }

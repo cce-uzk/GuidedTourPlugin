@@ -3,6 +3,8 @@
 //
  
 <!-- language file start -->
+guided_tour#:#Guided Tour
+guided_tours#:#Guided tours
 config#:#Configuration
 config_storage#:#Save progress?
 tab_title#:#Guided tour
@@ -20,6 +22,7 @@ context_tours#:#Object type tours
 tour_title#:#Title
 tour_type#:#Object type
 tour_active#:#Active
+tour_automatic_triggered#:#Autostart
 tour_script#:#Script
 tour_icon#:#Icon
 tour_roles#:#Globale Roles
@@ -42,5 +45,7 @@ tour_active_info#:#The tour is only loaded if this is set active
 tour_title_info#:#Visible tour name
 tour_roles_info#:#Roles where the tour is to be offered
 tour_icon_info#:#Visible tour icon
-tour_script_info#:#Valid JSON to the tour. Attention: Errors can (if activated) lead to malfunction of all active tours.
+tour_script_info#:#Valid JSON to the tour. Attention: Errors can (if activated) lead to malfunction of this active tour.
+automatic_trigger#:#Automatic tour-start
+tour_automatic_trigger_info#:#Start tour automatically, according to the above conditions.
 tour_saved#:#Saved changes
