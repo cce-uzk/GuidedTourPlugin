@@ -4,7 +4,7 @@
 $id = "gtour";
 
 // code version
-$version = "1.1.0";
+$version = "1.1.1";
 
 // ilias min and max version
 $ilias_min_version = "8.0";

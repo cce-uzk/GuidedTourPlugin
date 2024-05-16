@@ -325,7 +325,7 @@
 					if (typeof attrValue === 'string' && attrValue.length > 0) {
 						try {
 							// Create a function from string
-							const func = new Function(attrValue);
+							const func = new Function('tour', attrValue);
 							this._options.steps[i][attr] = func;
 						} catch (error) {
 							console.error(`Error creating function from string for ${attr}:`, error);
@@ -1534,11 +1534,13 @@
 			return $(document).off("click.tour-" + this._options.name, ".popover.tour-" + this._options.name + " *[data-role='prev']").off("click.tour-" + this._options.name, ".popover.tour-" + this._options.name + " *[data-role='next']").off("click.tour-" + this._options.name, ".popover.tour-" + this._options.name + " *[data-role='end']").off("click.tour-" + this._options.name, ".popover.tour-" + this._options.name + " *[data-role='pause-resume']").on("click.tour-" + this._options.name, ".popover.tour-" + this._options.name + " *[data-role='next']", (function (_this) {
 				return function (e) {
 					e.preventDefault();
+					e.stopPropagation();
 					return _this.next();
 				};
 			})(this)).on("click.tour-" + this._options.name, ".popover.tour-" + this._options.name + " *[data-role='prev']", (function (_this) {
 				return function (e) {
 					e.preventDefault();
+					e.stopPropagation();
 					if (_this._current > 0) {
 						return _this.prev();
 					}
@@ -1551,6 +1553,7 @@
 			})(this)).on("click.tour-" + this._options.name, ".popover.tour-" + this._options.name + " *[data-role='pause-resume']", function (e) {
 				var $this;
 				e.preventDefault();
+				e.stopPropagation();
 				$this = $(this);
 				$this.text(_this._paused ? $this.data('pause-text') : $this.data('resume-text'));
 				if (_this._paused) {

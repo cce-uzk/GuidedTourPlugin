@@ -129,17 +129,19 @@ eine gekürzte Übersicht der wichtigsten Attribute folgt.
   "reflex": false,
   "orphan": false,
   "template": "",
-  "onShow": "function (tour) {}",
-  "onShown": "function (tour) {}",
-  "onHide": "function (tour) {}",
-  "onHidden": "function (tour) {}",
-  "onNext": "function (tour) {}",
-  "onPrev": "function (tour) {}",
-  "onPause": "function (tour) {}",
-  "onResume": "function (tour) {}",
-  "onRedirectError": "function (tour) {}"
+  "onShow": "",
+  "onShown": "",
+  "onHide": "",
+  "onHidden": "",
+  "onNext": "",
+  "onPrev": "",
+  "onPause": "",
+  "onResume": "",
+  "onRedirectError": ""
 }
 ```
+Für komplexere Anwendungsfälle sind die Funktionen "onShow", "onShown", "onHide", "onHidden": "",
+"onNext", "onPrev", "onPause", "onResume", "onRedirectError" mit dem `tour` Objekt überladen (tour) => { coding }, eine Übersicht kann sich z.B. mit "onNext": "console.log(tour);" verschaffen werden. 
 
 In den meisten Fällen wird aber nur eine Auswahl der nachfolgenden Attribute benötigt:
 ```yaml
@@ -151,8 +153,8 @@ In den meisten Fällen wird aber nur eine Auswahl der nachfolgenden Attribute be
   "orphan": false,
   "title": "",
   "content": "",
-  "onNext": "function (tour) {}",
-  "onPrev": "function (tour) {}"
+  "onNext": "",
+  "onPrev": ""
 }
 ```
 
@@ -240,18 +242,19 @@ il.Plugins.GuidedTour.isMainBarElementCollapsed(index);
     ```yaml 
     {
       "element": ".il-mainbar", // Beispiel Bindung an ein Element
-      "onNext": "function (tour) { 
+      "onNext": "
           // Hier kann eine Aktion eingefügt werden, die beim Klick auf 'Weiter' ausgeführt wird.
           il.Plugins.GuidedTour.clickMainbarElementByIndex(1); // Simuliert einen 'Klick' auf das oberste Hauptmenue-Element
           il.Plugins.GuidedTour.clickSlateElementByIndex(1); // Simuliert einen 'Klick' auf das oberste Sub-Hauptmenue-Element
           il.Plugins.GuidedTour.goTo('url'); // Aufruf einer bestimmten Url
-      }",
-      "onPrev": "function (tour) {
+          let element = document.getElementById('element-id'); if (element) { element.click(); } // Simuliert einen 'Klick' auf ein html element
+      ",
+      "onPrev": "
           // Hier kann eine Aktion eingefügt werden, die beim Klick auf 'Zurück' ausgeführt wird.
           il.Plugins.GuidedTour.clickTabElementByIndex(1); // Simuliert einen 'Klick' auf das erste Tab-Element
           il.Plugins.GuidedTour.clickSubTabElementByIndex(1); // Simuliert einen 'Klick' auf das erste Sub-Tab-Element
           il.Plugins.GuidedTour.goTo('url'); // Aufruf einer bestimmten Url
-      }", 
+      ", 
       "title": "titel",
       "content": "text"
     }
