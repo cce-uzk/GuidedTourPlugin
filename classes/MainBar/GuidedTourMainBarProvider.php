@@ -12,7 +12,6 @@ use uzk\gtour\Model\GuidedTour;
 use Exception;
 use uzk\gtour\Data\GuidedTourRepository;
 use Closure;
-use ILIAS\GlobalScreen\Scope\MainMenu\Factory\Item\Link;
 
 /**
  * Class GuidedTourMainBarProvider
@@ -32,37 +31,42 @@ class GuidedTourMainBarProvider extends AbstractStaticMainMenuPluginProvider
     public function getStaticTopItems() : array
     {
         global $DIC;
-        $globalScreen = $DIC->globalScreen();
-        $ui = $DIC->ui();
 
-        // Function to create a unique identifier for UI elements
-        $identificationInterface = function ($id) : IdentificationInterface {
-            return $this->if->identifier($id);
-        };
+        if (isset($DIC['global_screen'])) {
+            $globalScreen = $DIC['global_screen'];
+            $ui = $DIC->ui();
 
-        $mainBar = $globalScreen->mainBar();
+            // Function to create a unique identifier for UI elements
+            $identificationInterface = function ($id) : IdentificationInterface {
+                return $this->if->identifier($id);
+            };
 
-        // Creating an icon for the menu items
-        $icon = $ui->factory()->symbol()->icon()
-                   ->custom(
-                       $this->plugin->getDirectory() . "/templates/images/" . "signpost-split-sm.svg",
-                       $this->plugin->txt('guided_tour'));
+            $mainBar = $globalScreen->mainBar();
 
-        // Initialize the top parent item for the main bar
-        $item[] = $mainBar->topParentItem($identificationInterface($this->getPluginID()))
-                          ->withTitle($this->plugin->txt('guided_tour'))
-                          ->withSymbol($icon)
-                          ->withPosition(100)
-                          ->withVisibilityCallable(
-                              function () {
-                                  return $this->isUserLoggedIn();
-                              }
-                          );
+            // Creating an icon for the menu items
+            $icon = $ui->factory()->symbol()->icon()
+                       ->custom(
+                           $this->plugin->getDirectory() . "/templates/images/" . "signpost-split-sm.svg",
+                           $this->plugin->txt('guided_tour'));
 
-        // Adding a top link item to the main bar
-        $mainBar->topLinkItem($identificationInterface($this->getPluginID()))->withAction("action")->withSymbol($icon);
+            // Initialize the top parent item for the main bar
+            $item[] = $mainBar->topParentItem($identificationInterface($this->getPluginID()))
+                              ->withTitle($this->plugin->txt('guided_tour'))
+                              ->withSymbol($icon)
+                              ->withPosition(100)
+                              ->withVisibilityCallable(
+                                  function () {
+                                      return $this->isUserLoggedIn();
+                                  }
+                              );
 
-        return $item;
+            // Adding a top link item to the main bar
+            $mainBar->topLinkItem($identificationInterface($this->getPluginID()))->withAction("action")->withSymbol($icon);
+
+            return $item;
+        } else {
+            return [];
+        }
     }
 
     /**
@@ -78,65 +82,70 @@ class GuidedTourMainBarProvider extends AbstractStaticMainMenuPluginProvider
         global $DIC;
         $user = $DIC->user();
         $ctrl = $DIC->ctrl();
-        $globalScreen = $DIC->globalScreen();
         $ui = $DIC->ui();
 
-        // Instantiate repository to retrieve guided tours
-        $guidedTourRepository = new GuidedTourRepository();
+        if (isset($DIC['global_screen'])) {
+            $globalScreen = $DIC['global_screen'];
 
-        // Retrieve all global roles assigned to the user
-        $userGlobalRoles = $DIC->rbac()->review()->assignedGlobalRoles($user->getId());
-        $mainBar = $globalScreen->mainBar();
+            // Instantiate repository to retrieve guided tours
+            $guidedTourRepository = new GuidedTourRepository();
 
-        // Function to create a unique identifier for UI elements
-        $identificationInterface = function ($id) : IdentificationInterface {
-            return $this->if->identifier($id);
-        };
+            // Retrieve all global roles assigned to the user
+            $userGlobalRoles = $DIC->rbac()->review()->assignedGlobalRoles($user->getId());
+            $mainBar = $globalScreen->mainBar();
 
-        $subItems = array();
-        $tours = $guidedTourRepository->getTours();
-        $countDefaultTours = 0;
+            // Function to create a unique identifier for UI elements
+            $identificationInterface = function ($id) : IdentificationInterface {
+                return $this->if->identifier($id);
+            };
 
-        // Process default tours and add them to the navbar
-        foreach ($tours as $tour) {
-            if ($tour->getType() == GuidedTour::TYPE_DEFAULT && $tour->isActive()
-                && count(array_intersect($userGlobalRoles, $tour->getRolesIds())) > 0) {
+            $subItems = array();
+            $tours = $guidedTourRepository->getTours();
+            $countDefaultTours = 0;
 
-                $countDefaultTours++;
-                if ($countDefaultTours == 1) {
-                    // Adds a separator before adding tours
-                    $subItems[] = $mainBar->separator($identificationInterface($this->getPluginID() . '-sep-1'))
-                                          ->withTitle($this->plugin->txt('default_tours'))
-                                          ->withParent($identificationInterface($this->getPluginID()));
+            // Process default tours and add them to the navbar
+            foreach ($tours as $tour) {
+                if ($tour->getType() == GuidedTour::TYPE_DEFAULT && $tour->isActive()
+                    && count(array_intersect($userGlobalRoles, $tour->getRolesIds())) > 0) {
+
+                    $countDefaultTours++;
+                    if ($countDefaultTours == 1) {
+                        // Adds a separator before adding tours
+                        $subItems[] = $mainBar->separator($identificationInterface($this->getPluginID() . '-sep-1'))
+                                              ->withTitle($this->plugin->txt('default_tours'))
+                                              ->withParent($identificationInterface($this->getPluginID()));
+                    }
+
+                    // Extracts tour items and adds to the subItems array
+                    list($item, $icon, $subItems) = $this->extracted($mainBar, $identificationInterface, $tour, $ui,
+                        $subItems);
                 }
-
-                // Extracts tour items and adds to the subItems array
-                list($item, $icon, $subItems) = $this->extracted($mainBar, $identificationInterface, $tour, $ui,
-                    $subItems);
             }
-        }
 
-        // Process context-sensitive tours and add them to the navbar
-        $countContextTours = 0;
-        foreach ($tours as $tour) {
-            if (($tour->getType() == $ctrl->getContextObjType() || $tour->getType() == $ctrl->getCmdClass())
-                && $tour->isActive() && count(array_intersect($userGlobalRoles, $tour->getRolesIds())) > 0) {
+            // Process context-sensitive tours and add them to the navbar
+            $countContextTours = 0;
+            foreach ($tours as $tour) {
+                if (($tour->getType() == $ctrl->getContextObjType() || $tour->getType() == $ctrl->getCmdClass())
+                    && $tour->isActive() && count(array_intersect($userGlobalRoles, $tour->getRolesIds())) > 0) {
 
-                $countContextTours++;
-                if ($countContextTours == 1) {
-                    // Adds a separator for context-sensitive tours
-                    $subItems[] = $mainBar->separator($identificationInterface($this->getPluginID() . '-sep-2'))
-                                          ->withTitle($this->plugin->txt('context_tours'))
-                                          ->withParent($identificationInterface('gtour'));
+                    $countContextTours++;
+                    if ($countContextTours == 1) {
+                        // Adds a separator for context-sensitive tours
+                        $subItems[] = $mainBar->separator($identificationInterface($this->getPluginID() . '-sep-2'))
+                                              ->withTitle($this->plugin->txt('context_tours'))
+                                              ->withParent($identificationInterface('gtour'));
+                    }
+
+                    // Reuse the extracted function to handle tour items
+                    list($item, $icon, $subItems) = $this->extracted($mainBar, $identificationInterface, $tour, $ui,
+                        $subItems);
                 }
-
-                // Reuse the extracted function to handle tour items
-                list($item, $icon, $subItems) = $this->extracted($mainBar, $identificationInterface, $tour, $ui,
-                    $subItems);
             }
-        }
 
-        return $subItems;
+            return $subItems;
+        } else {
+            return [];
+        }
     }
 
     /**
@@ -217,7 +226,7 @@ class GuidedTourMainBarProvider extends AbstractStaticMainMenuPluginProvider
                 // Associate the created icon with the menu item.
                 $item = $item->withSymbol($icon);
             }
-        } catch (Exception $e) {
+        } catch (Exception) {
 
         }
 

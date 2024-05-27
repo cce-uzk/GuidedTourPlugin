@@ -53,7 +53,8 @@ class ilGuidedTourUIHookGUI extends ilUIHookPluginGUI
         $userId = $this->user->getId();
         $userGlobalRoles = $this->rbac->review()->assignedGlobalRoles($userId);
 
-        if ($DIC->offsetExists('global_screen') && !$DIC->http()->agent()->isMobile()){
+        if (isset($DIC['global_screen']) && !$DIC->http()->agent()->isMobile()) {
+            $globalScreen = $DIC['global_screen'];
             $config = new stdClass();
             $config->name = $this->getTriggeredGuidedTour();
             $config->forceStart = isset($config->name);
@@ -85,7 +86,7 @@ class ilGuidedTourUIHookGUI extends ilUIHookPluginGUI
                 // Get context sensitive autostart tour
 
                 // Context data
-                $contextIdentifier = $DIC->globalScreen()->tool()->context()->current()->getUniqueContextIdentifier();
+                $contextIdentifier = $globalScreen->tool()->context()->current()->getUniqueContextIdentifier();
                 $refId = $this->getCurrentRefId();
                 $type = $this->getObjectTypeByRefId($refId);
                 $cmdClass = $this->ctrl->getCmdClass();
@@ -96,7 +97,7 @@ class ilGuidedTourUIHookGUI extends ilUIHookPluginGUI
                     $type,
                     $cmdClass
                 ];
-
+				
                 // Get all tours
                 $tours = $this->guidedTourRepository->getTours();
 
@@ -129,8 +130,9 @@ class ilGuidedTourUIHookGUI extends ilUIHookPluginGUI
             }
 
             // Initialize JS tour start
-            $meta_content = $DIC->globalScreen()->layout()->meta();
+            $meta_content = $globalScreen->layout()->meta();
             $meta_content->addOnloadCode("il.Plugins.GuidedTour.init(" . $jsonConfig . ");", 1);
+            //ilGuidedTourPlugin::getInstance()->setIsLoaded(true);
         }
     }
 
@@ -262,11 +264,18 @@ class ilGuidedTourUIHookGUI extends ilUIHookPluginGUI
     protected function getCurrentRefId(): int
     {
         global $DIC;
-        // Attempt to retrieve the refId directly
-        $refId = $DIC->globalScreen()->tool()->context()->current()->getReferenceId()->toInt();
 
-        // Return refId if it's a valid positive integer, otherwise, fetch using alternative method
-        return ($refId > 0) ? $refId : $this->getRefIdByCurrentClassPathParameter();
+        if (isset($DIC['global_screen'])) {
+            $globalScreen = $DIC['global_screen'];
+
+            // Attempt to retrieve the refId directly
+            $refId = $globalScreen->tool()->context()->current()->getReferenceId()->toInt();
+
+            // Return refId if it's a valid positive integer, otherwise, fetch using alternative method
+            return ($refId > 0) ? $refId : $this->getRefIdByCurrentClassPathParameter();
+        } else {
+            return -1;
+        }
     }
 
     protected function getRefIdByCurrentClassPathParameter(): int
