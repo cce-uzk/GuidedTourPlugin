@@ -40,8 +40,8 @@ Update and activate the plugin in the ILIAS Plugin Administration
 
 ## Requirements
 
-* ILIAS 6.0 - 7.999
-* PHP >=7.0
+* ILIAS 8.0 - 9.999
+* PHP >=8.1
 
 ## Hintergrundinformationen
 Die GuidedTour basiert auf dem Framework `Bootstrap Tour` (https://bootstraptour.com/). Eingebunden ist jedoch dessen Fork von `Bootstrap Tourist` 
@@ -111,127 +111,128 @@ eine gekürzte Übersicht der wichtigsten Attribute folgt.
 
 ```yaml
 {
-  path: "",
-  host: "",
-  element: "",
-  placement: "right",
-  smartPlacement: true,
-  title: "",
-  content: "",
-  next: 0,
-  prev: 0,
-  animation: true,
-  container: "body",
-  backdrop: false,
-  backdropContainer: 'body',
-  backdropPadding: false,
-  redirect: true,
-  reflex: false,
-  orphan: false,
-  template: "",
-  onShow: function (tour) {},
-  onShown: function (tour) {},
-  onHide: function (tour) {},
-  onHidden: function (tour) {},
-  onNext: function (tour) {},
-  onPrev: function (tour) {},
-  onPause: function (tour) {},
-  onResume: function (tour) {},
-  onRedirectError: function (tour) {}
+  "path": "",
+  "host": "",
+  "element": "",
+  "placement": "right",
+  "smartPlacement": true,
+  "title": "",
+  "content": "",
+  "next": 0,
+  "prev": 0,
+  "animation": true,
+  "container": "body",
+  "backdrop": false,
+  "backdropContainer": "body",
+  "backdropPadding": false,
+  "redirect": true,
+  "reflex": false,
+  "orphan": false,
+  "template": "",
+  "onShow": "",
+  "onShown": "",
+  "onHide": "",
+  "onHidden": "",
+  "onNext": "",
+  "onPrev": "",
+  "onPause": "",
+  "onResume": "",
+  "onRedirectError": ""
 }
 ```
+Für komplexere Anwendungsfälle sind die Funktionen "onShow", "onShown", "onHide", "onHidden": "",
+"onNext", "onPrev", "onPause", "onResume", "onRedirectError" mit dem `tour` Objekt überladen (tour) => { coding }, eine Übersicht kann sich z.B. mit "onNext": "console.log(tour);" verschaffen werden. 
 
 In den meisten Fällen wird aber nur eine Auswahl der nachfolgenden Attribute benötigt:
 ```yaml
 {
-  path: "",
-  element: "", // Auswahl via Query oder Function
-  element: function () {
-    return $(document).find(".something");
-  },
-  title: "",
-  content: "",
-  orphan: false,
-  onNext: function (tour) {},
-  onPrev: function (tour) {}
+  "path": "",
+  "element": "#element-id", // Auswahl via Id oder
+  "element": ".element-class", // Auswahl via Klasse oder
+  "element": "func:function () { return $(document).find('.il-mainmenu');  }", // Auswahl via Funktion
+  "orphan": false,
+  "title": "",
+  "content": "",
+  "onNext": "",
+  "onPrev": ""
 }
 ```
 
 Die Werte der Attribute `text` und `content` können sowohl `Text`, als auch `HTML` enthalten:
 ```yaml
 {
-  element: ".il-mainbar",
-  title: "<b>Willkommen</b> <small>Hauptmenü</small>",
-  content: "Hier kann auch ein <a href='www.ilias.de' target='_blank'>Link</a> erscheinen."
+  "element": ".il-mainbar",
+  "title": "<b>Willkommen</b> <small>Hauptmenü</small>",
+  "content": "Hier kann auch ein <a href='www.ilias.de' target='_blank'>Link</a> erscheinen."
 }
 ```
 ### ILIAS GuidedTour Funktionen
 Die GuidedTour erweitert die JavaScript Bibliothek um nachfolgende Funktionen, 
 die bei der Ausgestaltung der Tour-Steps im `json` nützlich sein können:
 ```yaml
-////
-//    Funktionen zur Element-Auswahl
-////
+/**
+ *   Funktionen zur Element-Auswahl
+ */
 
 // Liefert das n-te (index) Hauptmenue-Element
-ilGuidedTour.getMainbarElementByIndex(index);
+il.Plugins.GuidedTour.getMainbarElementByIndex(index);
 
 // Liefert das n-te (index) Sub-Hauptmenue-Element
-ilGuidedTour.getSlateElementByIndex(index);
+il.Plugins.GuidedTour.getSlateElementByIndex(index);
 
 // Liefert das n-te (index) Tab-Element
-ilGuidedTour.getTabElementByIndex(index);
+il.Plugins.GuidedTour.getTabElementByIndex(index);
 
 // Liefert das n-te (index) Sub-Tab-Element
-ilGuidedTour.getSubTabElementByIndex(index);
+il.Plugins.GuidedTour.getSubTabElementByIndex(index);
 
 
-////
-//    Funktionen fuer Aktionen
-////
+/**
+ *    Funktionen fuer Aktionen
+ */
 
 // Simulierter "Klick" auf das n-te (index) Hauptmenue-Element
-ilGuidedTour.clickMainbarElementByIndex(index);
+il.Plugins.GuidedTour.clickMainbarElementByIndex(index);
 
 // Simulierter "Klick" auf das n-te (index) Sub-Hauptmenue-Element
-ilGuidedTour.clickSlateElementByIndex(index);
+il.Plugins.GuidedTour.clickSlateElementByIndex(index);
 
 // Simulierter "Klick" auf das n-te (index) Tab-Element
-ilGuidedTour.clickTabElementByIndex(index);
+il.Plugins.GuidedTour.clickTabElementByIndex(index);
 
 // Simulierter "Klick" auf das n-te (index) Sub-Tab-Element
-ilGuidedTour.clickSubTabElementByIndex(index);
+il.Plugins.GuidedTour.clickSubTabElementByIndex(index);
 
 // Simuliert den Aufruf einer anderen Seite
-ilGuidedTour.goTo('url');
+il.Plugins.GuidedTour.goTo('url');
 
-////
-//    Weitere Funktionen
-////
+/**
+ *    Weitere Funktionen
+ */
 
 // Ueberpruefe, ob ein MainBar-Element ausgeklappt ist (Slate angezeigt => true) oder nicht (=>false)
-ilGuidedTour.isMainBarElementCollapsed(index);
+il.Plugins.GuidedTour.isMainBarElementCollapsed(index);
 
 ```
 ### ILIAS spezifische Anwendungsbeispiele
 * `Ungebundendes Element`: Anzeige eines Tour-Steps ohne Bindung an ein Element (Anzeige in der Mitte der Webseite):
     ```yaml
     {
-      orphan: true,
-      title: "titel",
-      content: "text",
+      "orphan": true,
+      "title": "titel",
+      "content": "text"
     }
     ```
 * `Element binden:` Anzeige eines Tour-Steps gebunden an ein Element (mehrere Beispiele für die Element-Verknüpfung):
     ```yaml
     {
-      element: ".il-mainbar", // Bsp. Bindung an ein HTML Element
-      element: ilGuidedTour.getMainbarElementByIndex(1), // Bindung an das oberste Hauptmenue-Element
-      element: ilGuidedTour.getSlateElementByIndex(1), // Bindung an das oberste Sub-Hauptmenue-Element
-      element: ilGuidedTour.getTabElementByIndex(1), // Bindung an das erste Tab-Element
-      element: ilGuidedTour.getSubTabElementByIndex(1), // Bindung an das erste Sub-Tab-Element  
-      title: "titel",
-      content: "text",
+      "element": ".il-mainbar", // Bsp. Bindung an ein HTML Element
+      "element": "func:il.Plugins.GuidedTour.getMainbarElementByIndex(1)", // Bindung an das oberste Hauptmenue-Element
+      "element": "func:il.Plugins.GuidedTour.getSlateElementByIndex(1)", // Bindung an das oberste Sub-Hauptmenue-Element
+      "element": "func:il.Plugins.GuidedTour.getTabElementByIndex(1)", // Bindung an das erste Tab-Element
+      "element": "func:il.Plugins.GuidedTour.getSubTabElementByIndex(1)", // Bindung an das erste Sub-Tab-Element  
+      "title": "titel",
+      "content": "text"
     }
     ```
 
@@ -240,21 +241,22 @@ ilGuidedTour.isMainBarElementCollapsed(index);
   beliebig in `onNext` bzw. `onPrev` verwendet werden.
     ```yaml 
     {
-      element: ".il-mainbar", // Beispiel Bindung an ein Element
-      onNext: function (tour) { 
+      "element": ".il-mainbar", // Beispiel Bindung an ein Element
+      "onNext": "
           // Hier kann eine Aktion eingefügt werden, die beim Klick auf 'Weiter' ausgeführt wird.
-          ilGuidedTour.clickMainbarElementByIndex(1); // Simuliert einen "Klick" auf das oberste Hauptmenue-Element
-          ilGuidedTour.clickSlateElementByIndex(1); // Simuliert einen "Klick" auf das oberste Sub-Hauptmenue-Element
-          ilGuidedTour.goTo('url'); // Aufruf einer bestimmten Url
-      },
-      onPrev: function (tour) {
+          il.Plugins.GuidedTour.clickMainbarElementByIndex(1); // Simuliert einen 'Klick' auf das oberste Hauptmenue-Element
+          il.Plugins.GuidedTour.clickSlateElementByIndex(1); // Simuliert einen 'Klick' auf das oberste Sub-Hauptmenue-Element
+          il.Plugins.GuidedTour.goTo('url'); // Aufruf einer bestimmten Url
+          let element = document.getElementById('element-id'); if (element) { element.click(); } // Simuliert einen 'Klick' auf ein html element
+      ",
+      "onPrev": "
           // Hier kann eine Aktion eingefügt werden, die beim Klick auf 'Zurück' ausgeführt wird.
-          ilGuidedTour.clickTabElementByIndex(1); // Simuliert einen "Klick" auf das erste Tab-Element
-          ilGuidedTour.clickSubTabElementByIndex(1); // Simuliert einen "Klick" auf das erste Sub-Tab-Element
-          ilGuidedTour.goTo('url'); // Aufruf einer bestimmten Url
-      } 
-      title: "titel",
-      content: "text",
+          il.Plugins.GuidedTour.clickTabElementByIndex(1); // Simuliert einen 'Klick' auf das erste Tab-Element
+          il.Plugins.GuidedTour.clickSubTabElementByIndex(1); // Simuliert einen 'Klick' auf das erste Sub-Tab-Element
+          il.Plugins.GuidedTour.goTo('url'); // Aufruf einer bestimmten Url
+      ", 
+      "title": "titel",
+      "content": "text"
     }
     ```
   

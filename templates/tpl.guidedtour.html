@@ -5,7 +5,7 @@
         let url = document.location.href;
         let urlParts = url.split('?');
 
-        if (urlParts.length>=2)
+        if (urlParts.length >= 2)
         {
             let urlBase = urlParts.shift();
             let queryString = urlParts.join("?");
@@ -24,12 +24,13 @@
     }
 
     $(function() {
-        ilGuidedTour.hideGuidedTourOnSmallScreen();
+        il.Plugins.GuidedTour.hideGuidedTourOnSmallScreen();
 
         let tour;
         const tours = {{GTOUR_TOURS}};
         const tourName = '{GTOUR_NAME}';
         const tourStart = '{GTOUR_START}';
+        const tourDefault = '{GTOUR_DEFAULT}';
         const tourStorage = {GTOUR_STORAGE};
         const tourTemplate = `
         <div class='popover tour'>
@@ -44,10 +45,10 @@
         </div>`;
 
         let tourCurrentName = '{GTOUR_CURRENT_NAME}';
-        if(!(!tourCurrentName || tourCurrentName.length === 0)){
-            sessionStorage.setItem('{GTOUR_NAME}_current_name', tourCurrentName);
-        } else if (sessionStorage.getItem('{GTOUR_NAME}_current_name')) {
-            tourCurrentName = sessionStorage.getItem('{GTOUR_NAME}_current_name');
+        if(!(!tourCurrentName || tourCurrentName.length === 0)) {
+          tourStorage.setItem('{GTOUR_NAME}_current_name', tourCurrentName);
+        } else if (tourStorage.getItem('{GTOUR_NAME}_current_name')) {
+            tourCurrentName = tourStorage.getItem('{GTOUR_NAME}_current_name');
         }
 
         let steps = '';
@@ -61,7 +62,7 @@
             storage: tourStorage,
             smartPlacement: true,
             template: tourTemplate,
-            onEnd: function(tour){
+            onEnd: function(tour) {
                 removeParam('triggerTour');
             },
             steps: steps
@@ -74,4 +75,4 @@
         }
     }).delay( 300 );
 </script>
-<!-- End gtour Code -->  
+<!-- End gtour Code -->

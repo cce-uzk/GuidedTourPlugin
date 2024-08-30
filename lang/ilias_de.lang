@@ -3,6 +3,8 @@
 //
  
 <!-- language file start -->
+guided_tour#:#Guided Tour
+guided_tours#:#Guided Touren
 config#:#Konfiguration
 config_storage#:#Fortschritt speichern?
 tab_title#:#Einf&uuml;hrungstour
@@ -20,6 +22,7 @@ context_tours#:#Objektbezogene Einf&uuml;hrungstour
 tour_title#:#Titel
 tour_type#:#Objekttyp
 tour_active#:#Aktiv
+tour_automatic_triggered#:#Autostart
 tour_script#:#Skript
 tour_icon#:#Icon
 tour_roles#:#Globale Rollen
@@ -42,5 +45,7 @@ tour_active_info#:#Die Tour wird nur geladen, wenn diese aktiv gesetzt ist
 tour_title_info#:#Anzeigename der Tour
 tour_roles_info#:#Rollen, bei dem die Tour angeboten werden soll
 tour_icon_info#:#Anzeigesymbol (Icon) der Tour
-tour_script_info#:#Valides JSON zur Tour. Achtung: Fehler k&ouml;nnen (bei Aktivierung) zu Fehlfunktion aller aktiven Touren f&uuml;hren.
+tour_script_info#:#Valides JSON zur Tour. Achtung: Fehler k&ouml;nnen (bei Aktivierung) zu Fehlfunktion dieser Tour f&uuml;hren.
+automatic_trigger#:#Automatischer Tour-Start
+tour_automatic_trigger_info#:#Tour automatisch starten, entsprechend der oben genannten Bedingungen.
 tour_saved#:#&Auml;nderungen gespeichert

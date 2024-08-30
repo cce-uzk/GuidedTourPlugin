@@ -48,3 +48,16 @@ if (!$db->tableExists('gtour_tours'))
     $db->createSequence("gtour_tours");
 }
 ?>
+<#2>
+<?php
+global $DIC;
+$db = $DIC->database();
+if ($db->tableExists('gtour_tours'))
+{
+    $db->addTableColumn("gtour_tours", 'is_automatic_triggered', array(
+        'type' => 'integer',
+        'length' => 1,
+        'notnull' => false
+    ));
+}
+?>

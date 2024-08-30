@@ -1,17 +1,18 @@
 <?php
-require_once __DIR__ . "/vendor/autoload.php";
 
 // alphanumerical ID of the plugin; never change this
 $id = "gtour";
 
-// code version; must be changed for all code changes
-$version = "1.0.0";
+// code version
+$version = "1.1.5";
 
-// ilias min and max version; must always reflect the versions that should
-// run with the plugin
-$ilias_min_version = "6.0.0";
-$ilias_max_version = "7.999";
+// ilias min and max version
+$ilias_min_version = "8.0";
+$ilias_max_version = "9.999";
 
-// optional, but useful: Add one or more responsible persons and a contact email
+// responsible persons and a contact email
 $responsible = "Nadimo Staszak";
 $responsible_mail = "nadimo.staszak@uni-koeln.de";
+
+$supports_cli_setup = true;
+$supports_export = false;

@@ -1,168 +1,301 @@
-<?php
-require_once __DIR__ . "/../vendor/autoload.php";
+<?php declare(strict_types=1);
 
-include_once("./Services/UIComponent/classes/class.ilUIHookPluginGUI.php");
-include_once("./Services/Init/classes/class.ilStartUpGUI.php");
+require_once __DIR__ . "/../vendor/autoload.php";
+use uzk\gtour\Data\GuidedTourRepository;
+use ILIAS\DI\RBACServices;
 
 /**
  * Class ilGuidedTourUIHookGUI
  * GuidedTour Userinterface-Hook class
  * @author  Nadimo Staszak <nadimo.staszak@uni-koeln.de>
  * @version $Id$
- * @ingroup ServicesUIComponent
+ *
+ * @ilCtrl_isCalledBy ilGuidedTourUIHookGUI: ilUIPluginRouterGUI
  */
 class ilGuidedTourUIHookGUI extends ilUIHookPluginGUI
 {
-    protected $ctrl;
-    protected $tpl;
-    protected $rbac;
-    protected $user;
-    protected $plugin;
+    protected ilCtrl $ctrl;
+    protected ilObjUser $user;
+    protected RBACServices $rbac;
+    protected GuidedTourRepository $guidedTourRepository;
 
     /**
      * ilGuidedTourUIHookGUI constructor
+     * @throws Exception
      */
     public function __construct()
     {
-        global $DIC, $tpl;
-
-        $this->ctrl = $DIC->ctrl();
-        $this->tpl = $tpl;
-        $this->rbac = $DIC->rbac();
-        $this->user = $DIC->user();
-        $this->plugin = ilGuidedTourPlugin::getInstance();
-
         $this->setPluginObject(ilGuidedTourPlugin::getInstance());
+
+        // Get global data
+        global $DIC;
+        $this->user = $DIC->user();
+        $this->ctrl = $DIC->ctrl();
+        $this->rbac = $DIC->rbac();
+
+        // Initialize repository
+        $this->guidedTourRepository = new GuidedTourRepository();
+
+        // Initialize tour
+        if (!$this->ctrl->isAsynch()) {
+            $this->initGuidedTour();
+        }
     }
 
     /**
-     * Modify HTML output of (all) GUI elements.
-     * Adds
-     * @param string $a_comp component
-     * @param string $a_part string that identifies the part of the UI that is handled
-     * @param string $a_par  array of parameters (depend on $a_comp and $a_part)
-     * @return array array with entries "mode" => modification mode, "html" => your html
+     * @return void
      */
-    public function getHTML($a_comp, $a_part, $a_par = array()) : array
+    protected function initGuidedTour(): void
     {
+        global $DIC;
+
+        // Retrieve all global roles assigned to the user once
         $userId = $this->user->getId();
-        $is_logged_in = ($userId && $userId != ANONYMOUS_USER_ID);
+        $userGlobalRoles = $this->rbac->review()->assignedGlobalRoles($userId);
 
-        // If user is logged in (not anonymous)
-        if ($is_logged_in) {
-            // If this method is triggered by loading a 'template' (whole page) and this is not an async call
-            if ($a_part == "template_load" && !$this->ctrl->isAsynch()) {
-                // If this method is triggered by loading a the 'main' template
-                if (strpos(strtolower($a_par['html']), "</body>") !== false) {
-                    $saveStatus = 'window.sessionStorage';
-                    $tourStart = 'false';
-                    $tourName = 'GTOUR';
+        if (isset($DIC['global_screen']) && !$DIC->http()->agent()->isMobile()) {
+            $globalScreen = $DIC['global_screen'];
+            $config = new stdClass();
+            $config->name = $this->getTriggeredGuidedTour();
+            $config->forceStart = isset($config->name);
+            $config->storage = 'sessionStorage';
+            $config->steps = null;
 
-                    // Create string with all relevant tours-scripts (activated tours only, user has role of tour)
-                    $tourScript = '';
-                    $tours = ilGuidedTour::getTours();
-                    $userGlobalRoles = $this->rbac->review()->assignedGlobalRoles($userId);
-                    if (isset($tours)) {
-                        foreach ($tours as $tour) {
-                            if ($tour->isActive() && count(array_intersect($userGlobalRoles,
-                                    $tour->getRolesIds())) > 0) {
-                                $tourScript = $tourScript . '\'' . $this->getPluginObject()->getId() . '-' . $tour->getTourId() . '\': [' . $tour->getScript() . '],';
+            // Template placeholder
+            $config->tpl = new stdClass();
+            $config->tpl->btn_prev = $this->plugin_object->txt('tour_btn_previous');
+            $config->tpl->btn_next = $this->plugin_object->txt('tour_btn_next');
+            $config->tpl->btn_stop = $this->plugin_object->txt('tour_btn_stop');
+
+            if (isset($config->name)) {
+                // Get requested tour
+                $tourId = $this->getGtourIdByTriggerInformation($config->name);
+                if (isset($tourId)) {
+                    $tour = $this->guidedTourRepository->getTourById($tourId);
+                    if (isset($tour)) {
+                        if ($tour->isActive() && $this->isUserEligibleForTour($userGlobalRoles, $tour)) {
+                            $jsonString = $this->cleanJsonString($tour->getScript());
+                            if ($this->isValidJson($jsonString)) {
+                                $config->steps = $jsonString;
                             }
                         }
                     }
-
-                    // Forces start of GuidedTour, if a GuidedTour was triggered
-                    if ($this->isGuidedTourTriggered()) {
-                        $tourStart = 'true';
-                    }
-
-                    // Add js of GuidedTour to output
-                    $this->tpl->addJavaScript($this->plugin->getDirectory() . "/js/ilGuidedTour.js");
-                    $this->tpl->addJavaScript($this->plugin->getDirectory() . "/vendor/bootstrap-tourist/bootstrap-tourist.js");
-
-                    // Add GuidedTour HTML to output
-                    $html = $a_par['html'];
-                    $index = strripos($html, "</body>", -7);
-                    if ($index !== false) {
-                        try {
-                            // Set all GuidedTour HTML Template Variables
-                            $tmpl = $this->plugin->getTemplate("tpl.guidedtour.html", true, true);
-                            $tmpl->setVariable("GTOUR_STORAGE", "$saveStatus");
-                            $tmpl->setVariable("GTOUR_BTN_PREV", $this->plugin->txt("tour_btn_previous"));
-                            $tmpl->setVariable("GTOUR_BTN_NEXT", $this->plugin->txt("tour_btn_next"));
-                            $tmpl->setVariable("GTOUR_BTN_STOP", $this->plugin->txt("tour_btn_stop"));
-                            $tmpl->setVariable("GTOUR_START", "$tourStart");
-                            $tmpl->setVariable("GTOUR_NAME", "$tourName");
-                            $tmpl->setVariable("GTOUR_TOURS", "$tourScript");
-
-                            $currentTourName = $this->getTriggeredGuidedTour();
-                            if (isset($currentTourName)) {
-                                $tmpl->setVariable("GTOUR_CURRENT_NAME", "$currentTourName");
-                            }
-                            $html = substr($html, 0, $index) . $tmpl->get() . substr($html, $index);
-                            return array("mode" => ilUIHookPluginGUI::REPLACE, "html" => $html);
-                        } catch (Exception $ex) {
-
-                        }
-                    }
-
                 }
             }
-        }
+            else {
+                // Get context sensitive autostart tour
 
-        // Return without changes
-        return array("mode" => ilUIHookPluginGUI::KEEP, "html" => "");
+                // Context data
+                $contextIdentifier = $globalScreen->tool()->context()->current()->getUniqueContextIdentifier();
+                $refId = $this->getCurrentRefId();
+                $type = $this->getObjectTypeByRefId($refId);
+                $cmdClass = $this->ctrl->getCmdClass();
+
+                // Ensure no null values are added by using array_filter
+                $identifier = [
+                    $contextIdentifier,
+                    $type,
+                    $cmdClass
+                ];
+				
+                // Get all tours
+                $tours = $this->guidedTourRepository->getTours();
+
+                // Check for context-, role-sensitive autostart tours
+                foreach ($tours as $tour) {
+                    if ($tour->isActive() && $tour->isAutomaticTriggered() && in_array($tour->getType(), $identifier) && $this->isUserEligibleForTour($userGlobalRoles, $tour)) {
+                        $jsonString = $this->cleanJsonString($tour->getScript());
+                        if ($this->isValidJson($jsonString)) {
+                            $config->steps = $jsonString;
+                            $config->name = 'gtour-' . $tour->getId();
+
+                            // todo: implement always forced start to gtour object as new option
+                            $forceStartAlways = false;
+                            if($forceStartAlways) {
+                                $config->forceStart = true;
+                            }
+                            break;
+                        }
+                    }
+                }
+
+            }
+
+            // Convert the object to JSON
+            $jsonConfig = json_encode($config, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+            // Provides a default empty object to prevent JS errors by JSON encoding
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                $jsonConfig = '{}';
+            }
+
+            // Initialize JS tour start
+            $meta_content = $globalScreen->layout()->meta();
+            $meta_content->addOnloadCode("il.Plugins.GuidedTour.init(" . $jsonConfig . ");", 1);
+            //ilGuidedTourPlugin::getInstance()->setIsLoaded(true);
+        }
     }
 
     /**
-     * Check if a GuidedTour is currently triggered
+     * Get name of the current triggered tour otherwise returns `null` if there is no currently triggered tour
+     * @return string|null
+     */
+    protected function getTriggeredGuidedTour(): string|null
+    {
+        $uri = parse_url($_SERVER["REQUEST_URI"]);
+        if ($uri !== false && isset($uri["query"])) {
+            parse_str($uri["query"], $params);
+            if (array_key_exists("triggerTour", $params)) {
+                return $params["triggerTour"];
+            }
+        }
+        return null; // Return null if any conditions fail
+    }
+
+    /**
+     * Extracts the numeric ID from a formatted string representing a guided tour identifier.
+     * @param string $string The string to parse, expected to be in the format "gtour-{id}".
+     * @return int|null Returns the numeric ID as an integer if the string is correctly formatted,
+     * otherwise returns `null` if the format is incorrect or the ID is not numeric.
+     */
+    protected function getGtourIdByTriggerInformation(string $string): int|null {
+        // Split the string by '-'
+        $parts = explode('-', $string);
+
+        // Check if the format is correct (should have 2 parts and start with 'gtour')
+        if (count($parts) === 2 && $parts[0] === 'gtour') {
+            // Check if the second part is a numeric value
+            if (is_numeric($parts[1])) {
+                return (int) $parts[1];  // Return as integer
+            }
+        }
+
+        // Return null if the format is incorrect or the ID isn't numeric
+        return null;
+    }
+
+    /**
+     * Checks if a given string is valid JSON.
+     *
+     * This function attempts to decode a string using json_decode and then checks if the operation
+     * was successful by checking the error code from json_last_error. It returns true if the string
+     * is valid JSON; otherwise, it returns false.
+     *
+     * @param string $string The string to test for JSON validity.
+     * @return bool Returns true if the string is valid JSON, false otherwise.
+     */
+    protected function isValidJson(string $string): bool {
+        json_decode($string);
+        return (json_last_error() == JSON_ERROR_NONE);
+    }
+
+    /**
+     * Cleans up a JSON string by removing unnecessary whitespace such as newlines, tabs, and redundant spaces.
+     * Ensures the JSON string is wrapped in brackets if it appears to be an array of objects.
+     *
+     * @param string $jsonString The JSON string to be cleaned.
+     * @return string The cleaned JSON string without unnecessary whitespace.
+     */
+    protected function cleanJsonString(string $jsonString): string {
+        // Ensure all literal backslashes are properly escaped (avoid double-escaping)
+        $jsonString = preg_replace('/(?<!\\\\)\\\\(?!["\\\\])/', '\\\\', $jsonString);
+
+        // Escape unescaped double quotes inside JSON strings
+        $jsonString = preg_replace_callback('/(?<=:|,)\s*"([^"]*)"/', function ($matches) {
+            return '"' . str_replace('"', '\\"', $matches[1]) . '"';
+        }, $jsonString);
+
+        // Remove newlines, carriage returns, tabs, and collapse multiple spaces into one
+        $jsonString = preg_replace("/\s+/", " ", $jsonString);
+
+        // Remove invalid numeric values
+        $jsonString = str_ireplace(["NaN", "Infinity", "-Infinity"], "null", $jsonString);
+
+        // Correct boolean values
+        $jsonString = str_ireplace(["True", "False"], ["true", "false"], $jsonString);
+
+        // Remove spaces around brackets, braces, commas, and colons
+        $jsonString = preg_replace("/\s?([\[\]{},:])\s?/", "$1", $jsonString);
+
+        // Remove unwanted trailing commas before closing braces (objects) and brackets (arrays)
+        $jsonString = preg_replace('/,\s*(\}|\])/', '$1', $jsonString);
+
+        // Normalize to ensure the string forms a valid JSON array if it's not already encapsulated
+        if (preg_match('/^\{.+\}$/', $jsonString)) {
+            $jsonString = '[' . $jsonString . ']'; // Wrap single object into an array
+        } else if (!preg_match('/^\[.*\]$/', $jsonString)) { // Broadened to accept any content within brackets
+            // It's multiple objects not in a valid JSON array format, or improperly formatted
+            $jsonString = preg_replace('/\}\s*\{/', '},{', $jsonString); // Ensure proper comma separation
+            $jsonString = '[' . $jsonString . ']'; // Wrap them in an array
+        }
+
+        return $jsonString;
+    }
+
+    /**
+     * Check if tour is eligible for current user.
+     * @param $userGlobalRoles
+     * @param $tour
      * @return bool
      */
-    protected function isGuidedTourTriggered() : bool
+    protected function isUserEligibleForTour($userGlobalRoles, $tour) : bool
     {
-        $uri = parse_url($_SERVER["REQUEST_URI"]);
-        if (isset($uri)) {
-            $params = null;
-            parse_str($uri["query"], $params);
-            if (isset($params) && array_key_exists("triggerTour", $params)) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
+        return count(array_intersect($userGlobalRoles, $tour->getRolesIds())) > 0;
     }
 
-    /**
-     * Get name of the current triggered tour
-     * Null if there is no currently triggered tour
-     * @return mixed|null
-     */
-    protected function getTriggeredGuidedTour()
+    protected function getObjectTypeByRefId(int $refId): string|null
     {
-        $uri = parse_url($_SERVER["REQUEST_URI"]);
-        if (isset($uri)) {
-            $params = null;
-            parse_str($uri["query"], $params);
-            if (isset($params) && array_key_exists("triggerTour", $params)) {
-                return $params["triggerTour"];
-            } else {
-                return null;
-            }
-        } else {
+        if (!$refId) {
             return null;
         }
+
+        global $DIC;
+        $cache = $DIC['ilObjDataCache'];
+
+        if (isset($cache)) {
+            $objId = $cache->lookupObjId($refId);
+            if($objId) {
+                return $cache->lookupType($objId);
+            }
+        }
+        return null;
     }
 
-    /**
-     * Modify GUI objects, before they generate output
-     * @param string $a_comp component
-     * @param string $a_part string that identifies the part of the UI that is handled
-     * @param string $a_par  array of parameters (depend on $a_comp and $a_part)
-     */
-    public function modifyGUI($a_comp, $a_part, $a_par = array())
+    protected function getCurrentRefId(): int
     {
+        global $DIC;
 
+        if (isset($DIC['global_screen'])) {
+            $globalScreen = $DIC['global_screen'];
+
+            // Attempt to retrieve the refId directly
+            $refId = $globalScreen->tool()->context()->current()->getReferenceId()->toInt();
+
+            // Return refId if it's a valid positive integer, otherwise, fetch using alternative method
+            return ($refId > 0) ? $refId : $this->getRefIdByCurrentClassPathParameter();
+        } else {
+            return -1;
+        }
+    }
+
+    protected function getRefIdByCurrentClassPathParameter(): int
+    {
+        $currentClassPath = $this->ctrl->getCurrentClassPath();
+        $parameter = [];
+        if(count($currentClassPath) > 0) {
+            $baseClass = $currentClassPath[0];
+            try {
+                $parameter = $this->ctrl->getParameterArrayByClass($baseClass);
+            }
+            catch (ilCtrlException) {
+                return -1;
+            }
+        }
+
+        if (isset($parameter['ref_id'])) {
+            return (int) $parameter['ref_id'];
+        } else {
+            return -1;
+        }
     }
 }

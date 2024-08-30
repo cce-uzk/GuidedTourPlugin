@@ -1,10 +1,11 @@
 {
   "name": "uzk/gtour",
-  "description": "",
+  "description": "Guided Tour Page Component for ILIAS",
   "type": "project",
   "keywords": [
-    "ILIAS",
-    "Plugin"
+    "ilias",
+    "plugin",
+    "guided tour"
   ],
   "minimum-stability": "stable",
   "license": "proprietary",
@@ -19,17 +20,13 @@
     "email": "nadimo.staszak@uni-koeln.de"
   },
   "require": {
-    "php": ">=7.0",
+    "php": ">=8.1",
     "ext-json": "*"
   },
   "autoload": {
     "psr-4": {
-      "ILIAS\\" : "../../../../src",
-      "uzk\\gtour\\": "src/"
-    },
-    "classmap": [
-      "classes/"
-    ]
+      "uzk\\gtour\\": "classes/"
+    }
   },
   "config": {
     "classmap-authoritative": true,
