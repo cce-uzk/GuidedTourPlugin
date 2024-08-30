@@ -352,7 +352,7 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
             $roles->enableSelectAll(true);
         }
         $form->addItem($roles);
-
+      
         // command buttons
         $form->addCommandButton('saveTour', $this->lng->txt('save'));
         $form->addCommandButton('showTourList', $this->lng->txt('cancel'));
