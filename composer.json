@@ -20,7 +20,7 @@
     "email": "nadimo.staszak@uni-koeln.de"
   },
   "require": {
-    "php": ">=8.1",
+    "php": ">=7.4",
     "ext-json": "*"
   },
   "autoload": {

@@ -113,7 +113,7 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
     {
         try {
             $this->changeTourActivation(true);
-        } catch (Exception) {
+        } catch (Exception $e) {
         }
     }
 
@@ -124,7 +124,7 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
     {
         try {
             $this->changeTourActivation(false);
-        } catch (Exception) {
+        } catch (Exception $e) {
         }
     }
 
@@ -161,7 +161,7 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
         }
         try {
             $this->ctrl->redirect($this, 'showTourList');
-        } catch (ilCtrlException) {
+        } catch (ilCtrlException $e) {
 
         }
     }
@@ -184,7 +184,7 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
         }
         try {
             $this->ctrl->redirect($this, 'showTourList');
-        } catch (ilCtrlException) {
+        } catch (ilCtrlException $e) {
 
         }
     }
@@ -210,7 +210,7 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
         $this->tabs->activateSubTab('tour_configuration');
         try {
             $this->ctrl->setParameter($this, 'tour_id', $_GET['tour_id']);
-        } catch (ilCtrlException) {
+        } catch (ilCtrlException $e) {
 
         }
 
@@ -256,7 +256,7 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
             $this->ui->mainTemplate()->setOnScreenMessage(ilGlobalTemplateInterface::MESSAGE_TYPE_SUCCESS, $this->plugin_object->txt('tour_saved'));
             try {
                 $this->ctrl->redirect($this, 'showTourList');
-            } catch (ilCtrlException) {
+            } catch (ilCtrlException $e) {
             }
         } else {
             // Invalid form - return form to view
@@ -276,7 +276,7 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
             $title = $this->plugin_object->txt('edit_tour');
             try {
                 $this->ctrl->setParameter($this, 'tour_id', $a_tour_id);
-            } catch (ilCtrlException) {
+            } catch (ilCtrlException $e) {
 
             }
         } else {
@@ -288,7 +288,7 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
         $form->setTitle($title);
         try {
             $form->setFormAction($this->ctrl->getFormAction($this));
-        } catch (ilCtrlException) {
+        } catch (ilCtrlException $e) {
 
         }
 

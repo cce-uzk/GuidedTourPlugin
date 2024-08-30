@@ -8,7 +8,7 @@ $version = "1.1.5";
 
 // ilias min and max version
 $ilias_min_version = "8.0";
-$ilias_max_version = "9.999";
+$ilias_max_version = "8.999";
 
 // responsible persons and a contact email
 $responsible = "Nadimo Staszak";

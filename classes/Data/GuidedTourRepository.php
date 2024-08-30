@@ -89,8 +89,13 @@ class GuidedTourRepository implements GuidedTourIRepository
      * @param int|string $a_id
      * @return GuidedTour|null
      */
-    public function getTourById(int|string $a_id): ?GuidedTour
+    public function getTourById($a_id): ?GuidedTour
     {
+        // Manual type validation for php 7.4 compatibility instead of union types
+        if (!is_int($a_id) && !is_string($a_id)) {
+            throw new InvalidArgumentException("Invalid ID provided.");
+        }
+
         // Convert and validate the input
         $a_id = filter_var($a_id, FILTER_VALIDATE_INT);
         if ($a_id === false) {
@@ -201,8 +206,13 @@ class GuidedTourRepository implements GuidedTourIRepository
      * @param int|string $a_id
      * @return bool
      */
-    public function deleteTourById(int|string $a_id): bool
+    public function deleteTourById($a_id): bool
     {
+        // Manual type validation for php 7.4 compatibility instead of union types
+        if (!is_int($a_id) && !is_string($a_id)) {
+            throw new InvalidArgumentException("Invalid ID provided.");
+        }
+
         // Convert and validate the input
         $a_id = filter_var($a_id, FILTER_VALIDATE_INT);
         if ($a_id === false) {

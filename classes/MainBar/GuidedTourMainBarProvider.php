@@ -226,7 +226,7 @@ class GuidedTourMainBarProvider extends AbstractStaticMainMenuPluginProvider
                 // Associate the created icon with the menu item.
                 $item = $item->withSymbol($icon);
             }
-        } catch (Exception) {
+        } catch (Exception $e) {
 
         }
 

@@ -6,6 +6,7 @@ require_once __DIR__ . "/../../vendor/autoload.php";
 use ILIAS\FileUpload\Exception\IllegalStateException;
 use uzk\gtour\Data\GuidedTourResourceStakeholder;
 use Exception;
+use InvalidArgumentException;
 
 /**
  * Class GuidedTour
@@ -41,8 +42,8 @@ class GuidedTour
         ?string $icon = null,
         string $type = self::TYPE_DEFAULT,
         ?string $script = "",
-        bool|string|int $active = false,
-        bool|string|int $automatic_triggered = true,
+        bool $active = false,
+        bool $automatic_triggered = true,
         array $rolesIds = array()
     ) {
         $this->setId($id);
@@ -105,10 +106,15 @@ class GuidedTour
         return $this->script;
     }
 
-    public function setActive(bool|string|int $a_val) : void
+    public function setActive($a_val) : void
     {
-        $value = filter_var($a_val, FILTER_VALIDATE_BOOLEAN);
-        $this->active = $value;
+        // Manual type validation for php 7.4 compatibility instead of union types
+        if (is_bool($a_val) || is_string($a_val) || is_int($a_val)) {
+            $value = filter_var($a_val, FILTER_VALIDATE_BOOLEAN);
+            $this->active = $value;
+        } else {
+            throw new InvalidArgumentException("Invalid type for active property");
+        }
     }
 
     public function isActive() : bool
@@ -116,10 +122,15 @@ class GuidedTour
         return $this->active;
     }
 
-    public function setAutomaticTriggered(bool|string|int $a_val) : void
+    public function setAutomaticTriggered($a_val) : void
     {
-        $value = filter_var($a_val, FILTER_VALIDATE_BOOLEAN);
-        $this->automatic_triggered = $value;
+        // Manual type validation for php 7.4 compatibility instead of union types
+        if (is_bool($a_val) || is_string($a_val) || is_int($a_val)) {
+            $value = filter_var($a_val, FILTER_VALIDATE_BOOLEAN);
+            $this->automatic_triggered = $value;
+        } else {
+            throw new InvalidArgumentException("Invalid type for automatic_triggered property");
+        }
     }
 
     public function isAutomaticTriggered() : bool

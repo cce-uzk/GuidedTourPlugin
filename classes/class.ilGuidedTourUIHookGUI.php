@@ -140,7 +140,7 @@ class ilGuidedTourUIHookGUI extends ilUIHookPluginGUI
      * Get name of the current triggered tour otherwise returns `null` if there is no currently triggered tour
      * @return string|null
      */
-    protected function getTriggeredGuidedTour(): string|null
+    protected function getTriggeredGuidedTour(): ?string
     {
         $uri = parse_url($_SERVER["REQUEST_URI"]);
         if ($uri !== false && isset($uri["query"])) {
@@ -158,7 +158,7 @@ class ilGuidedTourUIHookGUI extends ilUIHookPluginGUI
      * @return int|null Returns the numeric ID as an integer if the string is correctly formatted,
      * otherwise returns `null` if the format is incorrect or the ID is not numeric.
      */
-    protected function getGtourIdByTriggerInformation(string $string): int|null {
+    protected function getGtourIdByTriggerInformation(string $string): ?int {
         // Split the string by '-'
         $parts = explode('-', $string);
 
@@ -243,7 +243,7 @@ class ilGuidedTourUIHookGUI extends ilUIHookPluginGUI
         return count(array_intersect($userGlobalRoles, $tour->getRolesIds())) > 0;
     }
 
-    protected function getObjectTypeByRefId(int $refId): string|null
+    protected function getObjectTypeByRefId(int $refId): ?string
     {
         if (!$refId) {
             return null;
@@ -287,7 +287,7 @@ class ilGuidedTourUIHookGUI extends ilUIHookPluginGUI
             try {
                 $parameter = $this->ctrl->getParameterArrayByClass($baseClass);
             }
-            catch (ilCtrlException) {
+            catch (ilCtrlException $e) {
                 return -1;
             }
         }

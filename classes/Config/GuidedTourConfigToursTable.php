@@ -59,7 +59,7 @@ class GuidedTourConfigToursTable extends ilTable2GUI
     {
         try {
             $this->setId("gtour_tours_tbl");
-        } catch (ilException) {
+        } catch (ilException $e) {
 
         }
         $this->setTitle($this->plugin->txt('guided_tours'));
@@ -76,7 +76,7 @@ class GuidedTourConfigToursTable extends ilTable2GUI
 
         try {
             $this->setFormAction($this->ctrl->getFormAction($this->parentObject));
-        } catch (ilCtrlException) {
+        } catch (ilCtrlException $e) {
 
         }
 
