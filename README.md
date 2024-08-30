@@ -40,8 +40,8 @@ Update and activate the plugin in the ILIAS Plugin Administration
 
 ## Requirements
 
-* ILIAS 6.0 - 7.999
-* PHP >=7.0
+* ILIAS 8.0 - 9.999
+* PHP >=8.1
 
 ## Hintergrundinformationen
 Die GuidedTour basiert auf dem Framework `Bootstrap Tour` (https://bootstraptour.com/). Eingebunden ist jedoch dessen Fork von `Bootstrap Tourist` 
