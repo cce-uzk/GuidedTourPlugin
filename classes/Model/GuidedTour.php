@@ -56,9 +56,9 @@ class GuidedTour
         $this->setRolesIds($rolesIds);
     }
 
-    public function setId(?int $a_val) : void
+    public function setId($a_val) : void
     {
-        $this->id = $a_val;
+        $this->id = is_numeric($a_val) ? (int)$a_val : null;
     }
 
     public function getId() : ?int
