@@ -4,7 +4,7 @@
 $id = "gtour";
 
 // code version
-$version = "1.1.5";
+$version = "1.1.6";
 
 // ilias min and max version
 $ilias_min_version = "8.0";
@@ -14,5 +14,5 @@ $ilias_max_version = "9.999";
 $responsible = "Nadimo Staszak";
 $responsible_mail = "nadimo.staszak@uni-koeln.de";
 
-$supports_cli_setup = true;
+$supports_cli_setup = false;
 $supports_export = false;

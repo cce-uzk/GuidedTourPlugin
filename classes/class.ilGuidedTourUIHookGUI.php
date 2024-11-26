@@ -14,6 +14,7 @@ use ILIAS\DI\RBACServices;
  */
 class ilGuidedTourUIHookGUI extends ilUIHookPluginGUI
 {
+    protected ilGuidedTourPlugin $plugin;
     protected ilCtrl $ctrl;
     protected ilObjUser $user;
     protected RBACServices $rbac;
@@ -32,6 +33,13 @@ class ilGuidedTourUIHookGUI extends ilUIHookPluginGUI
         $this->user = $DIC->user();
         $this->ctrl = $DIC->ctrl();
         $this->rbac = $DIC->rbac();
+
+        // Initialize the plugin property
+        $pluginObject = $this->getPluginObject();
+        if (!$pluginObject instanceof ilGuidedTourPlugin) {
+            throw new \UnexpectedValueException('Expected an instance of ilGuidedTourPlugin');
+        }
+        $this->plugin = $pluginObject;
 
         // Initialize repository
         $this->guidedTourRepository = new GuidedTourRepository();
@@ -53,7 +61,7 @@ class ilGuidedTourUIHookGUI extends ilUIHookPluginGUI
         $userId = $this->user->getId();
         $userGlobalRoles = $this->rbac->review()->assignedGlobalRoles($userId);
 
-        if (isset($DIC['global_screen']) && !$DIC->http()->agent()->isMobile()) {
+        if (isset($DIC['global_screen']) && !$DIC->http()->agent()->isMobile() && $this->plugin->isLoaded() === false) {
             $globalScreen = $DIC['global_screen'];
             $config = new stdClass();
             $config->name = $this->getTriggeredGuidedTour();
@@ -132,7 +140,8 @@ class ilGuidedTourUIHookGUI extends ilUIHookPluginGUI
             // Initialize JS tour start
             $meta_content = $globalScreen->layout()->meta();
             $meta_content->addOnloadCode("il.Plugins.GuidedTour.init(" . $jsonConfig . ");", 1);
-            //ilGuidedTourPlugin::getInstance()->setIsLoaded(true);
+
+            $this->plugin->setIsLoaded(true);
         }
     }
 
@@ -140,16 +149,21 @@ class ilGuidedTourUIHookGUI extends ilUIHookPluginGUI
      * Get name of the current triggered tour otherwise returns `null` if there is no currently triggered tour
      * @return string|null
      */
-    protected function getTriggeredGuidedTour(): string|null
+    protected function getTriggeredGuidedTour(): ?string
     {
-        $uri = parse_url($_SERVER["REQUEST_URI"]);
-        if ($uri !== false && isset($uri["query"])) {
-            parse_str($uri["query"], $params);
-            if (array_key_exists("triggerTour", $params)) {
-                return $params["triggerTour"];
+        // Check if 'REQUEST_URI' is set in $_SERVER
+        if (isset($_SERVER["REQUEST_URI"])) {
+            $uri = parse_url($_SERVER["REQUEST_URI"]);
+            if ($uri !== false && isset($uri["query"])) {
+                parse_str($uri["query"], $params);
+                if (array_key_exists("triggerTour", $params)) {
+                    return $params["triggerTour"];
+                }
             }
         }
-        return null; // Return null if any conditions fail
+
+        // Return null if 'REQUEST_URI' is not set or any other conditions fail
+        return null;
     }
 
     /**
@@ -266,10 +280,8 @@ class ilGuidedTourUIHookGUI extends ilUIHookPluginGUI
         global $DIC;
 
         if (isset($DIC['global_screen'])) {
-            $globalScreen = $DIC['global_screen'];
-
             // Attempt to retrieve the refId directly
-            $refId = $globalScreen->tool()->context()->current()->getReferenceId()->toInt();
+            $refId = $DIC->globalScreen()->tool()->context()->current()->getReferenceId()->toInt();
 
             // Return refId if it's a valid positive integer, otherwise, fetch using alternative method
             return ($refId > 0) ? $refId : $this->getRefIdByCurrentClassPathParameter();
