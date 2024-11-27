@@ -14,5 +14,5 @@ $ilias_max_version = "9.999";
 $responsible = "Nadimo Staszak";
 $responsible_mail = "nadimo.staszak@uni-koeln.de";
 
-$supports_cli_setup = false;
+$supports_cli_setup = true;
 $supports_export = false;
