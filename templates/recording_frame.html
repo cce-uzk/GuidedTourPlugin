@@ -1,0 +1,109 @@
+<!-- Recording Frame Overlay -->
+<div id="gtour-recording-frame">
+    <div id="gtour-recording-toolbar">
+        <div class="gtour-recording-info">
+            <span id="gtour-recording-icon" class="gtour-recording-icon">&#x23FA;</span>
+            <span id="gtour-recording-status">{RECORD_INSTRUCTION}</span>
+        </div>
+        <div class="gtour-recording-controls">
+            <!-- Start/Resume button -->
+            <button id="gtour-recording-start-btn" class="gtour-icon-btn gtour-btn-success">
+                <span class="gtour-icon-wrapper">
+                    <span class="glyphicon glyphicon-record"></span>
+                </span>
+                <span class="gtour-btn-text">{RECORD_START}</span>
+            </button>
+            <!-- Pause button (visible during recording) -->
+            <button id="gtour-recording-pause-btn" class="gtour-icon-btn gtour-btn-warning" style="display:none;">
+                <span class="gtour-icon-wrapper">
+                    <span class="glyphicon glyphicon-pause"></span>
+                </span>
+                <span class="gtour-btn-text">{RECORD_PAUSE}</span>
+            </button>
+            <!-- Discard button (visible when steps exist) -->
+            <button id="gtour-recording-discard-btn" class="gtour-icon-btn gtour-btn-danger" style="display:none;">
+                <span class="gtour-icon-wrapper">
+                    <span class="glyphicon glyphicon-trash"></span>
+                </span>
+                <span class="gtour-btn-text">{RECORD_DISCARD}</span>
+            </button>
+            <!-- Save & Exit button (visible when paused with steps) -->
+            <button id="gtour-recording-save-btn" class="gtour-icon-btn gtour-btn-primary" style="display:none;">
+                <span class="gtour-icon-wrapper">
+                    <span class="glyphicon glyphicon-floppy-disk"></span>
+                </span>
+                <span class="gtour-btn-text">{RECORD_SAVE_AND_EXIT}</span>
+            </button>
+            <!-- Back to Edit button (visible when paused) -->
+            <button id="gtour-recording-back-btn" class="gtour-icon-btn gtour-btn-primary">
+                <span class="gtour-icon-wrapper">
+                    <span class="glyphicon glyphicon-save"></span>
+                </span>
+                <span class="gtour-btn-text">{RECORD_BACK_TO_EDIT}</span>
+            </button>
+            <!-- Toggle steps button -->
+            <button id="gtour-toggle-steps-btn" class="gtour-icon-btn gtour-btn-info" style="display:none;">
+                <span class="gtour-icon-wrapper">
+                    <span class="glyphicon glyphicon-list"></span>
+                </span>
+                <span class="gtour-btn-text"><span id="gtour-toggle-steps-text">{RECORD_SHOW_STEPS}</span> (<span id="gtour-steps-count">0</span>)</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Steps list panel -->
+    <div id="gtour-steps-panel" class="gtour-steps-panel" style="display:none;">
+        <div class="gtour-steps-panel-header">
+            <h4>{RECORD_STEPS_LIST}</h4>
+            <button id="gtour-close-steps-btn" class="gtour-close-btn">&times;</button>
+        </div>
+        <div id="gtour-steps-list" class="gtour-steps-list">
+            <!-- Steps will be inserted here by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Element highlight overlay -->
+    <div id="gtour-element-highlight" style="display:none;"></div>
+
+    <!-- Notification toast -->
+    <div id="gtour-notification" class="gtour-notification" style="display:none;">
+        <span id="gtour-notification-text"></span>
+    </div>
+
+    <!-- Content iframe for navigation -->
+    <iframe id="gtour-content-frame" src=""></iframe>
+</div>
+
+<!-- Hidden forms for submitting steps -->
+<form id="gtour-pause-form" method="POST" action="{PAUSE_URL}" style="display:none;">
+    <input type="hidden" name="steps_json" id="gtour-pause-steps-input" value="" />
+</form>
+
+<form id="gtour-save-form" method="POST" action="{BACK_URL}" style="display:none;">
+    <input type="hidden" name="steps_json" id="gtour-save-steps-input" value="" />
+    <input type="hidden" name="save_steps" value="1" />
+</form>
+
+<!-- Hidden data -->
+<input type="hidden" id="gtour-save-url" value="{SAVE_STEPS_URL}" />
+<input type="hidden" id="gtour-add-step-url" value="{ADD_STEP_URL}" />
+<input type="hidden" id="gtour-pause-url" value="{PAUSE_URL}" />
+<input type="hidden" id="gtour-discard-url" value="{DISCARD_URL}" />
+<input type="hidden" id="gtour-back-url" value="{BACK_URL}" />
+<input type="hidden" id="gtour-tour-id" value="{TOUR_ID}" />
+<input type="hidden" id="gtour-recording-active" value="{RECORDING_ACTIVE}" />
+<input type="hidden" id="gtour-has-steps" value="{HAS_STEPS}" />
+<input type="hidden" id="gtour-recorded-steps" value="{RECORDED_STEPS_JSON}" />
+<input type="hidden" id="gtour-record-active-text" value="{RECORD_ACTIVE}" />
+<input type="hidden" id="gtour-record-paused-text" value="{RECORD_PAUSED}" />
+<input type="hidden" id="gtour-record-resumed-text" value="{RECORD_RESUMED}" />
+<input type="hidden" id="gtour-record-start-text" value="{RECORD_START}" />
+<input type="hidden" id="gtour-record-resume-text" value="{RECORD_RESUME}" />
+<input type="hidden" id="gtour-record-steps-in-memory-text" value="{RECORD_STEPS_IN_MEMORY}" />
+<input type="hidden" id="gtour-step-captured-text" value="{RECORD_STEP_CAPTURED}" />
+<input type="hidden" id="gtour-show-steps-text" value="{RECORD_SHOW_STEPS}" />
+<input type="hidden" id="gtour-hide-steps-text" value="{RECORD_HIDE_STEPS}" />
+<input type="hidden" id="gtour-delete-step-text" value="{RECORD_DELETE_STEP}" />
+<input type="hidden" id="gtour-confirm-discard-text" value="{RECORD_CONFIRM_DISCARD}" />
+<input type="hidden" id="gtour-click-registered-text" value="{RECORD_CLICK_REGISTERED}" />
+<input type="hidden" id="gtour-click-hint-text" value="{RECORD_CLICK_HINT}" />

@@ -2,6 +2,7 @@
 
 require_once __DIR__ . "/../vendor/autoload.php";
 use uzk\gtour\Data\GuidedTourRepository;
+use uzk\gtour\Data\GuidedTourUserFinishedRepository;
 use ILIAS\DI\RBACServices;
 
 /**
@@ -11,6 +12,7 @@ use ILIAS\DI\RBACServices;
  * @version $Id$
  *
  * @ilCtrl_isCalledBy ilGuidedTourUIHookGUI: ilUIPluginRouterGUI
+ * @ilCtrl_Calls ilGuidedTourUIHookGUI: ilGuidedTourGUI
  */
 class ilGuidedTourUIHookGUI extends ilUIHookPluginGUI
 {
@@ -19,6 +21,7 @@ class ilGuidedTourUIHookGUI extends ilUIHookPluginGUI
     protected ilObjUser $user;
     protected RBACServices $rbac;
     protected GuidedTourRepository $guidedTourRepository;
+    protected GuidedTourUserFinishedRepository $finishedRepo;
 
     /**
      * ilGuidedTourUIHookGUI constructor
@@ -41,8 +44,9 @@ class ilGuidedTourUIHookGUI extends ilUIHookPluginGUI
         }
         $this->plugin = $pluginObject;
 
-        // Initialize repository
+        // Initialize repositories
         $this->guidedTourRepository = new GuidedTourRepository();
+        $this->finishedRepo = new GuidedTourUserFinishedRepository();
 
         // Initialize tour
         if (!$this->ctrl->isAsynch()) {
@@ -75,14 +79,31 @@ class ilGuidedTourUIHookGUI extends ilUIHookPluginGUI
             $config->tpl->btn_next = $this->plugin_object->txt('tour_btn_next');
             $config->tpl->btn_stop = $this->plugin_object->txt('tour_btn_stop');
 
+            // Terminate URL for AJAX calls (called when tour is closed)
+            try {
+                $this->ctrl->setParameterByClass('ilGuidedTourGUI', 'tour_id', '__TOUR_ID__');
+                $config->terminateUrl = $this->ctrl->getLinkTargetByClass(['ilUIPluginRouterGUI', 'ilGuidedTourGUI'], 'terminateTour', '', true);
+                $config->updateProgressUrl = $this->ctrl->getLinkTargetByClass(['ilUIPluginRouterGUI', 'ilGuidedTourGUI'], 'updateProgress', '', true);
+            } catch (ilCtrlException $e) {
+                error_log('Failed to generate terminate URL: ' . $e->getMessage());
+            }
+
             if (isset($config->name)) {
                 // Get requested tour
                 $tourId = $this->getGtourIdByTriggerInformation($config->name);
                 if (isset($tourId)) {
                     $tour = $this->guidedTourRepository->getTourById($tourId);
                     if (isset($tour)) {
-                        if ($tour->isActive() && $this->isUserEligibleForTour($userGlobalRoles, $tour)) {
-                            $jsonString = $this->cleanJsonString($tour->getScript());
+                        // Get current user language
+                        $userLanguage = $this->user->getLanguage();
+
+                        // Check if tour matches user language (or has no language restriction)
+                        $languageMatches = ($tour->getLanguageCode() === null || $tour->getLanguageCode() === '' || $tour->getLanguageCode() === $userLanguage);
+
+                        // Check if user has already finished this tour (for manual triggers we still allow it)
+                        // Manually triggered tours can be replayed
+                        if ($tour->isActive() && $languageMatches && $this->isUserEligibleForTour($userGlobalRoles, $tour)) {
+                            $jsonString = $this->cleanJsonString($tour->getEffectiveScript());
                             if ($this->isValidJson($jsonString)) {
                                 $config->steps = $jsonString;
                             }
@@ -93,29 +114,73 @@ class ilGuidedTourUIHookGUI extends ilUIHookPluginGUI
             else {
                 // Get context sensitive autostart tour
 
-                // Context data
-                $contextIdentifier = $globalScreen->tool()->context()->current()->getUniqueContextIdentifier();
-                $refId = $this->getCurrentRefId();
-                $type = $this->getObjectTypeByRefId($refId);
+                // Context data - try multiple methods to get object type
+                $contextObjType = $this->ctrl->getContextObjType();
                 $cmdClass = $this->ctrl->getCmdClass();
 
-                // Ensure no null values are added by using array_filter
-                $identifier = [
-                    $contextIdentifier,
-                    $type,
-                    $cmdClass
-                ];
-				
+                // Try to get refId from multiple sources
+                $refId = $this->getCurrentRefId();
+
+                // Fallback: Read ref_id directly from URL if previous method failed
+                if ($refId <= 0 && isset($_GET['ref_id'])) {
+                    $refId = (int)$_GET['ref_id'];
+                }
+
+                $typeFromRefId = $this->getObjectTypeByRefId($refId);
+
+                // Use whichever is not null
+                $objType = $contextObjType ?? $typeFromRefId;
+
                 // Get all tours
                 $tours = $this->guidedTourRepository->getTours();
 
-                // Check for context-, role-sensitive autostart tours
+                // Get current user language
+                $userLanguage = $this->user->getLanguage();
+
+                // Check for context-, role-sensitive, and language-specific autostart tours
+                $logger = $DIC->logger()->root();
+                $logger->debug('GuidedTour: Checking autostart for ' . count($tours) . ' tours, refId: ' . $refId . ', contextObjType: ' . ($contextObjType ?? 'NULL') . ', typeFromRefId: ' . ($typeFromRefId ?? 'NULL') . ', cmdClass: ' . ($cmdClass ?? 'NULL') . ', final objType: ' . ($objType ?? 'NULL'));
+
                 foreach ($tours as $tour) {
-                    if ($tour->isActive() && $tour->isAutomaticTriggered() && in_array($tour->getType(), $identifier) && $this->isUserEligibleForTour($userGlobalRoles, $tour)) {
-                        $jsonString = $this->cleanJsonString($tour->getScript());
+                    $logger->debug('GuidedTour: Checking tour ' . $tour->getId() . ' "' . $tour->getTitle() . '"');
+
+                    // Check if user has already finished this tour
+                    $hasFinished = $this->finishedRepo->hasFinished($tour->getId(), $userId);
+                    $logger->debug('GuidedTour: hasFinished check for tour ' . $tour->getId() . ': ' . ($hasFinished ? 'TRUE (skip)' : 'FALSE (continue)'));
+                    if ($hasFinished) {
+                        $logger->debug('GuidedTour: User has already finished tour ' . $tour->getId());
+                        continue; // Skip tours that user has already completed
+                    }
+
+                    // Check if tour matches user language (or has no language restriction)
+                    $languageMatches = ($tour->getLanguageCode() === null || $tour->getLanguageCode() === '' || $tour->getLanguageCode() === $userLanguage);
+
+                    // Check if tour type matches current context (same logic as MainBar!)
+                    // Type "any" means tour should be shown on all pages
+                    $typeMatches = ($tour->getType() === 'any' || $tour->getType() === $objType || $tour->getType() === $cmdClass);
+
+                    // Check if tour ref_id matches current ref_id (if set)
+                    $refIdMatches = ($tour->getRefId() === null || $tour->getRefId() === $refId);
+
+                    // Tour matches if: (type matches OR ref_id is set) AND ref_id matches
+                    $contextMatches = ($typeMatches || $tour->getRefId() !== null) && $refIdMatches;
+
+                    $logger->debug('GuidedTour: Tour ' . $tour->getId() . ' checks - active: ' . (int)$tour->isActive() .
+                        ', autostart: ' . (int)$tour->isAutomaticTriggered() .
+                        ', lang_match: ' . (int)$languageMatches .
+                        ', type: ' . $tour->getType() .
+                        ', type_match: ' . (int)$typeMatches .
+                        ', ref_id: ' . ($tour->getRefId() ?? 'NULL') .
+                        ', ref_id_match: ' . (int)$refIdMatches .
+                        ', context_match: ' . (int)$contextMatches .
+                        ', eligible: ' . (int)$this->isUserEligibleForTour($userGlobalRoles, $tour));
+
+                    if ($tour->isActive() && $tour->isAutomaticTriggered() && $languageMatches && $contextMatches && $this->isUserEligibleForTour($userGlobalRoles, $tour)) {
+                        $jsonString = $this->cleanJsonString($tour->getEffectiveScript());
                         if ($this->isValidJson($jsonString)) {
                             $config->steps = $jsonString;
                             $config->name = 'gtour-' . $tour->getId();
+                            $logger->debug('GuidedTour: Selected tour ' . $tour->getId() . ' for autostart');
 
                             // todo: implement always forced start to gtour object as new option
                             $forceStartAlways = false;
@@ -123,6 +188,8 @@ class ilGuidedTourUIHookGUI extends ilUIHookPluginGUI
                                 $config->forceStart = true;
                             }
                             break;
+                        } else {
+                            $logger->warning('GuidedTour: Tour ' . $tour->getId() . ' has invalid JSON');
                         }
                     }
                 }

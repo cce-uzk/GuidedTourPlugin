@@ -1,0 +1,229 @@
+/**
+ * ILIAS Kitchensink Popover Styling for Driver.js
+ * Angepasst an das ILIAS Kitchensink Popover Design
+ * Basierend auf: https://docu.ilias.de/goto_docu_pg_64855_42.html (Kitchen Sink)
+ */
+
+/* Popover Grundstil - ILIAS Kitchensink Style */
+.driver-popover {
+  font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  background-color: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+  min-width: 280px;
+  max-width: 400px;
+  padding: 0;
+}
+
+/* Titel Styling - ILIAS Popover Header */
+.driver-popover-title {
+  color: #000;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.42857143;
+  margin: 0;
+  padding: 8px 14px;
+  background-color: #f7f7f7;
+  border-bottom: 1px solid #ebebeb;
+  border-radius: 3px 3px 0 0;
+}
+
+/* Beschreibungstext - ILIAS Popover Body */
+.driver-popover-description {
+  color: #000;
+  font-size: 14px;
+  line-height: 1.42857143;
+  padding: 9px 14px;
+  margin: 0;
+}
+
+/* Close Button - ILIAS Style */
+.driver-popover-close-btn {
+  color: #000 !important;
+  opacity: 0.6 !important;
+  font-size: 21px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  text-shadow: none !important;
+  width: 20px !important;
+  height: 20px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  position: absolute !important;
+  top: 8px !important;
+  right: 12px !important;
+  background: transparent !important;
+  border: 0 !important;
+  cursor: pointer !important;
+  transition: opacity 0.2s ease !important;
+  display: block !important;
+  visibility: visible !important;
+  z-index: 10000 !important;
+}
+
+.driver-popover-close-btn:hover,
+.driver-popover-close-btn:focus {
+  color: #000 !important;
+  opacity: 0.9 !important;
+  text-decoration: none !important;
+  background: transparent !important;
+  outline: none !important;
+}
+
+/* Footer / Navigation - Kein Border wie bei ILIAS */
+.driver-popover-footer {
+  padding: 9px 14px;
+  margin: 0;
+  border-top: none;
+  background-color: transparent;
+}
+
+/* Progress Text */
+.driver-popover-progress-text {
+  color: #777;
+  font-size: 13px;
+  font-weight: normal;
+  line-height: 1.42857143;
+}
+
+/* Buttons - ILIAS Button Style */
+.driver-popover-footer button {
+  display: inline-block;
+  padding: 6px 12px;
+  margin-bottom: 0;
+  font-size: 14px;
+  font-weight: normal;
+  line-height: 1.42857143;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background-color: #fff;
+  border-color: #ccc;
+  color: #333;
+  transition: all 0.15s ease-in-out;
+  text-shadow: none !important;
+}
+
+.driver-popover-footer button:hover,
+.driver-popover-footer button:focus {
+  background-color: #e6e6e6;
+  border-color: #adadad;
+  color: #333;
+  text-decoration: none;
+  outline: 5px auto -webkit-focus-ring-color;
+  outline-offset: -2px;
+}
+
+.driver-popover-footer button:active {
+  background-color: #e6e6e6;
+  border-color: #adadad;
+  box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+}
+
+/* Primary Button (Next/Done) - ILIAS Primary/Success Color */
+.driver-popover-navigation-btns button:last-child {
+  background-color: #5cb85c;
+  border-color: #4cae4c;
+  color: #fff;
+}
+
+.driver-popover-navigation-btns button:last-child:hover,
+.driver-popover-navigation-btns button:last-child:focus {
+  background-color: #449d44;
+  border-color: #398439;
+  color: #fff;
+}
+
+.driver-popover-navigation-btns button:last-child:active {
+  background-color: #449d44;
+  border-color: #398439;
+  box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+}
+
+/* Disabled Button */
+.driver-popover-footer .driver-popover-btn-disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  pointer-events: none;
+  box-shadow: none;
+}
+
+/* Overlay - ILIAS Modal Backdrop Style */
+.driver-overlay {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Active Element Highlight - Subtiler */
+.driver-active-element {
+  outline: 2px solid #5cb85c !important;
+  outline-offset: 2px;
+}
+
+/* Popover Arrow - Farbe anpassen, aber Größe von Driver.js beibehalten */
+.driver-popover-arrow-side-left {
+  border-left-color: rgba(0, 0, 0, 0.2) !important;
+}
+
+.driver-popover-arrow-side-right {
+  border-right-color: rgba(0, 0, 0, 0.2) !important;
+}
+
+.driver-popover-arrow-side-top {
+  border-top-color: rgba(0, 0, 0, 0.2) !important;
+}
+
+.driver-popover-arrow-side-bottom {
+  border-bottom-color: rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Animation - ILIAS Fade-in */
+@keyframes ilias-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.driver-popover {
+  animation: ilias-fade-in 0.15s ease-in;
+}
+
+/* Responsive Anpassungen */
+@media (max-width: 768px) {
+  .driver-popover {
+    min-width: 240px;
+    max-width: calc(100vw - 20px);
+    font-size: 13px;
+  }
+
+  .driver-popover-title {
+    font-size: 14px;
+    padding: 7px 12px;
+  }
+
+  .driver-popover-description {
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+
+  .driver-popover-footer {
+    padding: 8px 12px;
+  }
+
+  .driver-popover-footer button {
+    font-size: 13px;
+    padding: 5px 10px;
+  }
+}
+
+/* Z-Index - Driver.js Standard beibehalten (sehr hoch für Overlay-Funktionalität) */
+/* .driver-overlay und .driver-popover haben bereits sehr hohe z-index Werte vom Driver.js selbst */
+/* Wir überschreiben diese NICHT, damit das Highlighting funktioniert */
