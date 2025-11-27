@@ -132,7 +132,8 @@ class GuidedTourRepository implements GuidedTourIRepository
                 }
             } else {
                 // Query did not execute successfully
-                throw new Exception("Failed to fetch tours from the database.");
+                error_log("Failed to fetch tours.");
+                return [];
             }
         } catch (Exception $e) {
             // Log the exception
@@ -165,7 +166,8 @@ class GuidedTourRepository implements GuidedTourIRepository
                 }
             } else {
                 // Tour id is not specified
-                throw new Exception("Failed to update unknown or invalid tour.");
+                error_log("Failed to update tour .");
+                return null;
             }
         } catch (Exception $e) {
             // Log the exception

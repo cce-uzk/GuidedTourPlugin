@@ -1,8 +1,10 @@
-// 
+//
 // Englisch Language File for GuidedTour Plugin
 //
- 
+
 <!-- language file start -->
+plugin_title#:#Guided Tour Plugin
+plugin_description#:#Management of guided tours for ILIAS
 guided_tour#:#Guided Tour
 guided_tours#:#Guided tours
 config#:#Configuration
@@ -46,6 +48,110 @@ tour_title_info#:#Visible tour name
 tour_roles_info#:#Roles where the tour is to be offered
 tour_icon_info#:#Visible tour icon
 tour_script_info#:#Valid JSON to the tour. Attention: Errors can (if activated) lead to malfunction of this active tour.
+tour_language#:#Language
+tour_language_info#:#Language of the tour. The tour will only be shown to users with this language. Leave empty for all languages.
+tour_description#:#Description
+tour_description_info#:#Public description of the tour for users
+tour_scenario#:#Scenario
+tour_scenario_info#:#Internal description of the tour scenario for administrators
+tour_ref_id#:#Ref-ID (optional)
+tour_ref_id_info#:#Optional: Bind this tour to a specific ILIAS object reference. Leave empty to show based on object type. Example: 231 for a specific support page.
+tour_trigger_mode#:#Trigger Mode
+tour_trigger_mode_info#:#Controls autostart behavior for this tour when automatic triggering is enabled
+trigger_mode_normal#:#Normal (show once)
+trigger_mode_always#:#Always (show every time)
+trigger_mode_until_completed#:#Until Completed (show until finished)
+all_languages#:#All Languages
 automatic_trigger#:#Automatic tour-start
 tour_automatic_trigger_info#:#Start tour automatically, according to the above conditions.
 tour_saved#:#Saved changes
+table_total_tours#:#Number of Tours
+tour_steps_count#:#Number of Steps
+back_to_list#:#Back to List
+tour_details#:#Tour Details
+tour_settings#:#Tour Settings
+tour_activation_section#:#Activation & Trigger
+tour_context_section#:#Context & Target Group
+tour_content_section#:#Content & Information
+tour_script_section#:#Tour Script
+tour_steps#:#Tour Steps
+add_step#:#Add Step
+edit_step#:#Edit Step
+delete_step#:#Delete Step
+confirm_delete_step#:#Really delete step?
+step_title#:#Step Title
+step_element#:#Element
+step_content#:#Content
+step_placement#:#Placement
+step_orphan#:#Orphan (Floating)
+step_actions#:#Actions
+step_on_next#:#On "Next"
+step_on_prev#:#On "Previous"
+step_on_show#:#On Show
+step_on_shown#:#After Show
+step_on_hide#:#On Hide
+step_path#:#Path (Multi-Page)
+step_sort_order#:#Order
+step_saved#:#Step saved
+step_deleted#:#Step deleted
+no_steps#:#No steps available
+step_rich_content#:#Rich Content (with images, formatting)
+step_rich_content_info#:#Use Page Editor for formatted content with images
+record_tour#:#Record Tour
+record_start#:#Start Recording
+record_stop#:#Stop Recording
+record_pause#:#Pause
+record_discard#:#Discard
+record_save_and_exit#:#Save & Exit
+record_back_to_edit#:#Save & Exit
+record_active#:#Recording active - Press F1 over an element to capture it as a step
+record_paused#:#Recording paused - You can resume recording or save
+record_step_captured#:#Step captured
+record_steps_saved#:#Steps successfully saved
+record_discarded#:#Recording discarded
+record_instruction#:#Navigate through ILIAS and press F1 over elements to record steps
+record_show_steps#:#Show Steps
+record_hide_steps#:#Hide Steps
+record_steps_list#:#Recorded Steps
+record_delete_step#:#Delete Step
+record_confirm_discard#:#Do you really want to discard the recording? All recorded steps will be lost.
+record_click_registered#:#Click registered - Element will be clicked on "Next"
+record_click_hint#:#Click on the element within 2 seconds to register a click action
+record_resume#:#Resume
+record_resumed#:#Recording resumed
+record_steps_in_memory#:#Steps are kept in memory
+steps#:#Steps
+tab_statistics#:#Statistics
+stats_select_tour#:#Select Tour
+stats_all_tours_comparison#:#Compare All Tours
+stats_no_data#:#No statistics data available
+stats_no_data_for_tour#:#No statistics data available for this tour
+stats_tour_not_found#:#Tour not found
+stats_overview#:#Overview
+stats_total_starts#:#Total Starts
+stats_unique_users#:#Unique Users
+stats_completed#:#Completed
+stats_partial#:#Partial
+stats_avg_step_reached#:#Avg. Step Reached
+stats_first_usage#:#First Usage
+stats_last_usage#:#Last Usage
+stats_last_7_days#:#Last 7 Days
+stats_last_30_days#:#Last 30 Days
+stats_completion_rate#:#Completion Rate
+stats_count#:#Count
+stats_activity#:#Activity
+stats_recent_activity#:#Recent Activity
+stats_completion_breakdown#:#Completion Breakdown
+stats_total_starts_comparison#:#Comparison: Total Starts
+stats_completion_rate_comparison#:#Comparison: Completion Rate
+stats_avg_step_comparison#:#Comparison: Average Step
+stats_detailed_comparison#:#Detailed Comparison
+stats_reset_button#:#Reset Statistics
+stats_reset_success#:#Statistics successfully reset
+stats_reset_failed_no_tour#:#No tour selected
+reset_statistics#:#Reset Statistics
+reset_completion_status#:#Reset Completion Status
+statistics_reset_success#:#Statistics have been successfully reset
+statistics_reset_success_multiple#:#Statistics have been successfully reset for all tours
+completion_reset_success#:#Completion status has been reset (statistics preserved)
+completion_reset_success_multiple#:#Completion status has been reset for all tours (statistics preserved)

@@ -11,21 +11,24 @@ use ILIAS\GlobalScreen\Provider\ProviderCollection;
  * @version $Id$
  */
 class ilGuidedTourPlugin extends ilUserInterfaceHookPlugin
-{/** @var string */
+{
+    /** @var string */
     const PLUGIN_ID = "gtour";
+
     /** @var string */
     const PLUGIN_NAME = "GuidedTour";
-    /** @var string
-     * @noinspection SpellCheckingInspection
-     */
+
+    /** @var string */
     const CTYPE = "Services";
+
     /** @var string */
     const CNAME = "UIComponent";
+
     /** @var string */
     const SLOT_ID = "uihk";
 
     /** @var self|null */
-    protected static ?ilGuidedTourPlugin $instance = null;
+    protected static ?self $instance = null;
     protected ProviderCollection $provider_collection;
     protected bool $isLoaded = false;
 
@@ -37,11 +40,17 @@ class ilGuidedTourPlugin extends ilUserInterfaceHookPlugin
         ilComponentRepositoryWrite $component_repository,
         string $id)
     {
+        global $DIC;
+
         // Initialize plugin
         $this->db = $db;
         $this->component_repository = $component_repository;
         $this->id = $id;
         parent::__construct($db, $component_repository, $id);
+
+        if (!isset($DIC["global_screen"])) {
+            return;
+        }
 
         // Add GuidedTourMainBarProvider to provider collection
         $this->addPluginProviders();
@@ -50,16 +59,13 @@ class ilGuidedTourPlugin extends ilUserInterfaceHookPlugin
         $this->addMetadata();
     }
 
+
     /**
      * @return void
      */
     private function addPluginProviders(): void
     {
         global $DIC;
-
-        if (!isset($DIC["global_screen"])) {
-            return;
-        }
 
         $this->provider_collection->setMainBarProvider(new GuidedTourMainBarProvider($DIC, $this));
     }
@@ -68,20 +74,13 @@ class ilGuidedTourPlugin extends ilUserInterfaceHookPlugin
      * @return void
      */
     private function addMetadata(): void {
-        // Get global data
         global $DIC;
 
-        if (!isset($DIC["global_screen"])) {
-            return;
-        }
-
-        $globalScreen = $DIC['global_screen'];
         $directory = $this->getDirectory();
-
-        $meta_content = $globalScreen->layout()->meta();
-        $meta_content->addJs($directory . '/vendor/bootstrap-tourist/bootstrap-tourist.js', false, 1);
-        $meta_content->addCss($directory . '/vendor/bootstrap-tourist/bootstrap-tourist.css');
-        $meta_content->addCss($directory . '/vendor/bootstrap-tourist/bootstrap-tour.css');
+        $meta_content = $DIC->globalScreen()->layout()->meta();
+        $meta_content->addJs($directory . '/vendor/driver.js/dist/driver.js.iife.js', false, 1);
+        $meta_content->addCss($directory . '/vendor/driver.js/dist/driver.css');
+        $meta_content->addCss($directory . '/css/gtour-ilias.css');
         $meta_content->addJs($directory . '/js/main.js', false, 1);
     }
 
@@ -136,8 +135,14 @@ class ilGuidedTourPlugin extends ilUserInterfaceHookPlugin
         // deregister from component repository
         $this->component_repository->removeStateInformationOf($this->getId());
 
+        // Remove page object definition from copg_pobj_def
+        if ($this->db->tableExists('copg_pobj_def')) {
+            $this->db->manipulate("DELETE FROM copg_pobj_def WHERE parent_type = 'gtst'");
+        }
+
         // drop tables
         $this->db->dropTable('gtour_tours');
+        $this->db->dropTable('gtour_steps');
 
         return true;
     }

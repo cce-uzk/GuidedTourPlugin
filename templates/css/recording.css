@@ -1,0 +1,473 @@
+/**
+ * Guided Tour Recording Frame Styles
+ */
+
+/* Main recording frame container */
+#gtour-recording-frame {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 999999;
+    background: #fff;
+}
+
+/* Recording toolbar at the top */
+#gtour-recording-toolbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background: linear-gradient(to bottom, #2c3e50, #34495e);
+    border-bottom: 3px solid #e74c3c;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    z-index: 1000000;
+}
+
+/* Recording info section */
+.gtour-recording-info {
+    display: flex;
+    align-items: center;
+    color: #ecf0f1;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.gtour-recording-icon {
+    font-size: 20px;
+    margin-right: 10px;
+    color: #95a5a6;
+}
+
+#gtour-recording-status {
+    font-size: 14px;
+}
+
+/* Recording controls section */
+.gtour-recording-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Modern Icon Buttons with Hover Expand Effect */
+.gtour-icon-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    height: 44px;
+    padding: 0;
+    background: white;
+    border: 2px solid rgba(255,255,255,0.9);
+    border-radius: 22px;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    width: 44px;
+}
+
+.gtour-icon-btn:hover {
+    width: auto;
+    padding-right: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    transform: translateY(-2px);
+}
+
+.gtour-icon-btn:active {
+    transform: translateY(0);
+}
+
+.gtour-icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 100%;
+    flex-shrink: 0;
+    font-size: 18px;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gtour-icon-wrapper .glyphicon {
+    top: 0px !important;
+}
+
+.gtour-icon-btn:hover .gtour-icon-wrapper {
+    transform: translateX(-2px);
+}
+
+.gtour-btn-text {
+    max-width: 0;
+    opacity: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    font-size: 14px;
+    font-weight: 600;
+    margin-left: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gtour-icon-btn:hover .gtour-btn-text {
+    max-width: 200px;
+    opacity: 1;
+    margin-left: 8px;
+}
+
+/* Color variants */
+.gtour-btn-success .gtour-icon-wrapper {
+    color: #27ae60;
+}
+
+.gtour-btn-success:hover {
+    background: #27ae60;
+    border-color: #27ae60;
+}
+
+.gtour-btn-success:hover .gtour-icon-wrapper,
+.gtour-btn-success:hover .gtour-btn-text {
+    color: white;
+}
+
+.gtour-btn-warning .gtour-icon-wrapper {
+    color: #f39c12;
+}
+
+.gtour-btn-warning:hover {
+    background: #f39c12;
+    border-color: #f39c12;
+}
+
+.gtour-btn-warning:hover .gtour-icon-wrapper,
+.gtour-btn-warning:hover .gtour-btn-text {
+    color: white;
+}
+
+.gtour-btn-danger .gtour-icon-wrapper {
+    color: #e74c3c;
+}
+
+.gtour-btn-danger:hover {
+    background: #e74c3c;
+    border-color: #e74c3c;
+}
+
+.gtour-btn-danger:hover .gtour-icon-wrapper,
+.gtour-btn-danger:hover .gtour-btn-text {
+    color: white;
+}
+
+.gtour-btn-primary .gtour-icon-wrapper {
+    color: #3498db;
+}
+
+.gtour-btn-primary:hover {
+    background: #3498db;
+    border-color: #3498db;
+}
+
+.gtour-btn-primary:hover .gtour-icon-wrapper,
+.gtour-btn-primary:hover .gtour-btn-text {
+    color: white;
+}
+
+.gtour-btn-info .gtour-icon-wrapper {
+    color: #16a085;
+}
+
+.gtour-btn-info:hover {
+    background: #16a085;
+    border-color: #16a085;
+}
+
+.gtour-btn-info:hover .gtour-icon-wrapper,
+.gtour-btn-info:hover .gtour-btn-text {
+    color: white;
+}
+
+#gtour-step-counter {
+    color: #ecf0f1;
+    font-size: 14px;
+    padding: 5px 15px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 5px;
+}
+
+#gtour-step-counter strong {
+    color: #3498db;
+    font-size: 16px;
+}
+
+/* Content iframe */
+#gtour-content-frame {
+    position: absolute;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    height: calc(100% - 60px);
+    border: none;
+}
+
+/* Element highlight overlay */
+#gtour-element-highlight {
+    position: absolute;
+    border: 3px solid #3498db;
+    background: rgba(52, 152, 219, 0.1);
+    pointer-events: none;
+    z-index: 999998;
+    box-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
+    transition: all 0.1s ease;
+}
+
+/* Notification toast */
+.gtour-notification {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    padding: 15px 25px;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 1000001;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    animation: slideInRight 0.3s ease;
+}
+
+.gtour-notification-success {
+    background: #27ae60;
+    color: white;
+}
+
+.gtour-notification-error {
+    background: #e74c3c;
+    color: white;
+}
+
+.gtour-notification-info {
+    background: #3498db;
+    color: white;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Recording indicator pulse animation */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(1.1);
+    }
+}
+
+/* Help text for F1 instruction */
+.gtour-help-text {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 13px;
+    z-index: 1000001;
+}
+
+/* Steps list panel */
+.gtour-steps-panel {
+    position: fixed;
+    top: 70px;
+    right: 10px;
+    width: 400px;
+    max-height: calc(100vh - 80px);
+    background: white;
+    border: 2px solid #3498db;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    z-index: 1000002;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.gtour-steps-panel-header {
+    background: linear-gradient(to bottom, #3498db, #2980b9);
+    color: white;
+    padding: 10px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.gtour-steps-panel-header h4 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.gtour-close-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    transition: transform 0.2s;
+}
+
+.gtour-close-btn:hover {
+    transform: scale(1.2);
+}
+
+.gtour-steps-list {
+    flex: 1;
+    overflow-y: scroll;
+    padding: 10px;
+    max-height: 600px;
+}
+
+.gtour-steps-ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.gtour-step-item {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    margin-bottom: 8px;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    transition: background 0.2s;
+}
+
+.gtour-step-item:hover {
+    background: #e9ecef;
+}
+
+.gtour-step-content {
+    flex: 1;
+    overflow: hidden;
+}
+
+.gtour-step-content strong {
+    color: #2c3e50;
+    font-size: 14px;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.gtour-step-element {
+    color: #7f8c8d;
+    font-size: 11px;
+    font-family: monospace;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.gtour-delete-step-btn {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-left: 10px;
+    transition: all 0.2s;
+}
+
+.gtour-delete-step-btn:hover {
+    background: #c0392b;
+    transform: scale(1.1);
+}
+
+.gtour-no-steps {
+    text-align: center;
+    color: #95a5a6;
+    padding: 20px;
+    font-style: italic;
+}
+
+.gtour-click-badge {
+    display: inline-block;
+    background: #27ae60;
+    color: white;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-left: 5px;
+    vertical-align: middle;
+}
+
+.gtour-path-badge {
+    display: inline-block;
+    background: #e67e22;
+    color: white;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-left: 5px;
+    vertical-align: middle;
+}
+
+.gtour-smart-badge {
+    display: inline-block;
+    background: #3498db;
+    color: white;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-left: 5px;
+    vertical-align: middle;
+}
+
+.gtour-step-item.has-click {
+    border-left: 3px solid #27ae60;
+}
+
+.gtour-step-item.has-path {
+    border-bottom: 3px solid #e67e22;
+}
+
+.gtour-step-item.has-smart-pattern {
+    border-right: 3px solid #3498db;
+}
+
+.gtour-step-type {
+    color: #3498db;
+    font-size: 11px;
+    font-family: monospace;
+    font-weight: 600;
+    display: block;
+    margin-top: 3px;
+}

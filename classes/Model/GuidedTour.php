@@ -18,6 +18,11 @@ class GuidedTour
     const TYPES = array('any', 'crs', 'fold', 'grp', 'tst', 'exc', 'book', 'ildashboardgui', 'ilmembershipoverviewgui');
     const TYPE_DEFAULT = 'any';
 
+    const TRIGGER_MODE_NORMAL = 'normal';
+    const TRIGGER_MODE_ALWAYS = 'always';
+    const TRIGGER_MODE_UNTIL_COMPLETED = 'until_completed';
+    const TRIGGER_MODES = array(self::TRIGGER_MODE_NORMAL, self::TRIGGER_MODE_ALWAYS, self::TRIGGER_MODE_UNTIL_COMPLETED);
+
     /** @var ?int */
     protected ?int $id;
     /** @var string */
@@ -34,6 +39,16 @@ class GuidedTour
     protected bool $automatic_triggered;
     /** @var array */
     protected array $rolesIds;
+    /** @var ?string */
+    protected ?string $language_code;
+    /** @var ?string */
+    protected ?string $description;
+    /** @var ?string */
+    protected ?string $scenario;
+    /** @var ?int */
+    protected ?int $ref_id;
+    /** @var string */
+    protected string $trigger_mode;
 
     public function __construct(
         ?int $id = null,
@@ -43,7 +58,12 @@ class GuidedTour
         ?string $script = "",
         bool|string|int $active = false,
         bool|string|int $automatic_triggered = true,
-        array $rolesIds = array()
+        array $rolesIds = array(),
+        ?string $language_code = null,
+        ?string $description = null,
+        ?string $scenario = null,
+        ?int $ref_id = null,
+        string $trigger_mode = self::TRIGGER_MODE_NORMAL
     ) {
         $this->setId($id);
         $this->setTitle($title);
@@ -53,6 +73,11 @@ class GuidedTour
         $this->setActive($active);
         $this->setAutomaticTriggered($automatic_triggered);
         $this->setRolesIds($rolesIds);
+        $this->setLanguageCode($language_code);
+        $this->setDescription($description);
+        $this->setScenario($scenario);
+        $this->setRefId($ref_id);
+        $this->setTriggerMode($trigger_mode);
     }
 
     public function setId(?int $a_val) : void
@@ -105,7 +130,48 @@ class GuidedTour
         return $this->script;
     }
 
-    public function setActive(bool|string|int $a_val) : void
+    /**
+     * Get the effective script for this tour
+     * Returns JSON from steps if they exist, otherwise returns the manual script
+     * @return string|null
+     */
+    public function getEffectiveScript() : ?string
+    {
+        // Check if tour has steps defined in database
+        $stepRepo = new \uzk\gtour\Data\GuidedTourStepRepository();
+        $steps = $stepRepo->getStepsByTourId($this->getId());
+
+        if (!empty($steps)) {
+            // Generate JSON from steps
+            return $this->generateJsonFromSteps($steps);
+        }
+
+        // No steps defined, return manual script
+        return $this->script;
+    }
+
+    /**
+     * Generate JSON array from steps
+     * @param array $steps Array of GuidedTourStep objects
+     * @return string JSON string
+     */
+    protected function generateJsonFromSteps(array $steps) : string
+    {
+        // Sort steps by sort_order
+        usort($steps, function($a, $b) {
+            return $a->getSortOrder() <=> $b->getSortOrder();
+        });
+
+        // Convert steps to JSON array format
+        $stepsArray = [];
+        foreach ($steps as $step) {
+            $stepsArray[] = $step->toJsonArray();
+        }
+
+        return json_encode($stepsArray, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    }
+
+    public function setActive(bool|string|int $a_val = false) : void
     {
         $value = filter_var($a_val, FILTER_VALIDATE_BOOLEAN);
         $this->active = $value;
@@ -116,7 +182,7 @@ class GuidedTour
         return $this->active;
     }
 
-    public function setAutomaticTriggered(bool|string|int $a_val) : void
+    public function setAutomaticTriggered(bool|string|int $a_val = false) : void
     {
         $value = filter_var($a_val, FILTER_VALIDATE_BOOLEAN);
         $this->automatic_triggered = $value;
@@ -137,6 +203,60 @@ class GuidedTour
         $this->rolesIds = $a_val;
     }
 
+    public function getLanguageCode() : ?string
+    {
+        return $this->language_code;
+    }
+
+    public function setLanguageCode(?string $a_val) : void
+    {
+        $this->language_code = $a_val;
+    }
+
+    public function getDescription() : ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $a_val) : void
+    {
+        $this->description = $a_val;
+    }
+
+    public function getScenario() : ?string
+    {
+        return $this->scenario;
+    }
+
+    public function setScenario(?string $a_val) : void
+    {
+        $this->scenario = $a_val;
+    }
+
+    public function getRefId() : ?int
+    {
+        return $this->ref_id;
+    }
+
+    public function setRefId(?int $a_val) : void
+    {
+        $this->ref_id = $a_val;
+    }
+
+    public function getTriggerMode() : string
+    {
+        return $this->trigger_mode;
+    }
+
+    public function setTriggerMode(string $a_val) : void
+    {
+        // Validate trigger mode
+        if (!in_array($a_val, self::TRIGGER_MODES)) {
+            $a_val = self::TRIGGER_MODE_NORMAL;
+        }
+        $this->trigger_mode = $a_val;
+    }
+
     private function getRolesIdsAsJSON() : string
     {
         return json_encode($this->rolesIds);
@@ -145,7 +265,10 @@ class GuidedTour
     private function setRolesIdsFromJSON(string $a_val) : void
     {
         if (!($a_val === "")) {
-            $this->rolesIds = (array) json_decode($a_val);
+            // Use json_decode with true parameter to get array instead of object
+            $decoded = json_decode($a_val, true);
+            // Ensure we have a numeric array, not an associative one
+            $this->rolesIds = is_array($decoded) ? array_values($decoded) : [];
         } else {
             $this->rolesIds = array();
         }
@@ -253,7 +376,12 @@ class GuidedTour
             "script" => array('text', $this->getScript()),
             "is_active" => array('integer', $this->isActive()),
             "is_automatic_triggered" => array('integer', $this->isAutomaticTriggered()),
-            "roles_ids" => array('text', $this->getRolesIdsAsJSON())
+            "roles_ids" => array('text', $this->getRolesIdsAsJSON()),
+            "language_code" => array('text', $this->getLanguageCode()),
+            "description" => array('text', $this->getDescription()),
+            "scenario" => array('text', $this->getScenario()),
+            "ref_id" => array('integer', $this->getRefId()),
+            "trigger_mode" => array('text', $this->getTriggerMode())
         );
     }
 
@@ -270,7 +398,12 @@ class GuidedTour
             'script' => $this->getScript(),
             'is_active' => $this->isActive(),
             "is_automatic_triggered" => $this->isAutomaticTriggered(),
-            "roles_ids" => $this->getRolesIds()
+            "roles_ids" => $this->getRolesIds(),
+            "language_code" => $this->getLanguageCode(),
+            "description" => $this->getDescription(),
+            "scenario" => $this->getScenario(),
+            "ref_id" => $this->getRefId(),
+            "trigger_mode" => $this->getTriggerMode()
         );
     }
 
@@ -299,5 +432,10 @@ class GuidedTour
         $this->setActive($array['is_active']);
         $this->setAutomaticTriggered($array['is_automatic_triggered']);
         $this->setRolesIdsFromJSON($array['roles_ids']);
+        $this->setLanguageCode($array['language_code'] ?? null);
+        $this->setDescription($array['description'] ?? null);
+        $this->setScenario($array['scenario'] ?? null);
+        $this->setRefId($array['ref_id'] ?? null);
+        $this->setTriggerMode($array['trigger_mode'] ?? self::TRIGGER_MODE_NORMAL);
     }
 }

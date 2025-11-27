@@ -11,6 +11,18 @@
 /extern
 /Services/PHPUnit/config/cfg.phpunit.php
 /nbproject
+/.vscode
+
+# Claude AI
+/.claude
+
+# Development & Test Files
+test.php
+page_editor.php
+nul
+
+# Obsolete Files (ILIAS 9 uses copg_pobj_def instead)
+service.xml
 
 # General Patterns
 *.bak
@@ -19,3 +31,15 @@
 .svn
 *.swp
 *.swo
+
+# PHP
+composer.phar
+/vendor/
+composer.lock
+
+# Logs and Temporary Files
+*.log
+*.tmp
+*.temp
+/tmp/
+/logs/

@@ -103,9 +103,16 @@ class GuidedTourMainBarProvider extends AbstractStaticMainMenuPluginProvider
             $tours = $guidedTourRepository->getTours();
             $countDefaultTours = 0;
 
+            // Get current user language
+            $userLanguage = $user->getLanguage();
+
             // Process default tours and add them to the navbar
             foreach ($tours as $tour) {
+                // Check if tour matches user language (or has no language restriction)
+                $languageMatches = ($tour->getLanguageCode() === null || $tour->getLanguageCode() === '' || $tour->getLanguageCode() === $userLanguage);
+
                 if ($tour->getType() == GuidedTour::TYPE_DEFAULT && $tour->isActive()
+                    && $languageMatches
                     && count(array_intersect($userGlobalRoles, $tour->getRolesIds())) > 0) {
 
                     $countDefaultTours++;
@@ -122,11 +129,27 @@ class GuidedTourMainBarProvider extends AbstractStaticMainMenuPluginProvider
                 }
             }
 
+            // Get current ref_id for ref_id-based tours
+            $currentRefId = null;
+            if (isset($_GET['ref_id'])) {
+                $currentRefId = (int)$_GET['ref_id'];
+            }
+
             // Process context-sensitive tours and add them to the navbar
             $countContextTours = 0;
             foreach ($tours as $tour) {
-                if (($tour->getType() == $ctrl->getContextObjType() || $tour->getType() == $ctrl->getCmdClass())
-                    && $tour->isActive() && count(array_intersect($userGlobalRoles, $tour->getRolesIds())) > 0) {
+                // Check if tour matches user language (or has no language restriction)
+                $languageMatches = ($tour->getLanguageCode() === null || $tour->getLanguageCode() === '' || $tour->getLanguageCode() === $userLanguage);
+
+                // Check if tour matches current context (type OR ref_id)
+                $typeMatches = ($tour->getType() == $ctrl->getContextObjType() || $tour->getType() == $ctrl->getCmdClass());
+                $refIdMatches = ($tour->getRefId() === null || $tour->getRefId() === $currentRefId);
+
+                if ($tour->isActive()
+                    && $languageMatches
+                    && ($typeMatches || $tour->getRefId() !== null) // Show if type matches OR ref_id is set
+                    && $refIdMatches // Must match ref_id if set
+                    && count(array_intersect($userGlobalRoles, $tour->getRolesIds())) > 0) {
 
                     $countContextTours++;
                     if ($countContextTours == 1) {

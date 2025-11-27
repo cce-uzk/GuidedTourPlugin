@@ -1,8 +1,10 @@
-// 
+//
 // German Language File for GuidedTour Plugin
 //
- 
+
 <!-- language file start -->
+plugin_title#:#Guided Tour Plugin
+plugin_description#:#Verwaltung von geführten Touren für ILIAS
 guided_tour#:#Guided Tour
 guided_tours#:#Guided Touren
 config#:#Konfiguration
@@ -46,6 +48,108 @@ tour_title_info#:#Anzeigename der Tour
 tour_roles_info#:#Rollen, bei dem die Tour angeboten werden soll
 tour_icon_info#:#Anzeigesymbol (Icon) der Tour
 tour_script_info#:#Valides JSON zur Tour. Achtung: Fehler k&ouml;nnen (bei Aktivierung) zu Fehlfunktion dieser Tour f&uuml;hren.
+tour_language#:#Sprache
+tour_language_info#:#Sprache der Tour. Die Tour wird nur Nutzer:innen mit dieser Sprache angezeigt. Leer lassen f&uuml;r alle Sprachen.
+tour_description#:#Beschreibung
+tour_description_info#:#&Ouml;ffentliche Beschreibung der Tour f&uuml;r Nutzer:innen
+tour_scenario#:#Szenario
+tour_scenario_info#:#Interne Beschreibung des Tour-Szenarios f&uuml;r Administratoren
+tour_ref_id#:#Ref-ID (optional)
+tour_ref_id_info#:#Optional: Bindet diese Tour an eine spezifische ILIAS-Objektreferenz. Leer lassen f&uuml;r Anzeige basierend auf Objekttyp. Beispiel: 231 f&uuml;r eine bestimmte Support-Seite.
+tour_trigger_mode#:#Trigger-Modus
+tour_trigger_mode_info#:#Steuert das Autostart-Verhalten dieser Tour, wenn automatisches Ausl&ouml;sen aktiviert ist
+trigger_mode_normal#:#Normal (einmal anzeigen)
+trigger_mode_always#:#Immer (jedes Mal anzeigen)
+trigger_mode_until_completed#:#Bis abgeschlossen (anzeigen bis beendet)
+all_languages#:#Alle Sprachen
 automatic_trigger#:#Automatischer Tour-Start
 tour_automatic_trigger_info#:#Tour automatisch starten, entsprechend der oben genannten Bedingungen.
 tour_saved#:#&Auml;nderungen gespeichert
+table_total_tours#:#Anzahl Touren
+tour_steps_count#:#Anzahl Schritte
+back_to_list#:#Zur&uuml;ck zur Liste
+tour_details#:#Tour-Details
+tour_settings#:#Tour-Einstellungen
+tour_activation_section#:#Aktivierung & Ausl&ouml;sung
+tour_context_section#:#Kontext & Zielgruppe
+tour_content_section#:#Inhalt & Informationen
+tour_script_section#:#Tour-Skript
+tour_steps#:#Tour-Schritte
+add_step#:#Schritt hinzuf&uuml;gen
+edit_step#:#Schritt bearbeiten
+delete_step#:#Schritt l&ouml;schen
+confirm_delete_step#:#Schritt wirklich l&ouml;schen?
+step_title#:#Schritt-Titel
+step_element#:#Element
+step_content#:#Inhalt
+step_placement#:#Positionierung
+step_orphan#:#Freischwebend
+step_actions#:#Aktionen
+step_on_next#:#Bei "Weiter"
+step_on_prev#:#Bei "Zur&uuml;ck"
+step_on_show#:#Bei Anzeige
+step_on_shown#:#Nach Anzeige
+step_on_hide#:#Beim Verstecken
+step_path#:#Pfad (Multi-Page)
+step_sort_order#:#Reihenfolge
+step_saved#:#Schritt gespeichert
+step_deleted#:#Schritt gel&ouml;scht
+no_steps#:#Keine Schritte vorhanden
+record_tour#:#Tour aufnehmen
+record_start#:#Aufnahme starten
+record_stop#:#Aufnahme beenden
+record_pause#:#Pausieren
+record_discard#:#Verwerfen
+record_save_and_exit#:#Speichern & Zur&uuml;ck
+record_back_to_edit#:#Speichern & Zur&uuml;ck
+record_active#:#Aufnahme l&auml;uft - Dr&uuml;cken Sie F1 &uuml;ber einem Element, um es als Schritt zu erfassen
+record_paused#:#Aufnahme pausiert - Sie k&ouml;nnen die Aufnahme fortsetzen oder speichern
+record_step_captured#:#Schritt erfasst
+record_steps_saved#:#Schritte erfolgreich gespeichert
+record_discarded#:#Aufnahme verworfen
+record_instruction#:#Navigieren Sie durch ILIAS und dr&uuml;cken Sie F1 &uuml;ber Elementen, um Schritte aufzunehmen
+record_show_steps#:#Schritte anzeigen
+record_hide_steps#:#Schritte ausblenden
+record_steps_list#:#Aufgenommene Schritte
+record_delete_step#:#Schritt l&ouml;schen
+record_confirm_discard#:#M&ouml;chten Sie die Aufnahme wirklich verwerfen? Alle aufgenommenen Schritte gehen verloren.
+record_click_registered#:#Klick registriert - Element wird beim "Weiter" angeklickt
+record_click_hint#:#Klicken Sie innerhalb von 2 Sekunden auf das Element, um einen Klick zu registrieren
+record_resume#:#Fortsetzen
+record_resumed#:#Aufnahme fortgesetzt
+record_steps_in_memory#:#Schritte werden im Speicher gehalten
+steps#:#Schritte
+tab_statistics#:#Statistik
+stats_select_tour#:#Tour ausw&auml;hlen
+stats_all_tours_comparison#:#Alle Touren vergleichen
+stats_no_data#:#Keine Statistikdaten vorhanden
+stats_no_data_for_tour#:#F&uuml;r diese Tour sind keine Statistikdaten vorhanden
+stats_tour_not_found#:#Tour nicht gefunden
+stats_overview#:#&Uuml;bersicht
+stats_total_starts#:#Gesamtstarts
+stats_unique_users#:#Einzelne Nutzer
+stats_completed#:#Abgeschlossen
+stats_partial#:#Teilweise
+stats_avg_step_reached#:#Durchschn. erreichter Schritt
+stats_first_usage#:#Erste Nutzung
+stats_last_usage#:#Letzte Nutzung
+stats_last_7_days#:#Letzte 7 Tage
+stats_last_30_days#:#Letzte 30 Tage
+stats_completion_rate#:#Abschlussrate
+stats_count#:#Anzahl
+stats_activity#:#Aktivit&auml;t
+stats_recent_activity#:#Aktuelle Aktivit&auml;t
+stats_completion_breakdown#:#Abschluss-Aufschl&uuml;sselung
+stats_total_starts_comparison#:#Vergleich: Gesamtstarts
+stats_completion_rate_comparison#:#Vergleich: Abschlussrate
+stats_avg_step_comparison#:#Vergleich: Durchschnittlicher Schritt
+stats_detailed_comparison#:#Detaillierter Vergleich
+stats_reset_button#:#Statistik zur&uuml;cksetzen
+stats_reset_success#:#Statistik erfolgreich zur&uuml;ckgesetzt
+stats_reset_failed_no_tour#:#Keine Tour ausgew&auml;hlt
+reset_statistics#:#Statistik zur&uuml;cksetzen
+reset_completion_status#:#Abschlussstatus zur&uuml;cksetzen
+statistics_reset_success#:#Statistik wurde erfolgreich zur&uuml;ckgesetzt
+statistics_reset_success_multiple#:#Statistiken wurden erfolgreich zur&uuml;ckgesetzt
+completion_reset_success#:#Abschlussstatus wurde erfolgreich zur&uuml;ckgesetzt (Statistik bleibt erhalten)
+completion_reset_success_multiple#:#Abschlussstatus wurde für alle Touren erfolgreich zur&uuml;ckgesetzt (Statistik bleibt erhalten)
