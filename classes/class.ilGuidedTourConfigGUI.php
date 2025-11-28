@@ -1222,8 +1222,10 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
                 if (isset($context_data['type'])) {
                     $tour->setType($context_data['type']);
                 }
-                if (isset($context_data['ref_id'])) {
-                    $tour->setRefId($context_data['ref_id'] !== '' ? (int)$context_data['ref_id'] : null);
+                // Use array_key_exists instead of isset to allow null values
+                if (array_key_exists('ref_id', $context_data)) {
+                    // Transformation already returns null or int, no further conversion needed
+                    $tour->setRefId($context_data['ref_id']);
                 }
                 if (isset($context_data['language_code'])) {
                     $tour->setLanguageCode($context_data['language_code'] === '' ? null : $context_data['language_code']);
@@ -1386,6 +1388,7 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
     protected function buildTourContextInputs(?GuidedTour $tour): array
     {
         $ui_factory = $this->ui->factory();
+        $refinery = $this->refinery;
         $inputs = [];
 
         // Type selection
@@ -1401,10 +1404,28 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
          ->withValue($tour ? $tour->getType() : 'any');
 
         // Ref-ID (optional - bind tour to specific object)
-        $inputs['ref_id'] = $ui_factory->input()->field()->numeric(
+        // Using text field instead of numeric to allow clearing the value
+        $ref_id_transformation = $refinery->custom()->transformation(
+            function ($value) {
+                // Empty string or null -> return null
+                if ($value === '' || $value === null) {
+                    return null;
+                }
+
+                // Validate that it's a valid integer
+                if (!is_numeric($value) || (int)$value != $value || (int)$value <= 0) {
+                    throw new \ilException($this->plugin_object->txt('tour_ref_id_must_be_number'));
+                }
+
+                return (int)$value;
+            }
+        );
+
+        $inputs['ref_id'] = $ui_factory->input()->field()->text(
             $this->plugin_object->txt('tour_ref_id'),
             $this->plugin_object->txt('tour_ref_id_info')
-        )->withValue($tour && $tour->getRefId() ? $tour->getRefId() : null);
+        )->withValue($tour && $tour->getRefId() ? (string)$tour->getRefId() : '')
+         ->withAdditionalTransformation($ref_id_transformation);
 
         // Language selection
         $language_options = ['' => '- ' . $this->plugin_object->txt('all_languages') . ' -'];

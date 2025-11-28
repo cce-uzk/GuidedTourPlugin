@@ -56,6 +56,7 @@ tour_scenario#:#Szenario
 tour_scenario_info#:#Interne Beschreibung des Tour-Szenarios f&uuml;r Administratoren
 tour_ref_id#:#Ref-ID (optional)
 tour_ref_id_info#:#Optional: Bindet diese Tour an eine spezifische ILIAS-Objektreferenz. Leer lassen f&uuml;r Anzeige basierend auf Objekttyp. Beispiel: 231 f&uuml;r eine bestimmte Support-Seite.
+tour_ref_id_must_be_number#:#Ref-ID muss eine positive Zahl sein oder leer gelassen werden
 tour_trigger_mode#:#Trigger-Modus
 tour_trigger_mode_info#:#Steuert das Autostart-Verhalten dieser Tour, wenn automatisches Ausl&ouml;sen aktiviert ist
 trigger_mode_normal#:#Normal (einmal anzeigen)
@@ -95,6 +96,8 @@ step_sort_order#:#Reihenfolge
 step_saved#:#Schritt gespeichert
 step_deleted#:#Schritt gel&ouml;scht
 no_steps#:#Keine Schritte vorhanden
+step_rich_content#:#in ILIAS Seiten-Editor
+step_rich_content_info#:#Nutzen Sie den ILIAS Seiten-Editor für formatierte Inhalte, Tabellen oder Medieneinbindung
 record_tour#:#Tour aufnehmen
 record_start#:#Aufnahme starten
 record_stop#:#Aufnahme beenden
