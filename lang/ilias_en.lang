@@ -14,6 +14,7 @@ tour_btn_next#:#Next
 tour_btn_previous#:#Prev
 tour_btn_stop#:#Stop tour
 tour_btn_start#:#Start tour
+tour_progress_of#:#of
 tour_btn_pause#:#Pause tour
 save_success#:#Successfully saved
 save_failure#:#Saving failed!
@@ -56,6 +57,7 @@ tour_scenario#:#Scenario
 tour_scenario_info#:#Internal description of the tour scenario for administrators
 tour_ref_id#:#Ref-ID (optional)
 tour_ref_id_info#:#Optional: Bind this tour to a specific ILIAS object reference. Leave empty to show based on object type. Example: 231 for a specific support page.
+tour_ref_id_must_be_number#:#Ref-ID must be a positive number or left empty
 tour_trigger_mode#:#Trigger Mode
 tour_trigger_mode_info#:#Controls autostart behavior for this tour when automatic triggering is enabled
 trigger_mode_normal#:#Normal (show once)
@@ -83,6 +85,11 @@ step_title#:#Step Title
 step_element#:#Element
 step_content#:#Content
 step_placement#:#Placement
+placement_top#:#Top
+placement_bottom#:#Bottom
+placement_left#:#Left
+placement_right#:#Right
+placement_center#:#Center
 step_orphan#:#Orphan (Floating)
 step_actions#:#Actions
 step_on_next#:#On "Next"
@@ -95,8 +102,12 @@ step_sort_order#:#Order
 step_saved#:#Step saved
 step_deleted#:#Step deleted
 no_steps#:#No steps available
-step_rich_content#:#Rich Content (with images, formatting)
-step_rich_content_info#:#Use Page Editor for formatted content with images
+step_rich_content#:#in ILIAS Page Editor
+step_rich_content_info#:#Use the ILIAS Page Editor for formatted content, tables or media embedding
+formatted_content_preview#:#Formatted Content (from Page Editor)
+remove_rich_content#:#Remove Formatted Content
+confirm_remove_rich_content#:#Really remove formatted content and return to plain text editing?
+rich_content_removed#:#Formatted content removed successfully
 record_tour#:#Record Tour
 record_start#:#Start Recording
 record_stop#:#Stop Recording

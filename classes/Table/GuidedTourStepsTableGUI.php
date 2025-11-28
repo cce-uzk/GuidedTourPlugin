@@ -146,6 +146,7 @@ class GuidedTourStepsTableDataRetrieval implements \ILIAS\UI\Component\Table\Dat
     protected int $tour_id;
     protected \ILIAS\UI\Factory $ui_factory;
     protected \ilLanguage $lng;
+    protected \ilGuidedTourPlugin $plugin;
 
     public function __construct(int $tour_id)
     {
@@ -155,6 +156,7 @@ class GuidedTourStepsTableDataRetrieval implements \ILIAS\UI\Component\Table\Dat
         $this->tour_id = $tour_id;
         $this->ui_factory = $DIC->ui()->factory();
         $this->lng = $DIC->language();
+        $this->plugin = \ilGuidedTourPlugin::getInstance();
     }
 
     public function getRows(
@@ -194,7 +196,7 @@ class GuidedTourStepsTableDataRetrieval implements \ILIAS\UI\Component\Table\Dat
                 'sort_order' => $step->getSortOrder(),
                 'title' => $step->getTitle() ?: '-',
                 'element' => $step->getElement() ?: '-',
-                'placement' => ucfirst($step->getPlacement()),
+                'placement' => $this->plugin->txt('placement_' . $step->getPlacement()),
                 'orphan' => $orphan_icon
             ];
 

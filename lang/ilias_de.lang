@@ -14,6 +14,7 @@ tour_btn_next#:#Weiter
 tour_btn_previous#:#Zur&uuml;ck
 tour_btn_stop#:#Tour beenden
 tour_btn_start#:#Tour starten
+tour_progress_of#:#von
 tour_btn_pause#:#Tour pausieren
 save_success#:#Speichern erfolgreich
 save_failure#:#Speichern fehlgeschlagen!
@@ -56,6 +57,7 @@ tour_scenario#:#Szenario
 tour_scenario_info#:#Interne Beschreibung des Tour-Szenarios f&uuml;r Administratoren
 tour_ref_id#:#Ref-ID (optional)
 tour_ref_id_info#:#Optional: Bindet diese Tour an eine spezifische ILIAS-Objektreferenz. Leer lassen f&uuml;r Anzeige basierend auf Objekttyp. Beispiel: 231 f&uuml;r eine bestimmte Support-Seite.
+tour_ref_id_must_be_number#:#Ref-ID muss eine positive Zahl sein oder leer gelassen werden
 tour_trigger_mode#:#Trigger-Modus
 tour_trigger_mode_info#:#Steuert das Autostart-Verhalten dieser Tour, wenn automatisches Ausl&ouml;sen aktiviert ist
 trigger_mode_normal#:#Normal (einmal anzeigen)
@@ -83,6 +85,11 @@ step_title#:#Schritt-Titel
 step_element#:#Element
 step_content#:#Inhalt
 step_placement#:#Positionierung
+placement_top#:#Oben
+placement_bottom#:#Unten
+placement_left#:#Links
+placement_right#:#Rechts
+placement_center#:#Zentriert
 step_orphan#:#Freischwebend
 step_actions#:#Aktionen
 step_on_next#:#Bei "Weiter"
@@ -95,6 +102,12 @@ step_sort_order#:#Reihenfolge
 step_saved#:#Schritt gespeichert
 step_deleted#:#Schritt gel&ouml;scht
 no_steps#:#Keine Schritte vorhanden
+step_rich_content#:#in ILIAS Seiten-Editor
+step_rich_content_info#:#Nutzen Sie den ILIAS Seiten-Editor für formatierte Inhalte, Tabellen oder Medieneinbindung
+formatted_content_preview#:#Formatierter Inhalt (aus Seiten-Editor)
+remove_rich_content#:#Formatierten Inhalt entfernen
+confirm_remove_rich_content#:#Formatierten Inhalt wirklich entfernen und zur Textbearbeitung zur&uuml;ckkehren?
+rich_content_removed#:#Formatierter Inhalt erfolgreich entfernt
 record_tour#:#Tour aufnehmen
 record_start#:#Aufnahme starten
 record_stop#:#Aufnahme beenden

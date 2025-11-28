@@ -78,6 +78,7 @@ class ilGuidedTourUIHookGUI extends ilUIHookPluginGUI
             $config->tpl->btn_prev = $this->plugin_object->txt('tour_btn_previous');
             $config->tpl->btn_next = $this->plugin_object->txt('tour_btn_next');
             $config->tpl->btn_stop = $this->plugin_object->txt('tour_btn_stop');
+            $config->tpl->progress_of = $this->plugin_object->txt('tour_progress_of');
 
             // Terminate URL for AJAX calls (called when tour is closed)
             try {
