@@ -73,6 +73,17 @@ class ilGuidedTourStepPageGUI extends ilPageObjectGUI
     {
         global $DIC;
         $ctrl = $DIC->ctrl();
+        $tpl = $DIC['tpl'];
+
+        // Set page header with plugin icon, title and description
+        require_once __DIR__ . '/../class.ilGuidedTourPlugin.php';
+        $plugin = ilGuidedTourPlugin::getInstance();
+        $tpl->setTitle($plugin->txt('plugin_title'));
+        $tpl->setDescription($plugin->txt('plugin_description'));
+        $tpl->setTitleIcon(
+            $plugin->getDirectory() . '/templates/images/signpost-split.svg',
+            $plugin->txt('plugin_title')
+        );
 
         $next_class = $ctrl->getNextClass($this);
         $cmd = $ctrl->getCmd();

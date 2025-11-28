@@ -36,6 +36,7 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
     private const CMD_SAVESTEP = 'saveStep';
     private const CMD_DELETESTEP = 'deleteStep';
     private const CMD_REDIRECTTOEDITOR = 'redirectToPageEditor';
+    private const CMD_REMOVERICHCONTENT = 'removeRichContent';
     private const CMD_STARTRECORDING = 'startRecording';
     private const CMD_PAUSERECORDING = 'pauseRecording';
     private const CMD_DISCARDRECORDING = 'discardRecording';
@@ -209,6 +210,10 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
 
             case self::CMD_REDIRECTTOEDITOR:
                 $this->redirectToPageEditor();
+                break;
+
+            case self::CMD_REMOVERICHCONTENT:
+                $this->removeRichContent();
                 break;
 
             case self::CMD_STARTRECORDING:
@@ -906,26 +911,74 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
         $ui_factory = $this->ui->factory();
         $inputs = [];
 
-        // Content (plain textarea)
-        $content_description = $this->plugin_object->txt('step_content');
+        // Check if step has rich content (page)
+        $hasRichContent = $step && $step->getContentPageId() !== null && $step->getContentPageId() > 0;
 
-        // Add link to Page Editor if step exists
-        if ($step && $step->getId()) {
-            // Link to redirect method which will strip conflicting parameters
-            // before forwarding to the page editor
-            $this->ctrl->setParameter($this, 'step_id', $step->getId());
-            $this->ctrl->setParameter($this, 'tour_id', $step->getTourId());
-            $page_editor_url = $this->ctrl->getLinkTarget($this, self::CMD_REDIRECTTOEDITOR);
+        if ($hasRichContent) {
+            // Render the formatted page content
+            require_once __DIR__ . '/Page/class.ilGuidedTourStepPage.php';
+            $page = new \ilGuidedTourStepPage($step->getContentPageId());
 
-            $content_description .= '<br/><br/><a href="' . $page_editor_url . '">'
-                . $this->lng->txt('edit') . ' ' . $this->plugin_object->txt('step_rich_content')
-                . ' &raquo;</a><br/><em>' . $this->plugin_object->txt('step_rich_content_info') . '</em>';
+            if ($page->_exists('gtst', $step->getContentPageId())) {
+                $page->read();
+                $page->buildDom();
+                $rendered_content = $page->getXMLContent();
+
+                // Create buttons for editing and removing
+                $this->ctrl->setParameter($this, 'step_id', $step->getId());
+                $this->ctrl->setParameter($this, 'tour_id', $step->getTourId());
+                $edit_url = $this->ctrl->getLinkTarget($this, self::CMD_REDIRECTTOEDITOR);
+                $remove_url = $this->ctrl->getLinkTarget($this, self::CMD_REMOVERICHCONTENT);
+
+                $buttons_html = '<div style="margin-top: 10px;">'
+                    . '<a class="btn btn-default" href="' . $edit_url . '">'
+                    . $this->lng->txt('edit') . ' ' . $this->plugin_object->txt('step_rich_content')
+                    . '</a> '
+                    . '<a class="btn btn-default" href="' . $remove_url . '" onclick="return confirm(\''
+                    . $this->plugin_object->txt('confirm_remove_rich_content') . '\');">'
+                    . $this->plugin_object->txt('remove_rich_content')
+                    . '</a>'
+                    . '</div>';
+
+                // Display rendered content in a readonly panel
+                $content_html = '<div style="border: 1px solid #ddd; padding: 15px; background: #f9f9f9; margin-bottom: 10px;">'
+                    . '<strong>' . $this->plugin_object->txt('formatted_content_preview') . ':</strong><br/><br/>'
+                    . $rendered_content
+                    . '</div>'
+                    . $buttons_html;
+
+                // Use a hidden field to maintain compatibility with form processing
+                $inputs['content'] = $ui_factory->input()->field()->text(
+                    $this->plugin_object->txt('step_content'),
+                    $content_html
+                )->withValue('')->withDisabled(true);
+            } else {
+                $hasRichContent = false;
+            }
         }
 
-        $inputs['content'] = $ui_factory->input()->field()->textarea(
-            $this->plugin_object->txt('step_content'),
-            $content_description
-        )->withValue($step ? $step->getContent() : '');
+        if (!$hasRichContent) {
+            // Content (plain textarea)
+            $content_description = $this->plugin_object->txt('step_content');
+
+            // Add link to Page Editor if step exists
+            if ($step && $step->getId()) {
+                // Link to redirect method which will strip conflicting parameters
+                // before forwarding to the page editor
+                $this->ctrl->setParameter($this, 'step_id', $step->getId());
+                $this->ctrl->setParameter($this, 'tour_id', $step->getTourId());
+                $page_editor_url = $this->ctrl->getLinkTarget($this, self::CMD_REDIRECTTOEDITOR);
+
+                $content_description .= '<br/><br/><a href="' . $page_editor_url . '">'
+                    . $this->lng->txt('edit') . ' ' . $this->plugin_object->txt('step_rich_content')
+                    . ' &raquo;</a><br/><em>' . $this->plugin_object->txt('step_rich_content_info') . '</em>';
+            }
+
+            $inputs['content'] = $ui_factory->input()->field()->textarea(
+                $this->plugin_object->txt('step_content'),
+                $content_description
+            )->withValue($step ? $step->getContent() : '');
+        }
 
         return $inputs;
     }
@@ -1705,6 +1758,58 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
             'ilGuidedTourStepPageGUI',
             'edit'
         );
+    }
+
+    /**
+     * Remove rich content (page) from a step and return to plain text editing
+     *
+     * @return void
+     */
+    protected function removeRichContent(): void
+    {
+        // Get parameters
+        $query_params = $this->http->request()->getQueryParams();
+        $step_id = (int)($query_params['step_id'] ?? 0);
+        $tour_id = (int)($query_params['tour_id'] ?? 0);
+
+        if ($step_id <= 0 || $tour_id <= 0) {
+            $this->tpl->setOnScreenMessage('failure', 'Invalid step or tour ID', true);
+            $this->ctrl->redirect($this, self::CMD_SHOWTOURSTEPS);
+            return;
+        }
+
+        // Load step
+        $stepRepo = new \uzk\gtour\Data\GuidedTourStepRepository();
+        $step = $stepRepo->getStepById($step_id);
+
+        if (!$step) {
+            $this->tpl->setOnScreenMessage('failure', 'Step not found', true);
+            $this->ctrl->redirect($this, self::CMD_SHOWTOURSTEPS);
+            return;
+        }
+
+        $page_id = $step->getContentPageId();
+
+        // Delete the page if it exists
+        if ($page_id !== null && $page_id > 0) {
+            require_once __DIR__ . '/Page/class.ilGuidedTourStepPage.php';
+
+            if (\ilGuidedTourStepPage::_exists('gtst', $page_id)) {
+                $page = new \ilGuidedTourStepPage($page_id);
+                $page->delete();
+            }
+
+            // Remove page reference from step
+            $step->setContentPageId(null);
+            $stepRepo->updateStep($step);
+
+            $this->tpl->setOnScreenMessage('success', $this->plugin_object->txt('rich_content_removed'), true);
+        }
+
+        // Redirect back to step editing
+        $this->ctrl->setParameter($this, 'step_id', $step_id);
+        $this->ctrl->setParameter($this, 'tour_id', $tour_id);
+        $this->ctrl->redirect($this, self::CMD_EDITSTEP);
     }
 
     /**
