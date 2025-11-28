@@ -14,6 +14,7 @@ tour_btn_next#:#Weiter
 tour_btn_previous#:#Zur&uuml;ck
 tour_btn_stop#:#Tour beenden
 tour_btn_start#:#Tour starten
+tour_progress_of#:#von
 tour_btn_pause#:#Tour pausieren
 save_success#:#Speichern erfolgreich
 save_failure#:#Speichern fehlgeschlagen!
@@ -84,6 +85,11 @@ step_title#:#Schritt-Titel
 step_element#:#Element
 step_content#:#Inhalt
 step_placement#:#Positionierung
+placement_top#:#Oben
+placement_bottom#:#Unten
+placement_left#:#Links
+placement_right#:#Rechts
+placement_center#:#Zentriert
 step_orphan#:#Freischwebend
 step_actions#:#Aktionen
 step_on_next#:#Bei "Weiter"

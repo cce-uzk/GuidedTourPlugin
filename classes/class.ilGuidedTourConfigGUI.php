@@ -658,11 +658,12 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
             $this->ctrl->getLinkTarget($this, self::CMD_ADDSTEP)
         );
 
-        // Add "Tour aufnehmen" button to toolbar
-        $this->toolbar->addButton(
+        // Add "Tour aufnehmen" button to toolbar as primary button
+        $record_button = $this->ui->factory()->button()->primary(
             $this->plugin_object->txt('record_tour'),
             $this->ctrl->getLinkTarget($this, self::CMD_STARTRECORDING)
         );
+        $this->toolbar->addComponent($record_button);
 
         require_once __DIR__ . '/Table/GuidedTourStepsTableGUI.php';
         $table_gui = new \uzk\gtour\Table\GuidedTourStepsTableGUI($this, (int)$tour_id);
@@ -879,7 +880,7 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
         // Placement selection
         $placement_options = [];
         foreach (\uzk\gtour\Model\GuidedTourStep::PLACEMENTS as $placement) {
-            $placement_options[$placement] = ucfirst($placement);
+            $placement_options[$placement] = $this->plugin_object->txt('placement_' . $placement);
         }
         $inputs['placement'] = $ui_factory->input()->field()->select(
             $this->plugin_object->txt('step_placement'),

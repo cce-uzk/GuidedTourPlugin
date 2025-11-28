@@ -630,7 +630,10 @@ let gtour = function () {
         // Custom button labels
         nextBtnText: tourTplVariables?.btn_next || 'Next »',
         prevBtnText: tourTplVariables?.btn_prev || '« Prev',
-        doneBtnText: tourTplVariables?.btn_stop || 'Done'
+        doneBtnText: tourTplVariables?.btn_stop || 'Done',
+        // Progress text with placeholders for current and total steps
+        // Build the string like "{{current}} of {{total}}" with localized "of"/"von"
+        progressText: '{{current}} ' + (tourTplVariables?.progress_of || 'of') + ' {{total}}'
       });
 
       // Store driver object globally for access in callbacks

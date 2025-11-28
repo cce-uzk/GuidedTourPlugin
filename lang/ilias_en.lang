@@ -14,6 +14,7 @@ tour_btn_next#:#Next
 tour_btn_previous#:#Prev
 tour_btn_stop#:#Stop tour
 tour_btn_start#:#Start tour
+tour_progress_of#:#of
 tour_btn_pause#:#Pause tour
 save_success#:#Successfully saved
 save_failure#:#Saving failed!
@@ -84,6 +85,11 @@ step_title#:#Step Title
 step_element#:#Element
 step_content#:#Content
 step_placement#:#Placement
+placement_top#:#Top
+placement_bottom#:#Bottom
+placement_left#:#Left
+placement_right#:#Right
+placement_center#:#Center
 step_orphan#:#Orphan (Floating)
 step_actions#:#Actions
 step_on_next#:#On "Next"
