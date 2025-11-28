@@ -105,6 +105,7 @@ no_steps#:#Keine Schritte vorhanden
 step_rich_content#:#in ILIAS Seiten-Editor
 step_rich_content_info#:#Nutzen Sie den ILIAS Seiten-Editor für formatierte Inhalte, Tabellen oder Medieneinbindung
 formatted_content_preview#:#Formatierter Inhalt (aus Seiten-Editor)
+formatted_content_for_step#:#Formatierter Inhalt für diesen Schritt
 remove_rich_content#:#Formatierten Inhalt entfernen
 confirm_remove_rich_content#:#Formatierten Inhalt wirklich entfernen und zur Textbearbeitung zur&uuml;ckkehren?
 rich_content_removed#:#Formatierter Inhalt erfolgreich entfernt

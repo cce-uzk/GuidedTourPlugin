@@ -105,6 +105,7 @@ no_steps#:#No steps available
 step_rich_content#:#in ILIAS Page Editor
 step_rich_content_info#:#Use the ILIAS Page Editor for formatted content, tables or media embedding
 formatted_content_preview#:#Formatted Content (from Page Editor)
+formatted_content_for_step#:#Formatted Content for this Step
 remove_rich_content#:#Remove Formatted Content
 confirm_remove_rich_content#:#Really remove formatted content and return to plain text editing?
 rich_content_removed#:#Formatted content removed successfully
