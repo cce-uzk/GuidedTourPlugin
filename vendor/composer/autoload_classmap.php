@@ -11,6 +11,12 @@ return array(
     'uzk\\gtour\\Data\\GuidedTourIRepository' => $baseDir . '/classes/Data/GuidedTourIRepository.php',
     'uzk\\gtour\\Data\\GuidedTourRepository' => $baseDir . '/classes/Data/GuidedTourRepository.php',
     'uzk\\gtour\\Data\\GuidedTourResourceStakeholder' => $baseDir . '/classes/Data/GuidedTourResourceStakeholder.php',
+    'uzk\\gtour\\Data\\GuidedTourStepRepository' => $baseDir . '/classes/Data/GuidedTourStepRepository.php',
+    'uzk\\gtour\\Data\\GuidedTourUserFinishedRepository' => $baseDir . '/classes/Data/GuidedTourUserFinishedRepository.php',
     'uzk\\gtour\\MainBar\\GuidedTourMainBarProvider' => $baseDir . '/classes/MainBar/GuidedTourMainBarProvider.php',
     'uzk\\gtour\\Model\\GuidedTour' => $baseDir . '/classes/Model/GuidedTour.php',
+    'uzk\\gtour\\Model\\GuidedTourStep' => $baseDir . '/classes/Model/GuidedTourStep.php',
+    'uzk\\gtour\\Table\\GuidedTourStepsTableGUI' => $baseDir . '/classes/Table/GuidedTourStepsTableGUI.php',
+    'uzk\\gtour\\Table\\GuidedTourTableDataRetrieval' => $baseDir . '/classes/Table/GuidedTourTableDataRetrieval.php',
+    'uzk\\gtour\\Table\\GuidedTourTableGUI' => $baseDir . '/classes/Table/GuidedTourTableGUI.php',
 );

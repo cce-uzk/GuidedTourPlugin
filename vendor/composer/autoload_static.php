@@ -26,8 +26,14 @@ class ComposerStaticInit4febdbbbf34ef5db1b6be8d4f1d828cf
         'uzk\\gtour\\Data\\GuidedTourIRepository' => __DIR__ . '/../..' . '/classes/Data/GuidedTourIRepository.php',
         'uzk\\gtour\\Data\\GuidedTourRepository' => __DIR__ . '/../..' . '/classes/Data/GuidedTourRepository.php',
         'uzk\\gtour\\Data\\GuidedTourResourceStakeholder' => __DIR__ . '/../..' . '/classes/Data/GuidedTourResourceStakeholder.php',
+        'uzk\\gtour\\Data\\GuidedTourStepRepository' => __DIR__ . '/../..' . '/classes/Data/GuidedTourStepRepository.php',
+        'uzk\\gtour\\Data\\GuidedTourUserFinishedRepository' => __DIR__ . '/../..' . '/classes/Data/GuidedTourUserFinishedRepository.php',
         'uzk\\gtour\\MainBar\\GuidedTourMainBarProvider' => __DIR__ . '/../..' . '/classes/MainBar/GuidedTourMainBarProvider.php',
         'uzk\\gtour\\Model\\GuidedTour' => __DIR__ . '/../..' . '/classes/Model/GuidedTour.php',
+        'uzk\\gtour\\Model\\GuidedTourStep' => __DIR__ . '/../..' . '/classes/Model/GuidedTourStep.php',
+        'uzk\\gtour\\Table\\GuidedTourStepsTableGUI' => __DIR__ . '/../..' . '/classes/Table/GuidedTourStepsTableGUI.php',
+        'uzk\\gtour\\Table\\GuidedTourTableDataRetrieval' => __DIR__ . '/../..' . '/classes/Table/GuidedTourTableDataRetrieval.php',
+        'uzk\\gtour\\Table\\GuidedTourTableGUI' => __DIR__ . '/../..' . '/classes/Table/GuidedTourTableGUI.php',
     );
 
     public static function getInitializer(ClassLoader $loader)
