@@ -154,9 +154,9 @@
   box-shadow: none;
 }
 
-/* Overlay - ILIAS Modal Backdrop Style */
+/* Overlay - Very light overlay for better visibility */
 .driver-overlay {
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
 /* Active Element Highlight - Subtiler */

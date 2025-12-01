@@ -825,6 +825,7 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
         }
 
         $inputs = [];
+        $modals = []; // Array to collect modals for rendering at the end
 
         // Basic Step Information Section
         $inputs[] = $ui_factory->input()->field()->section(
@@ -835,7 +836,7 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
 
         // Step Content Section
         $inputs[] = $ui_factory->input()->field()->section(
-            $this->buildStepContentInputs($step),
+            $this->buildStepContentInputs($step, $modals),
             $this->plugin_object->txt('step_content'),
             ''
         );
@@ -853,7 +854,15 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
             $inputs
         );
 
-        return $ui_renderer->render($form);
+        $components = [$form];
+
+        // Add any modals that were collected during form building
+        // (e.g., remove rich content modal from buildStepContentInputs)
+        foreach ($modals as $modal) {
+            $components[] = $modal;
+        }
+
+        return $ui_renderer->render($components);
     }
 
     /**
@@ -904,9 +913,10 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
     /**
      * Build step content input fields
      * @param \uzk\gtour\Model\GuidedTourStep|null $step
+     * @param array &$modals Reference to array where modals should be stored for later rendering
      * @return array UI input components
      */
-    protected function buildStepContentInputs(?\uzk\gtour\Model\GuidedTourStep $step): array
+    protected function buildStepContentInputs(?\uzk\gtour\Model\GuidedTourStep $step, array &$modals = []): array
     {
         $ui_factory = $this->ui->factory();
         $inputs = [];
@@ -924,20 +934,39 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
                 $page->buildDom();
                 $rendered_content = $page->getXMLContent();
 
-                // Create buttons for editing and removing
+                // Create edit button and remove button with modal
                 $this->ctrl->setParameter($this, 'step_id', $step->getId());
                 $this->ctrl->setParameter($this, 'tour_id', $step->getTourId());
                 $edit_url = $this->ctrl->getLinkTarget($this, self::CMD_REDIRECTTOEDITOR);
-                $remove_url = $this->ctrl->getLinkTarget($this, self::CMD_REMOVERICHCONTENT);
+                $remove_url = $this->ctrl->getFormAction($this, self::CMD_REMOVERICHCONTENT);
+
+                // Create modal for remove confirmation
+                $message = $this->plugin_object->txt('confirm_remove_rich_content');
+
+                $modal = $ui_factory->modal()->interruptive(
+                    $this->plugin_object->txt('remove_rich_content'),
+                    $message,
+                    $remove_url
+                );
+
+                // Create remove button with modal signal
+                $remove_button = $ui_factory->button()->standard(
+                    $this->plugin_object->txt('remove_rich_content'),
+                    '#'
+                )->withOnClick($modal->getShowSignal());
+
+                // Render only the button to HTML (modal will be rendered at the end)
+                $ui_renderer = $this->ui->renderer();
+                $remove_button_html = $ui_renderer->render($remove_button);
+
+                // Store modal for later rendering
+                $modals[] = $modal;
 
                 $buttons_html = '<div style="margin-top: 10px;">'
-                    . '<a class="btn btn-default" href="' . $edit_url . '">'
+                    . '<a class="btn btn-default" href="' . htmlspecialchars($edit_url) . '">'
                     . $this->lng->txt('edit') . ' ' . $this->plugin_object->txt('step_rich_content')
                     . '</a> '
-                    . '<a class="btn btn-default" href="' . $remove_url . '" onclick="return confirm(\''
-                    . $this->plugin_object->txt('confirm_remove_rich_content') . '\');">'
-                    . $this->plugin_object->txt('remove_rich_content')
-                    . '</a>'
+                    . $remove_button_html
                     . '</div>';
 
                 // Display rendered content in a readonly panel
@@ -947,7 +976,7 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
                     . '</div>'
                     . $buttons_html;
 
-                // Use a hidden field to maintain compatibility with form processing
+                // Use a disabled field to maintain compatibility with form processing
                 $inputs['content'] = $ui_factory->input()->field()->text(
                     $this->plugin_object->txt('step_content'),
                     $content_html
