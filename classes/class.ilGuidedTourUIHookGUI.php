@@ -22,6 +22,7 @@ class ilGuidedTourUIHookGUI extends ilUIHookPluginGUI
     protected RBACServices $rbac;
     protected GuidedTourRepository $guidedTourRepository;
     protected GuidedTourUserFinishedRepository $finishedRepo;
+    protected static bool $mappingsProvided = false;
 
     /**
      * ilGuidedTourUIHookGUI constructor
@@ -64,6 +65,11 @@ class ilGuidedTourUIHookGUI extends ilUIHookPluginGUI
         // Retrieve all global roles assigned to the user once
         $userId = $this->user->getId();
         $userGlobalRoles = $this->rbac->review()->assignedGlobalRoles($userId);
+
+        // Always provide internal ID mappings (needed for recording and playback)
+        if (isset($DIC['global_screen']) && !$DIC->http()->agent()->isMobile()) {
+            $this->initInternalIdMapping();
+        }
 
         if (isset($DIC['global_screen']) && !$DIC->http()->agent()->isMobile() && $this->plugin->isLoaded() === false) {
             $globalScreen = $DIC['global_screen'];
@@ -377,5 +383,258 @@ class ilGuidedTourUIHookGUI extends ilUIHookPluginGUI
         } else {
             return -1;
         }
+    }
+
+    /**
+     * Initialize Internal ID Mapping system
+     * Injects mapping code into GlobalScreen components using ComponentDecorators
+     * Works independently of ILIAS version
+     *
+     * @return void
+     */
+    protected function initInternalIdMapping(): void
+    {
+        global $DIC;
+
+        // Only initialize once per request (prevent recursion!)
+        if (self::$mappingsProvided) {
+            return;
+        }
+
+        try {
+            // Check if template is available (may not be during early initialization)
+            if (!isset($DIC['tpl'])) {
+                return; // Template not available yet, will retry on next call
+            }
+
+            // Mark as provided to prevent recursion (only AFTER template check)
+            self::$mappingsProvided = true;
+
+            // Add internal-id-mapper.js
+            $tpl = $DIC->ui()->mainTemplate();
+            $tpl->addJavaScript($this->plugin->getDirectory() . '/js/internal-id-mapper.js');
+
+            // Inject mapping code into GlobalScreen components
+            $this->injectMappingIntoGlobalScreen();
+
+        } catch (\Exception $e) {
+            // Silently fail
+            $DIC->logger()->root()->debug('GuidedTour: Could not initialize internal ID mapping: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Inject mapping registration code into GlobalScreen components
+     * Uses ComponentDecorator to add JavaScript that registers internal_id → frontend_id mappings
+     *
+     * @return void
+     */
+    protected function injectMappingIntoGlobalScreen(): void
+    {
+        global $DIC;
+
+        if (!isset($DIC['global_screen'])) {
+            $DIC->logger()->root()->debug('GuidedTour Mapping: GlobalScreen not available');
+            return;
+        }
+
+        $gs = $DIC['global_screen'];
+
+        // MainBar items
+        try {
+            $gs->collector()->mainmenu()->collectOnce();
+            $mainMenuItems = $gs->collector()->mainmenu()->getRawItems();
+
+            $DIC->logger()->root()->debug('GuidedTour Mapping: Iterating MainBar items...');
+
+            $count = 0;
+            foreach ($mainMenuItems as $item) {
+                $count++;
+                if (!method_exists($item, 'getProviderIdentification')) {
+                    continue;
+                }
+
+                $provider = $item->getProviderIdentification();
+                if (!method_exists($provider, 'getInternalIdentifier')) {
+                    continue;
+                }
+
+                $internal_id = $provider->getInternalIdentifier();
+                if (empty($internal_id)) {
+                    continue;
+                }
+
+                $DIC->logger()->root()->debug("GuidedTour Mapping: MainBar item with ID: $internal_id");
+
+                // Add ComponentDecorator to inject mapping registration
+                if (method_exists($item, 'addComponentDecorator')) {
+                    $DIC->logger()->root()->debug("GuidedTour Mapping: Adding decorator for: $internal_id");
+
+                    $item->addComponentDecorator(function(\ILIAS\UI\Component\Component $component) use ($internal_id, $DIC): \ILIAS\UI\Component\Component {
+                        // Check if component supports withAdditionalOnLoadCode
+                        if (method_exists($component, 'withAdditionalOnLoadCode')) {
+                            $DIC->logger()->root()->debug("GuidedTour Mapping: Injecting JS for: $internal_id");
+                            return $component->withAdditionalOnLoadCode(function(string $id) use ($internal_id): string {
+                                return "il.Plugins.GuidedTour.registerMapping('$internal_id', '$id');";
+                            });
+                        }
+                        return $component;
+                    });
+                } else {
+                    $DIC->logger()->root()->debug("GuidedTour Mapping: Item does not support addComponentDecorator: $internal_id");
+                }
+            }
+
+            $DIC->logger()->root()->debug("GuidedTour Mapping: Processed $count MainBar items");
+
+        } catch (\Exception $e) {
+            // Log error
+            $DIC->logger()->root()->debug('GuidedTour Mapping: MainBar error: ' . $e->getMessage());
+        }
+
+        // MetaBar items (similar approach)
+        try {
+            $DIC->logger()->root()->debug('GuidedTour Mapping: Starting MetaBar collection...');
+            $metaBarCollector = $gs->collector()->metaBar();
+
+            // Debug: Log available methods
+            $methods = get_class_methods($metaBarCollector);
+            $DIC->logger()->root()->debug('GuidedTour Mapping: MetaBar methods: ' . implode(', ', $methods));
+
+            $metaBarCollector->collectOnce();
+
+            // MetaBar has different API than MainBar!
+            // Use getItemsForUIRepresentation() instead
+            $metaBarItems = [];
+            if (method_exists($metaBarCollector, 'getItemsForUIRepresentation')) {
+                $metaBarItems = $metaBarCollector->getItemsForUIRepresentation();
+                $DIC->logger()->root()->debug('GuidedTour Mapping: Using getItemsForUIRepresentation() for MetaBar');
+
+                // Check type
+                if (is_array($metaBarItems)) {
+                    $DIC->logger()->root()->debug('GuidedTour Mapping: MetaBar returned array with ' . count($metaBarItems) . ' items');
+                } else {
+                    $itemType = get_class($metaBarItems);
+                    $DIC->logger()->root()->debug("GuidedTour Mapping: MetaBar returned: $itemType");
+                }
+            } else {
+                $DIC->logger()->root()->debug('GuidedTour Mapping: MetaBar has no getItemsForUIRepresentation()!');
+            }
+
+            $count = 0;
+            foreach ($metaBarItems as $item) {
+                $count++;
+                if (!method_exists($item, 'getProviderIdentification')) {
+                    $DIC->logger()->root()->debug("GuidedTour Mapping: MetaBar item $count has no getProviderIdentification()");
+                    continue;
+                }
+
+                $provider = $item->getProviderIdentification();
+                if (!method_exists($provider, 'getInternalIdentifier')) {
+                    $DIC->logger()->root()->debug("GuidedTour Mapping: MetaBar item $count provider has no getInternalIdentifier()");
+                    continue;
+                }
+
+                $internal_id = $provider->getInternalIdentifier();
+                if (empty($internal_id)) {
+                    $DIC->logger()->root()->debug("GuidedTour Mapping: MetaBar item $count has empty internal_id");
+                    continue;
+                }
+
+                $DIC->logger()->root()->debug("GuidedTour Mapping: Adding decorator for MetaBar: $internal_id");
+
+                // Add ComponentDecorator to inject mapping registration
+                if (method_exists($item, 'addComponentDecorator')) {
+                    $item->addComponentDecorator(function(\ILIAS\UI\Component\Component $component) use ($internal_id): \ILIAS\UI\Component\Component {
+                        if (method_exists($component, 'withAdditionalOnLoadCode')) {
+                            return $component->withAdditionalOnLoadCode(function(string $id) use ($internal_id): string {
+                                return "il.Plugins.GuidedTour.registerMapping('$internal_id', '$id');";
+                            });
+                        }
+                        return $component;
+                    });
+                }
+            }
+
+            $DIC->logger()->root()->debug("GuidedTour Mapping: Processed $count MetaBar items");
+        } catch (\Exception $e) {
+            // Silently fail
+            $DIC->logger()->root()->debug('GuidedTour Mapping: MetaBar error: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Build internal ID mappings from ILIAS GlobalScreen collectors
+     * Collects stable internal identifiers from MainBar and MetaBar items
+     *
+     * @return array Array of mappings with 'type' and 'internal_id' keys
+     */
+    protected function buildInternalIdMappings(): array
+    {
+        global $DIC;
+
+        $mappings = [];
+
+        try {
+            if (!isset($DIC['global_screen'])) {
+                return $mappings;
+            }
+
+            $gs = $DIC->globalScreen();
+
+            // Collect MainBar items
+            try {
+                $gs->collector()->mainmenu()->collectOnce();
+                $mainMenuItems = $gs->collector()->mainmenu()->getRawItems();
+
+                foreach ($mainMenuItems as $item) {
+                    if (method_exists($item, 'getProviderIdentification')) {
+                        $provider = $item->getProviderIdentification();
+                        if (method_exists($provider, 'getInternalIdentifier')) {
+                            $internal_id = $provider->getInternalIdentifier();
+                            if (!empty($internal_id)) {
+                                $mappings[] = [
+                                    'type' => 'mainbar',
+                                    'internal_id' => $internal_id
+                                ];
+                            }
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                // Log error but continue
+                $DIC->logger()->root()->debug('GuidedTour: Error collecting MainBar items: ' . $e->getMessage());
+            }
+
+            // Collect MetaBar items
+            try {
+                $gs->collector()->metaBar()->collectOnce();
+                $metaBarItems = $gs->collector()->metaBar()->getRawItems();
+
+                foreach ($metaBarItems as $item) {
+                    if (method_exists($item, 'getProviderIdentification')) {
+                        $provider = $item->getProviderIdentification();
+                        if (method_exists($provider, 'getInternalIdentifier')) {
+                            $internal_id = $provider->getInternalIdentifier();
+                            if (!empty($internal_id)) {
+                                $mappings[] = [
+                                    'type' => 'metabar',
+                                    'internal_id' => $internal_id
+                                ];
+                            }
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                // Log error but continue
+                $DIC->logger()->root()->debug('GuidedTour: Error collecting MetaBar items: ' . $e->getMessage());
+            }
+
+        } catch (\Exception $e) {
+            // Log general error
+            $DIC->logger()->root()->debug('GuidedTour: Error building internal ID mappings: ' . $e->getMessage());
+        }
+
+        return $mappings;
     }
 }

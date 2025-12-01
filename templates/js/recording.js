@@ -467,17 +467,72 @@
             }
         }
 
+        // FIRST: Try to get Internal ID from mapper (most stable!)
+        // Check if element or any parent has an Internal ID
+        // NOTE: Elements come from the IFRAME, so we need to access the iframe's mapper!
+        const frame = document.getElementById('gtour-content-frame');
+        const iframeWindow = frame ? frame.contentWindow : null;
+
+        let checkElement = element;
+        while (checkElement && checkElement !== document.body) {
+            // Check if mapper is available in the IFRAME window and element has internal ID
+            if (iframeWindow && iframeWindow.il && iframeWindow.il.Plugins && iframeWindow.il.Plugins.GuidedTour && iframeWindow.il.Plugins.GuidedTour.mapper) {
+                let internalId = iframeWindow.il.Plugins.GuidedTour.mapper.getInternalIdFromElement(checkElement);
+                
+				// Determine type based on context
+                const inMainbar = checkElement.closest('.il-maincontrols-mainbar');
+                const inMetabar = checkElement.closest('.il-maincontrols-metabar');
+                
+				if (internalId) {
+                    if (inMainbar) {
+                        console.log('[Recording] ✓ Using Internal ID for MainBar:', internalId);
+                        return {
+                            element: actualElement,
+                            type: 'mainbar',
+                            name: internalId
+                        };
+                    } else if (inMetabar) {
+                        console.log('[Recording] ✓ Using Internal ID for MetaBar:', internalId);
+                        return {
+                            element: actualElement,
+                            type: 'metabar',
+                            name: internalId
+                        };
+                    }
+                } else {					
+					if (inMetabar) {
+						const slatesContainer = element.nextElementSibling;
+						if (slatesContainer && slatesContainer.classList.contains('il-metabar-slates')) {
+							checkElement = slatesContainer.querySelector('.il-maincontrols-slate');
+							if (checkElement) {
+								internalId = iframeWindow.il.Plugins.GuidedTour.mapper.getInternalIdFromElement(checkElement);
+							}
+						}
+                        console.log('[Recording] ✓ Using Internal ID for MetaBar:', internalId);
+                        return {
+                            element: actualElement,
+                            type: 'metabar',
+                            name: internalId
+                        };
+					}
+				}
+            }
+            checkElement = checkElement.parentElement;
+        }
+
+        // FALLBACK: Use text-based detection
         // Check if element is in mainbar
         const mainbar = element.closest('.il-maincontrols-mainbar');
         if (mainbar) {
             // Check if it's a slate trigger button or a direct mainbar button/link
             const mainbarButton = element.closest('.il-mainbar-entries > li > button, .il-mainbar-entries > li > a');
             if (mainbarButton) {
-                // Use text content as stable identifier instead of session-specific IDs
+                // Use text content as fallback identifier
                 const textContent = mainbarButton.textContent.trim();
                 if (textContent) {
                     type = 'mainbar';
                     name = textContent;
+                    console.log('[Recording] Using text fallback for MainBar:', textContent);
                     return { element: actualElement, type, name };
                 }
             }
@@ -488,22 +543,24 @@
                 if (ariaLabel) {
                     type = 'mainbar';
                     name = ariaLabel;
+                    console.log('[Recording] Using aria-label fallback for MainBar:', ariaLabel);
                     return { element: actualElement, type, name };
                 }
             }
         }
 
         // Check if element is in metabar
-        const metabar = element.closest('.il-metabar');
+        const metabar = element.closest('.il-maincontrols-metabar');
         if (metabar) {
             // Check for metabar button with text or aria-label
-            const metabarButton = element.closest('.il-metabar button, .il-metabar a');
+            const metabarButton = element.closest('.il-maincontrols-metabar button, .il-maincontrols-metabar a');
             if (metabarButton) {
                 // Try text content first
                 const textContent = metabarButton.textContent.trim();
                 if (textContent) {
                     type = 'metabar';
                     name = textContent;
+                    console.log('[Recording] Using text fallback for MetaBar:', textContent);
                     return { element: actualElement, type, name };
                 }
                 // Try aria-label as fallback
@@ -511,6 +568,7 @@
                 if (ariaLabel) {
                     type = 'metabar';
                     name = ariaLabel;
+                    console.log('[Recording] Using aria-label fallback for MetaBar:', ariaLabel);
                     return { element: actualElement, type, name };
                 }
             }
@@ -626,19 +684,36 @@
         // Use the actual element returned from detection (may be parent if child was hovered)
         const actualElement = detection.element;
 
-        // Generate CSS selector for the actual element (Driver.js doesn't support XPath)
-        const cssSelector = getCssSelector(actualElement);
+        // Determine what goes into 'element' field based on type
+        // Option A: element_type + element (element_name not used)
+        let elementSelector;
+
+        if (detection.type === 'mainbar' || detection.type === 'metabar') {
+            // For mainbar/metabar: Use Internal ID if available, otherwise generate CSS selector
+            if (detection.name && detection.name !== '') {
+                // Internal ID available - use it directly in element field
+                elementSelector = detection.name;
+                console.log(`[Recording] Storing Internal ID in element field: "${detection.name}"`);
+            } else {
+                // No Internal ID - fallback to CSS selector (not sustainable but best effort)
+                elementSelector = getCssSelector(actualElement);
+                console.log(`[Recording] No Internal ID found, using CSS selector (not sustainable): "${elementSelector}"`);
+            }
+        } else {
+            // For other types: Always use CSS selector
+            elementSelector = getCssSelector(actualElement);
+        }
 
         // Create step data
         // Note: path is NOT set here - it will be set automatically when navigating to a new page
         const stepData = {
-            element: cssSelector,
+            element: elementSelector,        // Internal ID (for mainbar/metabar) OR CSS Selector
             title: generateStepTitle(actualElement),
             content: 'Click to interact with ' + getElementDescription(actualElement),
             placement: 'right',
             sort_order: stepCounter + 1,
-            element_type: detection.type,
-            element_name: detection.name
+            element_type: detection.type,    // 'mainbar', 'metabar', 'tab', 'css_selector', etc.
+            element_name: null                // Not used anymore with Option A
         };
 
         // Add to local array

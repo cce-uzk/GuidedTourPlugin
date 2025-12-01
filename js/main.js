@@ -199,7 +199,7 @@ let gtour = function () {
     },
     /**
      * Resolve element selector using smart pattern recognition
-     * Falls back to CSS selector if pattern recognition fails
+     * Returns CSS selector string (NOT DOM element!)
      */
     resolveSmartSelector: function(step) {
       // If no smart type is set, use regular element selector
@@ -207,55 +207,25 @@ let gtour = function () {
         return step.element;
       }
 
-      let element = null;
-
-      // Resolve based on element type
+      // Resolve based on element type (Option A: element contains Internal ID or CSS selector)
       switch (step.elementType) {
         case 'mainbar':
-          if (step.elementName) {
-            // Try to find by text content (stable identifier)
-            element = actions.getMainbarElementByTitle(step.elementName);
-            if (element) {
-              return element;
-            }
-            // Fallback: try by ID (for backwards compatibility with old recordings)
-            element = document.getElementById(step.elementName);
-            if (element) {
-              // If it's a slate, find the button that controls it
-              if (element.classList.contains('il-maincontrols-slate')) {
-                const button = document.querySelector(`button[aria-controls="${step.elementName}"]`);
-                if (button) return button;
-              }
-              return element;
-            }
-          }
-          break;
-
         case 'metabar':
-          if (step.elementName) {
-            // Try to find by text content or aria-label
-            const metabarButtons = document.querySelectorAll('.il-metabar button, .il-metabar a');
-            for (const btn of metabarButtons) {
-              const text = btn.textContent.trim();
-              const ariaLabel = btn.getAttribute('aria-label');
-              if (text === step.elementName || ariaLabel === step.elementName) {
-                return btn;
-              }
-            }
-            // Fallback: try by ID (for backwards compatibility)
-            element = document.getElementById(step.elementName);
+          // For mainbar/metabar: step.element contains Internal ID
+          // Convert Internal ID → Frontend ID → CSS Selector String
+          if (step.element && il && il.Plugins && il.Plugins.GuidedTour && il.Plugins.GuidedTour.mapper) {
+            // IMPORTANT: Call findElementByInternalId() so it can update the mapping!
+            const element = il.Plugins.GuidedTour.mapper.findElementByInternalId(step.element);
             if (element) {
-              // If it's a slate, find the button that controls it
-              if (element.classList.contains('il-metabar-slate')) {
-                const metabar = element.closest('.il-metabar-slates');
-                if (metabar) {
-                  const button = metabar.parentNode.querySelector('button');
-                  if (button) return button;
-                }
-              }
-              return element;
+              //console.log('[GTour Playback] ✓ Found element via Internal ID:', step.element);
+              return element; // Return DOM element directly
+            } else {
+              console.warn('[GTour Playback] Internal ID not found in mapper:', step.element);
+              // Fallback: treat as CSS selector (legacy recording)
+              //console.log('[GTour Playback] Treating as CSS selector:', step.element);
             }
           }
+          // If mapper unavailable or Internal ID not found, fallback to original selector
           break;
 
         case 'tab':
@@ -331,7 +301,7 @@ let gtour = function () {
       }
 
       // Fallback to CSS selector if smart resolution failed
-      console.log('Smart resolution failed for', step.elementType, step.elementName, '- falling back to CSS selector');
+      //console.log('[GTour] Smart resolution failed for type:', step.elementType, '- falling back to CSS selector:', step.element);
       return step.element;
     },
 
@@ -344,25 +314,53 @@ let gtour = function () {
 
       // Handle element selector with smart resolution
       if (step.element) {
-        // Try smart selector resolution first
-        const resolvedSelector = actions.resolveSmartSelector(step);
+        // IMPORTANT: Use lazy resolution (function) to ensure mappings are ready
+        // Mappings are registered via onLoadCode after tour initialization
+        driverStep.element = function() {
+          // Resolve selector (can return DOM element or CSS selector string)
+          const resolved = actions.resolveSmartSelector(step);
 
-        // Check if element is a function string
-        if (typeof resolvedSelector === 'string' && resolvedSelector.startsWith('func:')) {
-          const funcBody = resolvedSelector.slice(5);
-          try {
-            const elementFunc = new Function('return ' + funcBody)();
-            driverStep.element = elementFunc;
-          } catch (error) {
-            console.error("Error parsing element function:", error);
-            driverStep.element = 'body';
+          // Check if it's a function string (legacy format)
+          if (typeof resolved === 'string' && resolved.startsWith('func:')) {
+            const funcBody = resolved.slice(5);
+            try {
+              const elementFunc = new Function('return ' + funcBody)();
+              return elementFunc();
+            } catch (error) {
+              console.error("[GTour] Error parsing element function:", error);
+              return null;
+            }
           }
-        } else if (typeof resolvedSelector === 'object' && resolvedSelector !== null) {
-          // Direct DOM element returned from smart resolution
-          driverStep.element = resolvedSelector;
-        } else {
-          driverStep.element = resolvedSelector;
-        }
+
+          // If it's already a DOM element, return it
+          if (resolved && typeof resolved === 'object' && resolved.nodeType === 1) {
+            return resolved;
+          }
+
+          // Otherwise it's a CSS selector string - query it
+          if (typeof resolved === 'string') {
+            // Check if it's a URL (invalid selector) - skip querySelector
+            if (resolved.startsWith('http://') || resolved.startsWith('https://')) {
+              console.warn('[GTour] Step element is a URL, not a selector. Skipping:', resolved);
+              return null;
+            }
+
+            try {
+              const element = document.querySelector(resolved);
+              if (!element) {
+                console.warn('[GTour] Element not found for selector:', resolved);
+                return null;
+              }
+              return element;
+            } catch (error) {
+              console.error('[GTour] Invalid selector:', resolved, error);
+              return null;
+            }
+          }
+
+          console.error('[GTour] Invalid resolved type:', typeof resolved);
+          return null;
+        };
       } else if (step.orphan) {
         // Orphan steps have no element
         driverStep.element = null;
@@ -438,7 +436,7 @@ let gtour = function () {
       // Convert onShown callback and track progress
       // Always track progress when step is highlighted
       driverStep.onHighlighted = function() {
-        console.log('GuidedTour: Step highlighted', index);
+        //console.log('GuidedTour: Step highlighted', index);
 
         // Save current step to sessionStorage so tour can resume after page reload
         window.sessionStorage.setItem('GTOUR_current_step', index);
@@ -453,13 +451,13 @@ let gtour = function () {
 
         // Track progress to server if updateProgressUrl is provided
         if (config.updateProgressUrl && config.name) {
-          console.log('GuidedTour: Tracking progress for step', index);
+          //console.log('GuidedTour: Tracking progress for step', index);
           // Extract tour ID from config.name (format: "gtour-123")
           const tourId = config.name.replace('gtour-', '');
           if (tourId) {
             // Replace placeholder with actual tour ID and add step_index parameter
             const updateUrl = config.updateProgressUrl.replace('__TOUR_ID__', tourId) + '&step_index=' + index;
-            console.log('GuidedTour: Sending progress update to', updateUrl);
+            //console.log('GuidedTour: Sending progress update to', updateUrl);
 
             // Send AJAX request to update progress (fire and forget, no need to wait)
             fetch(updateUrl, {
@@ -469,11 +467,11 @@ let gtour = function () {
               }
             })
             .then(response => {
-              console.log('GuidedTour: Progress update response', response.status);
+              //console.log('GuidedTour: Progress update response', response.status);
               return response.json();
             })
             .then(data => {
-              console.log('GuidedTour: Progress updated successfully', data);
+              //console.log('GuidedTour: Progress updated successfully', data);
             })
             .catch(error => {
               console.error('GuidedTour: Progress tracking failed', error);
@@ -574,12 +572,12 @@ let gtour = function () {
       }
 
       // Debug: Log configuration
-      console.log('GuidedTour: Initializing Driver.js with config:', {
+      /*console.log('GuidedTour: Initializing Driver.js with config:', {
         allowClose: true,
         allowKeyboardControl: true,
         showButtons: ['next', 'previous', 'close'],
         stepsCount: driverSteps.length
-      });
+      });*/
 
       const driverObj = window.driverJs({
         showProgress: config.showProgressText !== false,
@@ -589,7 +587,7 @@ let gtour = function () {
         showButtons: ['next', 'previous', 'close'],
         steps: driverSteps,
         onDestroyed: () => {
-          console.log('GuidedTour: Tour destroyed - cleaning up');
+          //console.log('GuidedTour: Tour destroyed - cleaning up');
           // Clean up on tour end
           actions.removeUrlParam('triggerTour');
           tourStorage.removeItem('GTOUR_current_step');
@@ -616,7 +614,7 @@ let gtour = function () {
               .then(response => response.json())
               .then(data => {
                 if (data.success) {
-                  console.log('GuidedTour: Tour session terminated');
+                  //console.log('GuidedTour: Tour session terminated');
                 } else {
                   console.warn('GuidedTour: Failed to terminate tour session', data);
                 }
@@ -639,6 +637,42 @@ let gtour = function () {
       // Store driver object globally for access in callbacks
       window.driverObj = driverObj;
 
+      // Function to start the tour
+      const startTour = function(stepIndex) {
+        //console.log('[GTour] Starting tour at step', stepIndex);
+        driverObj.drive(stepIndex);
+      };
+
+      // Wait for mapper to be ready before starting tour
+      // Mappings are registered via onLoadCode which executes asynchronously
+      const waitForMapper = function(callback, maxAttempts = 20) {
+        let attempts = 0;
+
+        const checkMapper = function() {
+          attempts++;
+
+          // Check if mapper is available and has mappings
+          if (il && il.Plugins && il.Plugins.GuidedTour && il.Plugins.GuidedTour.mapper && il.Plugins.GuidedTour.mapper.maps) {
+            const mappingCount = il.Plugins.GuidedTour.mapper.maps.internalToFrontend.size;
+            if (mappingCount > 0) {
+              //console.log(`[GTour] Mapper ready with ${mappingCount} mappings`);
+              callback();
+              return;
+            }
+          }
+
+          // If not ready yet and we haven't exceeded max attempts, try again
+          if (attempts < maxAttempts) {
+            setTimeout(checkMapper, 50); // Check again in 50ms
+          } else {
+            console.warn('[GTour] Mapper not ready after max attempts, starting tour anyway');
+            callback();
+          }
+        };
+
+        checkMapper();
+      };
+
       // Check if tour should resume from saved step
       const savedStep = tourStorage.getItem('GTOUR_current_step');
       const tourEnded = tourStorage.getItem(tourName + '_end');
@@ -648,7 +682,7 @@ let gtour = function () {
         tourStorage.removeItem('GTOUR_current_step');
         tourStorage.removeItem(tourName + '_end');
         actions.removeUrlParam('triggerTour');
-        driverObj.drive(0);
+        waitForMapper(() => startTour(0));
       } else if (tourEnded === 'yes') {
         // Tour was already completed
         // However, if we got this tour from server autostart, the server has decided
@@ -658,17 +692,17 @@ let gtour = function () {
           console.info('Tour was marked as ended in sessionStorage, but server sent tour for autostart. Clearing flag and starting tour.');
           tourStorage.removeItem(tourName + '_end');
           tourStorage.removeItem('GTOUR_current_step');
-          driverObj.drive(0);
+          waitForMapper(() => startTour(0));
         } else {
           // No steps from server = user is just continuing session, respect the flag
           console.info('Tour previously ended. Use ?triggerTour=' + tourName + ' to restart.');
         }
       } else if (savedStep) {
         // Resume from saved step
-        driverObj.drive(parseInt(savedStep));
+        waitForMapper(() => startTour(parseInt(savedStep)));
       } else {
         // Start from beginning
-        driverObj.drive(0);
+        waitForMapper(() => startTour(0));
       }
     }
   };
@@ -709,4 +743,8 @@ if (window.driver && window.driver.js && window.driver.js.driver) {
 var il = il || {}; // var important!
 il.Plugins = il.Plugins || {};
 il.Plugins.GuidedTour = il.Plugins.GuidedTour || {};
-il.Plugins.GuidedTour = gtour();
+
+// Extend il.Plugins.GuidedTour with gtour functions
+// Don't overwrite - mapper and registerMapping are already defined by internal-id-mapper.js
+const gtourFunctions = gtour();
+Object.assign(il.Plugins.GuidedTour, gtourFunctions);
