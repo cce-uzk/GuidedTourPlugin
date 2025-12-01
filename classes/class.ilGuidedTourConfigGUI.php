@@ -2132,8 +2132,9 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
                 $onNext = '';
                 if (!empty($step_data['popover_on_next_click']) && !empty($step_data['element'])) {
                     // Generate JavaScript code to click the element when "Next" is pressed
+                    // Use il.Plugins.GuidedTour.findElement() to support both internal IDs and CSS selectors
                     $onNext = sprintf(
-                        "const targetElement = document.querySelector('%s'); if (targetElement) { targetElement.click(); }",
+                        "const targetElement = il.Plugins.GuidedTour.findElement('%s'); if (targetElement) { targetElement.click(); }",
                         addslashes($step_data['element'])
                     );
                 }
