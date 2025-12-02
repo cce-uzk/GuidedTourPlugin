@@ -17,6 +17,8 @@
     let lastCapturedStepIndex = -1;
     let f1KeyBlocked = false;
     let currentPageUrl = '';
+    let editingStepIndex = -1;
+    let editingActionType = null; // 'onNext' or 'onPrev'
 
     // Initialize recording interface
     document.addEventListener('DOMContentLoaded', function() {
@@ -82,16 +84,23 @@
             initializeIframeListeners();
         });
 
-        // Also add F1 listener to parent window as fallback
+        // Also add F1/F2/F3/ESC listener to parent window as fallback
         window.addEventListener('keydown', function(e) {
+            // F1 - Capture step or onNext action
             if (e.key === 'F1' || e.keyCode === 112) {
-                // Ignore repeated key events
-                if (e.repeat || f1KeyBlocked) {
-                    e.preventDefault();
+                e.preventDefault();
+
+                // Edit mode: Capture onNext element
+                if (editingStepIndex >= 0 && hoveredElement) {
+                    captureActionElement(hoveredElement, 'onNext');
                     return;
                 }
 
-                e.preventDefault();
+                // Ignore repeated key events
+                if (e.repeat || f1KeyBlocked) {
+                    return;
+                }
+
                 console.log('F1 in parent - Recording active:', recordingActive, 'Hovered:', hoveredElement);
 
                 if (recordingActive && hoveredElement) {
@@ -102,6 +111,32 @@
                     setTimeout(function() {
                         f1KeyBlocked = false;
                     }, 1000);
+                }
+            }
+
+            // F2 - Capture onPrev action
+            if (e.key === 'F2' || e.keyCode === 113) {
+                e.preventDefault();
+
+                if (editingStepIndex >= 0 && hoveredElement) {
+                    captureActionElement(hoveredElement, 'onPrev');
+                }
+            }
+
+            // F3 - Clear actions
+            if (e.key === 'F3' || e.keyCode === 114) {
+                e.preventDefault();
+
+                if (editingStepIndex >= 0) {
+                    clearActions();
+                }
+            }
+
+            // ESC - Cancel edit mode
+            if (e.key === 'Escape' || e.keyCode === 27) {
+                if (editingStepIndex >= 0) {
+                    e.preventDefault();
+                    cancelEditingStep();
                 }
             }
         });
@@ -361,8 +396,9 @@
         // Check URL on every load event
         frame.addEventListener('load', checkUrlChange);
 
-        // Prevent default F1 behavior and add our handler
+        // Prevent default F1/F2/F3/ESC behavior and add our handlers
         iframeDoc.addEventListener('keydown', function(e) {
+            // Handle F1 - Capture step or onNext action
             if (e.key === 'F1' || e.keyCode === 112) {
                 // Ignore repeated key events (key held down)
                 if (e.repeat) {
@@ -371,16 +407,22 @@
                     return;
                 }
 
-                // Ignore if F1 is currently blocked
+                e.preventDefault();
+                e.stopPropagation();
+
+                // Edit mode: Capture onNext element
+                if (editingStepIndex >= 0 && hoveredElement) {
+                    console.log('F1 in edit mode - capturing onNext element:', hoveredElement);
+                    captureActionElement(hoveredElement, 'onNext');
+                    return;
+                }
+
+                // Ignore if F1 is currently blocked (normal mode only)
                 if (f1KeyBlocked) {
-                    e.preventDefault();
-                    e.stopPropagation();
                     console.log('F1 blocked - too soon after last capture');
                     return;
                 }
 
-                e.preventDefault();
-                e.stopPropagation();
                 console.log('F1 pressed!');
 
                 if (recordingActive && hoveredElement) {
@@ -397,20 +439,57 @@
                     console.log('Cannot capture - recordingActive:', recordingActive, 'hoveredElement:', hoveredElement);
                 }
             }
+
+            // Handle F2 - Capture onPrev action (edit mode only)
+            if (e.key === 'F2' || e.keyCode === 113) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                if (editingStepIndex >= 0 && hoveredElement) {
+                    console.log('F2 in edit mode - capturing onPrev element:', hoveredElement);
+                    captureActionElement(hoveredElement, 'onPrev');
+                }
+            }
+
+            // Handle F3 - Clear actions (edit mode only)
+            if (e.key === 'F3' || e.keyCode === 114) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                if (editingStepIndex >= 0) {
+                    console.log('F3 in edit mode - clearing actions');
+                    clearActions();
+                }
+            }
+
+            // Handle ESC - Cancel edit mode
+            if (e.key === 'Escape' || e.keyCode === 27) {
+                if (editingStepIndex >= 0) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('ESC - cancelling edit mode');
+                    cancelEditingStep();
+                }
+            }
         }, true); // Use capture phase to catch event early
 
         // Also listen on iframe window for keydown as fallback
         frame.contentWindow.addEventListener('keydown', function(e) {
+            // F1 - Capture step or onNext action
             if (e.key === 'F1' || e.keyCode === 112) {
-                // Ignore repeated key events
-                if (e.repeat || f1KeyBlocked) {
-                    e.preventDefault();
-                    e.stopPropagation();
+                e.preventDefault();
+                e.stopPropagation();
+
+                // Edit mode: Capture onNext element
+                if (editingStepIndex >= 0 && hoveredElement) {
+                    captureActionElement(hoveredElement, 'onNext');
                     return;
                 }
 
-                e.preventDefault();
-                e.stopPropagation();
+                // Ignore repeated key events
+                if (e.repeat || f1KeyBlocked) {
+                    return;
+                }
 
                 if (recordingActive && hoveredElement) {
                     captureElement(hoveredElement);
@@ -420,6 +499,35 @@
                     setTimeout(function() {
                         f1KeyBlocked = false;
                     }, 1000);
+                }
+            }
+
+            // F2 - Capture onPrev action
+            if (e.key === 'F2' || e.keyCode === 113) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                if (editingStepIndex >= 0 && hoveredElement) {
+                    captureActionElement(hoveredElement, 'onPrev');
+                }
+            }
+
+            // F3 - Clear actions
+            if (e.key === 'F3' || e.keyCode === 114) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                if (editingStepIndex >= 0) {
+                    clearActions();
+                }
+            }
+
+            // ESC - Cancel edit mode
+            if (e.key === 'Escape' || e.keyCode === 27) {
+                if (editingStepIndex >= 0) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    cancelEditingStep();
                 }
             }
         }, true); // Use capture phase
@@ -1025,35 +1133,75 @@
 
         let html = '<ul class="gtour-steps-ul">';
         recordedSteps.forEach(function(step, index) {
-            const hasSmartPattern = step.element_type && step.element_type !== 'css_selector';
             const hasPath = step.path && step.path.length > 0;
-            html += '<li class="gtour-step-item' + (step.popover_on_next_click ? ' has-click' : '') + (hasSmartPattern ? ' has-smart-pattern' : '') + (hasPath ? ' has-path' : '') + '" data-index="' + index + '">';
+            html += '<li class="gtour-step-item' + (hasPath ? ' has-path' : '') + '" data-index="' + index + '">';
             html += '<div class="gtour-step-content">';
             html += '<strong>' + (index + 1) + '. ' + escapeHtml(step.title);
-            if (step.popover_on_next_click) {
-                html += ' <span class="gtour-click-badge" title="Element wird angeklickt">&#x1F5B1;</span>';
-            }
             if (hasPath) {
                 html += ' <span class="gtour-path-badge" title="Navigiert zu neuer Seite: ' + escapeHtml(step.path) + '">&#x1F517;</span>';
             }
-            if (hasSmartPattern) {
-                html += ' <span class="gtour-smart-badge" title="Smart Pattern: ' + step.element_type + '">&#x1F9E0;</span>';
-            }
             html += '</strong><br>';
             html += '<span class="gtour-step-element">' + escapeHtml(step.element) + '</span>';
-            if (hasSmartPattern) {
-                html += '<br><span class="gtour-step-type">Pattern: ' + escapeHtml(step.element_type) + (step.element_name ? ' (' + escapeHtml(step.element_name) + ')' : '') + '</span>';
+            if (step.element_type && step.element_type !== 'css_selector') {
+                html += '<br><span class="gtour-step-type">Pattern: ' + escapeHtml(step.element_type) + '</span>';
             }
             if (hasPath) {
                 html += '<br><span class="gtour-step-type">Path: ' + escapeHtml(step.path) + '</span>';
             }
+            // Show onNext/onPrev actions if defined
+            // Check both new system (step.onNext) and old system (step.popover_on_next_click)
+            if (step.onNext) {
+                html += '<br><span class="gtour-step-action">onNext: ' + escapeHtml(step.onNext) + '</span>';
+            } else if (step.popover_on_next_click && step.element) {
+                // Legacy system: Show element as onNext target
+                html += '<br><span class="gtour-step-action">onNext: ' + escapeHtml(step.element) + '</span>';
+            }
+            if (step.onPrev) {
+                html += '<br><span class="gtour-step-action">onPrev: ' + escapeHtml(step.onPrev) + '</span>';
+            }
+
+            // Show editing UI if this step is being edited
+            if (editingStepIndex === index) {
+                html += '<div class="gtour-edit-container">';
+
+                // Inline editing for title and content
+                html += '<div class="gtour-edit-fields">';
+                html += '<label class="gtour-edit-label">Titel:</label>';
+                html += '<input type="text" class="gtour-edit-title" data-index="' + index + '" value="' + escapeHtml(step.title) + '" placeholder="Step Titel">';
+                html += '<label class="gtour-edit-label">Inhalt:</label>';
+                html += '<textarea class="gtour-edit-content" data-index="' + index + '" placeholder="Step Beschreibung" rows="3">' + escapeHtml(step.content) + '</textarea>';
+                html += '</div>';
+
+                // Instructions
+                html += '<div class="gtour-edit-instructions">';
+                html += '<strong>📝 Edit Mode:</strong>';
+                html += '<span class="gtour-edit-instruction">F1: Element für onNext auswählen</span>';
+                html += '<span class="gtour-edit-instruction">F2: Element für onPrev auswählen</span>';
+                html += '<span class="gtour-edit-instruction">F3: Actions löschen</span>';
+                html += '<span class="gtour-edit-instruction">ESC oder ✎: Beenden</span>';
+                html += '</div>';
+                html += '</div>';
+            }
+
             html += '</div>';
+            html += '<div class="gtour-step-buttons">';
+            html += '<button class="gtour-edit-step-btn' + (editingStepIndex === index ? ' gtour-editing-active' : '') + '" data-index="' + index + '" title="Edit actions (onNext/onPrev)">&#x270E;</button>';
             html += '<button class="gtour-delete-step-btn" data-index="' + index + '" title="' + deleteText + '">&times;</button>';
+            html += '</div>';
             html += '</li>';
         });
         html += '</ul>';
 
         listContainer.innerHTML = html;
+
+        // Add edit button listeners
+        const editButtons = listContainer.querySelectorAll('.gtour-edit-step-btn');
+        editButtons.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                const index = parseInt(this.getAttribute('data-index'));
+                startEditingStep(index);
+            });
+        });
 
         // Add delete button listeners
         const deleteButtons = listContainer.querySelectorAll('.gtour-delete-step-btn');
@@ -1063,10 +1211,41 @@
                 deleteStep(index);
             });
         });
+
+        // Add title input listeners
+        const titleInputs = listContainer.querySelectorAll('.gtour-edit-title');
+        titleInputs.forEach(function(input) {
+            input.addEventListener('input', function() {
+                const index = parseInt(this.getAttribute('data-index'));
+                if (index >= 0 && index < recordedSteps.length) {
+                    recordedSteps[index].title = this.value;
+                }
+            });
+        });
+
+        // Add content textarea listeners
+        const contentInputs = listContainer.querySelectorAll('.gtour-edit-content');
+        contentInputs.forEach(function(textarea) {
+            textarea.addEventListener('input', function() {
+                const index = parseInt(this.getAttribute('data-index'));
+                if (index >= 0 && index < recordedSteps.length) {
+                    recordedSteps[index].content = this.value;
+                }
+            });
+        });
     }
 
     function deleteStep(index) {
         if (index >= 0 && index < recordedSteps.length) {
+            // If deleting the step that's currently being edited, cancel edit mode
+            if (editingStepIndex === index) {
+                editingStepIndex = -1;
+                editingActionType = null;
+            } else if (editingStepIndex > index) {
+                // If editing a later step, adjust the index after deletion
+                editingStepIndex--;
+            }
+
             recordedSteps.splice(index, 1);
             stepCounter = recordedSteps.length;
 
@@ -1078,6 +1257,96 @@
             renderStepsList();
             showNotification('Step deleted', 'info');
         }
+    }
+
+    function startEditingStep(index) {
+        // If already editing this step, cancel edit mode (toggle)
+        if (editingStepIndex === index) {
+            cancelEditingStep();
+            return;
+        }
+
+        if (index >= 0 && index < recordedSteps.length) {
+            editingStepIndex = index;
+            const step = recordedSteps[index];
+
+            // Re-render steps list to show editing UI
+            renderStepsList();
+
+            console.log('[Recording] Started editing step ' + index, step);
+        }
+    }
+
+    function cancelEditingStep() {
+        if (editingStepIndex >= 0) {
+            editingStepIndex = -1;
+            editingActionType = null;
+
+            // Re-render to remove editing UI
+            renderStepsList();
+
+            showNotification('Edit cancelled', 'info');
+            console.log('[Recording] Cancelled editing');
+        }
+    }
+
+    function captureActionElement(element, actionType) {
+        if (editingStepIndex < 0 || editingStepIndex >= recordedSteps.length) {
+            console.warn('[Recording] No step is being edited');
+            return;
+        }
+
+        const step = recordedSteps[editingStepIndex];
+
+        // Detect element type for smart recognition (same as regular capture)
+        const detection = detectElementType(element);
+        const actualElement = detection.element;
+
+        // Determine what selector to store
+        let elementSelector;
+        if (detection.type === 'mainbar' || detection.type === 'metabar') {
+            // Use Internal ID if available
+            if (detection.name && detection.name !== '') {
+                elementSelector = detection.name;
+                console.log(`[Recording] Storing Internal ID for ${actionType}: "${detection.name}"`);
+            } else {
+                elementSelector = generateCssSelector(actualElement);
+                console.log(`[Recording] No Internal ID, using CSS selector for ${actionType}: "${elementSelector}"`);
+            }
+        } else {
+            elementSelector = generateCssSelector(actualElement);
+        }
+
+        // Store the action
+        if (actionType === 'onNext') {
+            step.onNext = elementSelector;
+            showNotification('onNext set to: ' + elementSelector, 'success');
+        } else if (actionType === 'onPrev') {
+            step.onPrev = elementSelector;
+            showNotification('onPrev set to: ' + elementSelector, 'success');
+        }
+
+        // Flash the element
+        flashElement(actualElement);
+
+        // Update steps list
+        renderStepsList();
+
+        console.log(`[Recording] Set ${actionType} for step ${editingStepIndex}:`, elementSelector);
+    }
+
+    function clearActions() {
+        if (editingStepIndex < 0 || editingStepIndex >= recordedSteps.length) {
+            return;
+        }
+
+        const step = recordedSteps[editingStepIndex];
+        delete step.onNext;
+        delete step.onPrev;
+
+        renderStepsList();
+        showNotification('Actions cleared for step ' + (editingStepIndex + 1), 'success');
+        cancelEditingStep();
     }
 
     function updateStepsCounter() {

@@ -2128,13 +2128,29 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
             foreach ($data['steps'] as $step_data) {
                 $max_sort++;
 
-                // Generate onNext JavaScript if click action is registered
+                // Generate onNext JavaScript
+                // Priority: 1. Explicit onNext field, 2. Legacy popover_on_next_click + element
                 $onNext = '';
-                if (!empty($step_data['popover_on_next_click']) && !empty($step_data['element'])) {
-                    // Generate JavaScript code to click the element when "Next" is pressed
+                if (!empty($step_data['onNext'])) {
+                    // Use explicit onNext action (new edit mode)
                     $onNext = sprintf(
-                        "const targetElement = document.querySelector('%s'); if (targetElement) { targetElement.click(); }",
+                        "const targetElement = il.Plugins.GuidedTour.findElement('%s'); if (targetElement) { targetElement.click(); }",
+                        addslashes($step_data['onNext'])
+                    );
+                } elseif (!empty($step_data['popover_on_next_click']) && !empty($step_data['element'])) {
+                    // Fallback to legacy system (old F2 "click register")
+                    $onNext = sprintf(
+                        "const targetElement = il.Plugins.GuidedTour.findElement('%s'); if (targetElement) { targetElement.click(); }",
                         addslashes($step_data['element'])
+                    );
+                }
+
+                // Generate onPrev JavaScript
+                $onPrev = '';
+                if (!empty($step_data['onPrev'])) {
+                    $onPrev = sprintf(
+                        "const targetElement = il.Plugins.GuidedTour.findElement('%s'); if (targetElement) { targetElement.click(); }",
+                        addslashes($step_data['onPrev'])
                     );
                 }
 
@@ -2149,7 +2165,7 @@ class ilGuidedTourConfigGUI extends ilPluginConfigGUI
                     placement: $step_data['placement'] ?? 'right',
                     orphan: false,
                     onNext: $onNext,
-                    onPrev: '',
+                    onPrev: $onPrev,
                     onShow: '',
                     onShown: '',
                     onHide: '',

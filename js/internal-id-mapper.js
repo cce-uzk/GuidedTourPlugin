@@ -374,6 +374,47 @@ il.Plugins.GuidedTour.mapper = (function() {
     };
 })();
 
+/**
+ * Universal element finder for use in Action code
+ * Tries internal ID first, then falls back to CSS selector
+ *
+ * Usage in onNext/onPrev actions:
+ *   const el = il.Plugins.GuidedTour.findElement('mm_pd_crs_grp');
+ *   if (el) el.click();
+ *
+ * @param {string} internalIdOrSelector - Internal ID or CSS selector
+ * @returns {HTMLElement|null} The found element or null
+ */
+il.Plugins.GuidedTour.findElement = function(internalIdOrSelector) {
+    if (!internalIdOrSelector) {
+        return null;
+    }
+
+    // Try as internal ID first (if mapper is ready)
+    if (il.Plugins.GuidedTour.mapper) {
+        const element = il.Plugins.GuidedTour.mapper.findElementByInternalId(internalIdOrSelector);
+        if (element) {
+            console.log(`[GTour] findElement: Resolved internal ID "${internalIdOrSelector}"`, element);
+            return element;
+        }
+    }
+
+    // Fallback: Try as CSS selector
+    try {
+        const element = document.querySelector(internalIdOrSelector);
+        if (element) {
+            console.log(`[GTour] findElement: Found via querySelector("${internalIdOrSelector}")`, element);
+        }
+        return element;
+    } catch (e) {
+        console.warn(`[GTour] findElement: Neither internal ID nor valid selector: "${internalIdOrSelector}"`, e);
+        return null;
+    }
+};
+
+// Short alias for convenience in action code
+il.Plugins.GuidedTour.$ = il.Plugins.GuidedTour.findElement;
+
 // Auto-initialize when DOM is ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function() {

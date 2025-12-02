@@ -391,6 +391,34 @@
     text-overflow: ellipsis;
 }
 
+.gtour-step-buttons {
+    display: flex;
+    gap: 5px;
+    flex-shrink: 0;
+    margin-left: 10px;
+}
+
+.gtour-edit-step-btn {
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.gtour-edit-step-btn:hover {
+    background: #2980b9;
+    transform: scale(1.1);
+}
+
 .gtour-delete-step-btn {
     background: #e74c3c;
     color: white;
@@ -401,8 +429,9 @@
     font-size: 18px;
     line-height: 1;
     cursor: pointer;
-    flex-shrink: 0;
-    margin-left: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: all 0.2s;
 }
 
@@ -418,17 +447,6 @@
     font-style: italic;
 }
 
-.gtour-click-badge {
-    display: inline-block;
-    background: #27ae60;
-    color: white;
-    font-size: 12px;
-    padding: 2px 6px;
-    border-radius: 3px;
-    margin-left: 5px;
-    vertical-align: middle;
-}
-
 .gtour-path-badge {
     display: inline-block;
     background: #e67e22;
@@ -440,27 +458,8 @@
     vertical-align: middle;
 }
 
-.gtour-smart-badge {
-    display: inline-block;
-    background: #3498db;
-    color: white;
-    font-size: 12px;
-    padding: 2px 6px;
-    border-radius: 3px;
-    margin-left: 5px;
-    vertical-align: middle;
-}
-
-.gtour-step-item.has-click {
-    border-left: 3px solid #27ae60;
-}
-
 .gtour-step-item.has-path {
     border-bottom: 3px solid #e67e22;
-}
-
-.gtour-step-item.has-smart-pattern {
-    border-right: 3px solid #3498db;
 }
 
 .gtour-step-type {
@@ -470,4 +469,118 @@
     font-weight: 600;
     display: block;
     margin-top: 3px;
+}
+
+.gtour-step-action {
+    color: #16a085;
+    font-size: 11px;
+    font-family: monospace;
+    font-weight: 600;
+    display: block;
+    margin-top: 3px;
+    background: #e8f8f5;
+    padding: 2px 5px;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+.gtour-step-item.gtour-editing {
+    background: #fff9e6 !important;
+    border: 2px solid #f39c12 !important;
+    box-shadow: 0 0 10px rgba(243, 156, 18, 0.3);
+}
+
+.gtour-step-item.gtour-editing .gtour-step-content strong {
+    color: #f39c12;
+}
+
+.gtour-edit-container {
+    margin-top: 10px;
+    border-top: 2px solid #f39c12;
+    padding-top: 10px;
+}
+
+.gtour-edit-fields {
+    margin-bottom: 10px;
+}
+
+.gtour-edit-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: #856404;
+    margin-bottom: 3px;
+    margin-top: 8px;
+}
+
+.gtour-edit-label:first-child {
+    margin-top: 0;
+}
+
+.gtour-edit-title {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #2c3e50;
+    background: white;
+    transition: border-color 0.2s;
+}
+
+.gtour-edit-title:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+}
+
+.gtour-edit-content {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-size: 12px;
+    color: #2c3e50;
+    background: white;
+    resize: vertical;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    transition: border-color 0.2s;
+}
+
+.gtour-edit-content:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+}
+
+.gtour-edit-instructions {
+    padding: 8px;
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.gtour-edit-instructions strong {
+    display: block;
+    color: #856404;
+    font-size: 13px;
+    margin-bottom: 4px;
+}
+
+.gtour-edit-instruction {
+    display: block;
+    color: #856404;
+    padding: 2px 0;
+    font-family: monospace;
+    font-size: 11px;
+}
+
+.gtour-edit-step-btn.gtour-editing-active {
+    background: #f39c12;
+}
+
+.gtour-edit-step-btn.gtour-editing-active:hover {
+    background: #e67e22;
 }
